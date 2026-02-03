@@ -1,0 +1,74 @@
+@use '../../styles/theme' as theme;
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: theme.$SURFACE;
+  border-bottom: 1px solid theme.$BORDER;
+}
+
+.heading {
+  margin: 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.infoButton,
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  transition: color 0.2s, background 0.2s;
+
+  &:hover {
+    color: theme.$PRIMARY;
+    background: theme.$PRIMARY_LIGHT;
+  }
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: theme.$PRIMARY;
+  color: theme.$SURFACE;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .menuButton {
+    display: none;
+  }
+}

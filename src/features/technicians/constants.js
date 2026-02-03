@@ -1,0 +1,86 @@
+export const EXPERTISE_OPTIONS = [
+  { value: 'all_services', label: 'All Services' },
+  { value: 'premium', label: 'Premium Services' },
+  { value: 'standard_basic', label: 'Standard & Basic' },
+];
+
+export const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'off_duty', label: 'Off-Duty' },
+  { value: 'on_leave', label: 'On Leave' },
+];
+
+export const INITIAL_TECHNICIANS = [
+  {
+    id: 'T-001',
+    name: 'Mohammed Al-Ahmad',
+    contact: '+965 1111 2222',
+    expertise: 'all_services',
+    jobsCompleted: 156,
+    rating: 4.9,
+    status: 'active',
+  },
+  {
+    id: 'T-002',
+    name: 'Khalid Ahmad',
+    contact: '+965 3333 4444',
+    expertise: 'premium',
+    jobsCompleted: 142,
+    rating: 4.8,
+    status: 'active',
+  },
+  {
+    id: 'T-003',
+    name: 'Sara Al-Mutairi',
+    contact: '+965 5555 6666',
+    expertise: 'standard_basic',
+    jobsCompleted: 98,
+    rating: 4.7,
+    status: 'off_duty',
+  },
+  {
+    id: 'T-004',
+    name: 'Ahmed Hassan',
+    contact: '+965 7777 8888',
+    expertise: 'all_services',
+    jobsCompleted: 178,
+    rating: 4.9,
+    status: 'active',
+  },
+  {
+    id: 'T-005',
+    name: 'Fatima Al-Rashid',
+    contact: '+965 9999 0000',
+    expertise: 'premium',
+    jobsCompleted: 124,
+    rating: 4.6,
+    status: 'active',
+  },
+  {
+    id: 'T-006',
+    name: 'Omar Al-Salem',
+    contact: '+965 2222 3333',
+    expertise: 'standard_basic',
+    jobsCompleted: 89,
+    rating: 4.5,
+    status: 'active',
+  },
+  {
+    id: 'T-007',
+    name: 'Noura Al-Fahad',
+    contact: '+965 4444 5555',
+    expertise: 'all_services',
+    jobsCompleted: 112,
+    rating: 4.8,
+    status: 'active',
+  },
+  {
+    id: 'T-008',
+    name: 'Yusuf Ibrahim',
+    contact: '+965 6666 7777',
+    expertise: 'premium',
+    jobsCompleted: 67,
+    rating: 4.4,
+    status: 'on_leave',
+  },
+];

@@ -1,0 +1,120 @@
+@use '../../styles/theme' as theme;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid theme.$BORDER;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.body {
+  padding: 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: theme.$TEXT_TERTIARY;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.value {
+  font-size: 0.9375rem;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+.statusPending {
+  background: rgba(255, 152, 0, 0.12);
+  color: theme.$WARNING;
+}
+
+.statusConfirmed {
+  background: rgba(33, 150, 243, 0.12);
+  color: #2196f3;
+}
+
+.statusIn_progress {
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+}
+
+.statusCompleted {
+  background: rgba(76, 175, 80, 0.12);
+  color: theme.$SUCCESS;
+}
+
+.statusCancelled {
+  background: rgba(244, 67, 54, 0.12);
+  color: theme.$ERROR;
+}

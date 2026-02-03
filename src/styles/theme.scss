@@ -1,0 +1,24 @@
+/**
+ * App theme colors – use via @use in SCSS files.
+ * Mirrors CustomerApp theme.scss.
+ */
+
+// Primary
+$PRIMARY: #1ba9a5;
+$PRIMARY_DARK: #158b88;
+$PRIMARY_LIGHT: #e0f5f4;
+
+// Background & surface
+$BACKGROUND: #f8f8f8;
+$SURFACE: #ffffff;
+$BORDER: #e0e0e0;
+
+// Text
+$TEXT_PRIMARY: #2c2c2c;
+$TEXT_SECONDARY: #666666;
+$TEXT_TERTIARY: #999999;
+
+// Status
+$SUCCESS: #4caf50;
+$WARNING: #ff9800;
+$ERROR: #f44336;

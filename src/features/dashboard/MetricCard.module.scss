@@ -1,0 +1,73 @@
+@use '../../styles/theme' as theme;
+
+.card {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid theme.$BORDER;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.iconWrap {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconWrapCalendar {
+  background: rgba(33, 150, 243, 0.12);
+  color: #2196f3;
+}
+
+.iconWrapCheck {
+  background: rgba(76, 175, 80, 0.12);
+  color: theme.$SUCCESS;
+}
+
+.iconWrapClock {
+  background: rgba(255, 152, 0, 0.12);
+  color: theme.$WARNING;
+}
+
+.iconWrapDollar {
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+}
+
+.change {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.changePositive {
+  color: theme.$SUCCESS;
+}
+
+.changeNeutral {
+  color: theme.$TEXT_TERTIARY;
+}
+
+.value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}

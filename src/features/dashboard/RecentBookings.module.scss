@@ -1,0 +1,40 @@
+@use '../../styles/theme' as theme;
+
+.section {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid theme.$BORDER;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0;
+}
+
+.viewAll {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: theme.$PRIMARY;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.placeholder {
+  font-size: 0.875rem;
+  color: theme.$TEXT_TERTIARY;
+  margin: 0;
+}

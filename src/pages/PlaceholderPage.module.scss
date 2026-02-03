@@ -1,0 +1,11 @@
+@use '../styles/theme' as theme;
+
+.placeholder {
+  padding: 2rem 0;
+}
+
+.text {
+  margin: 0;
+  font-size: 1rem;
+  color: theme.$TEXT_SECONDARY;
+}
