@@ -15,7 +15,7 @@
   background: theme.$SURFACE;
   border-radius: 12px;
   width: 100%;
-  max-width: 900px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -60,34 +60,17 @@
   padding: 1.5rem;
 }
 
-.sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: theme.$TEXT_PRIMARY;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid theme.$PRIMARY_LIGHT;
-
-  &:not(:first-of-type) {
-    margin-top: 1.5rem;
-  }
-}
-
 .fieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1.25rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .field {
-  margin-bottom: 0;
+  margin-bottom: 1.25rem;
 
-  &:last-child {
+  .fieldRow > & {
     margin-bottom: 0;
   }
 }
@@ -100,45 +83,7 @@
   margin-bottom: 0.5rem;
 }
 
-.required {
-  color: #ef4444;
-}
-
 .input,
-.select {
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  color: theme.$TEXT_PRIMARY;
-  background: theme.$SURFACE;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  transition: border-color 0.2s;
-
-  &:focus {
-    outline: none;
-    border-color: theme.$PRIMARY;
-  }
-
-  &::placeholder {
-    color: theme.$TEXT_TERTIARY;
-  }
-}
-
-.inputError {
-  border-color: #ef4444;
-
-  &:focus {
-    border-color: #ef4444;
-  }
-}
-
-.select {
-  cursor: pointer;
-  appearance: auto;
-}
-
 .textarea {
   width: 100%;
   padding: 0.625rem 0.75rem;
@@ -148,8 +93,6 @@
   background: theme.$SURFACE;
   border: 1px solid theme.$BORDER;
   border-radius: 8px;
-  resize: vertical;
-  min-height: 4rem;
   transition: border-color 0.2s;
 
   &:focus {
@@ -162,32 +105,10 @@
   }
 }
 
-.phoneInputWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.phonePrefix {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: theme.$TEXT_SECONDARY;
-  background: theme.$BACKGROUND;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.phoneInput {
-  flex: 1;
-}
-
-.errorMessage {
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  color: #ef4444;
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
 }
 
 .actions {
@@ -228,14 +149,13 @@
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover:not(.disabled) {
+  &:hover {
     background: theme.$PRIMARY_DARK;
   }
+}
 
-  &.disabled {
-    background: theme.$BORDER;
-    color: theme.$TEXT_TERTIARY;
-    cursor: not-allowed;
-    opacity: 0.6;
+@media (max-width: 480px) {
+  .fieldRow {
+    grid-template-columns: 1fr;
   }
 }

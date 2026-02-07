@@ -1,0 +1,182 @@
+@use '../../../styles/theme' as theme;
+
+.wrapper {
+  position: relative;
+}
+
+.display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  background: theme.$SURFACE;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-height: 2.5rem;
+
+  &:hover {
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.displayActive {
+  border-color: theme.$PRIMARY;
+}
+
+.displayError {
+  border-color: #ef4444;
+
+  &:hover {
+    border-color: #ef4444;
+  }
+}
+
+.calendarIcon {
+  color: theme.$TEXT_TERTIARY;
+  flex-shrink: 0;
+}
+
+.displayText {
+  font-size: 0.9375rem;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.displayPlaceholder {
+  font-size: 0.9375rem;
+  color: theme.$TEXT_TERTIARY;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 300;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 1rem;
+  width: 300px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.monthYear {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  user-select: none;
+}
+
+.daysHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 0.375rem;
+}
+
+.dayLabel {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: theme.$TEXT_TERTIARY;
+  padding: 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: theme.$TEXT_PRIMARY;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.dayCellOutside {
+  color: theme.$TEXT_TERTIARY;
+  opacity: 0.4;
+}
+
+.dayCellSelected {
+  background: theme.$PRIMARY !important;
+  color: theme.$SURFACE !important;
+  font-weight: 600;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK !important;
+  }
+}
+
+.dayCellToday {
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+  font-weight: 600;
+}
+
+.selectedPreview {
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid theme.$BORDER;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: theme.$PRIMARY;
+}

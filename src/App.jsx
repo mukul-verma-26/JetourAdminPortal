@@ -6,20 +6,26 @@ import { CustomersScreen } from './features/customers';
 import { TechniciansScreen } from './features/technicians';
 import { DriversScreen } from './features/drivers';
 import { ServiceVansScreen } from './features/serviceVans';
+import { VehiclesScreen } from './features/vehicles';
+import { PackagesScreen } from './features/packages';
 import { InventoryScreen } from './features/inventory';
 import PlaceholderPage from './pages/PlaceholderPage';
+import { ToastContainer } from './components/shared/Toast';
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="bookings" element={<BookingsScreen />} />
+          <Route path="packages" element={<PackagesScreen />} />
           <Route path="customers" element={<CustomersScreen />} />
           <Route path="technicians" element={<TechniciansScreen />} />
           <Route path="drivers" element={<DriversScreen />} />
           <Route path="service-vans" element={<ServiceVansScreen />} />
+          <Route path="vehicles" element={<VehiclesScreen />} />
           <Route path="inventory" element={<InventoryScreen />} />
           <Route path="schedule" element={<PlaceholderPage />} />
           <Route path="reports" element={<PlaceholderPage />} />

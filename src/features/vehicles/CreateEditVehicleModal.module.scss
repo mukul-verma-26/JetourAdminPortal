@@ -15,7 +15,7 @@
   background: theme.$SURFACE;
   border-radius: 12px;
   width: 100%;
-  max-width: 900px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -60,34 +60,17 @@
   padding: 1.5rem;
 }
 
-.sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: theme.$TEXT_PRIMARY;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid theme.$PRIMARY_LIGHT;
-
-  &:not(:first-of-type) {
-    margin-top: 1.5rem;
-  }
-}
-
 .fieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1.25rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .field {
-  margin-bottom: 0;
+  margin-bottom: 1.25rem;
 
-  &:last-child {
+  .fieldRow > & {
     margin-bottom: 0;
   }
 }
@@ -101,7 +84,7 @@
 }
 
 .required {
-  color: #ef4444;
+  color: theme.$ERROR;
 }
 
 .input,
@@ -127,11 +110,7 @@
 }
 
 .inputError {
-  border-color: #ef4444;
-
-  &:focus {
-    border-color: #ef4444;
-  }
+  border-color: theme.$ERROR !important;
 }
 
 .select {
@@ -139,55 +118,78 @@
   appearance: auto;
 }
 
-.textarea {
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  color: theme.$TEXT_PRIMARY;
-  background: theme.$SURFACE;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  resize: vertical;
-  min-height: 4rem;
+.imageUploadArea {
+  margin-bottom: 0.5rem;
+  border: 2px dashed theme.$BORDER;
+  border-radius: 10px;
+  overflow: hidden;
   transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
+  &:hover {
     border-color: theme.$PRIMARY;
   }
+}
 
-  &::placeholder {
-    color: theme.$TEXT_TERTIARY;
+.uploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: theme.$TEXT_TERTIARY;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover {
+    color: theme.$PRIMARY;
   }
 }
 
-.phoneInputWrapper {
+.previewWrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$ERROR;
+  }
 }
 
-.phonePrefix {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: theme.$TEXT_SECONDARY;
-  background: theme.$BACKGROUND;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.phoneInput {
-  flex: 1;
+.fileInput {
+  display: none;
 }
 
 .errorMessage {
-  margin-top: 0.375rem;
   font-size: 0.8125rem;
-  color: #ef4444;
+  color: theme.$ERROR;
+  margin-top: 0.25rem;
 }
 
 .actions {
@@ -228,14 +230,13 @@
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover:not(.disabled) {
+  &:hover {
     background: theme.$PRIMARY_DARK;
   }
+}
 
-  &.disabled {
-    background: theme.$BORDER;
-    color: theme.$TEXT_TERTIARY;
-    cursor: not-allowed;
-    opacity: 0.6;
+@media (max-width: 480px) {
+  .fieldRow {
+    grid-template-columns: 1fr;
   }
 }

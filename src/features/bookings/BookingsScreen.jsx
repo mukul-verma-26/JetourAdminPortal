@@ -5,15 +5,11 @@ import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
 import ViewBookingModal from './ViewBookingModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import ConfirmAmountModal from './ConfirmAmountModal';
 import styles from './BookingsScreen.module.scss';
 
 function getStatusLabel(value) {
   return STATUS_OPTIONS.find((o) => o.value === value)?.label || value;
-}
-
-function formatBookingDateTime(date, time) {
-  if (!date || !time) return '—';
-  return `${date} ${time}`;
 }
 
 function capitalizeFirst(str) {
@@ -35,10 +31,31 @@ function BookingsScreen() {
   const [editBooking, setEditBooking] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
   const [deleteConfirmBooking, setDeleteConfirmBooking] = useState(null);
+  const [pendingPayload, setPendingPayload] = useState(null);
 
   const handleCreateSubmit = (payload) => {
-    addBooking(payload);
+    setPendingPayload(payload);
     setCreateModalOpen(false);
+  };
+
+  const handleConfirmAmount = () => {
+    if (pendingPayload) {
+      addBooking({ ...pendingPayload, status: 'confirmed' });
+      setPendingPayload(null);
+      if (window.showToast) {
+        window.showToast('Booking confirmed successfully', 'success');
+      }
+    }
+  };
+
+  const handleCancelAmount = () => {
+    if (pendingPayload) {
+      addBooking({ ...pendingPayload, status: 'pending' });
+      setPendingPayload(null);
+      if (window.showToast) {
+        window.showToast('Booking saved as pending', 'info');
+      }
+    }
   };
 
   const handleEditSubmit = (id, payload) => {
@@ -77,7 +94,7 @@ function BookingsScreen() {
                 <th className={styles.th}>Customer</th>
                 <th className={styles.th}>Vehicle</th>
                 <th className={styles.th}>Service</th>
-                <th className={styles.th}>Date & Time</th>
+                <th className={styles.th}>Time</th>
                 <th className={styles.th}>Status</th>
                 <th className={styles.th}>Amount (KWD)</th>
                 <th className={styles.th}>Actions</th>
@@ -105,8 +122,8 @@ function BookingsScreen() {
                     <td className={styles.td} data-label="Service">
                       {capitalizeFirst(booking.service_package?.name)}
                     </td>
-                    <td className={styles.td} data-label="Date & Time">
-                      {formatBookingDateTime(booking.booking_date, booking.booking_time)}
+                    <td className={styles.td} data-label="Time">
+                      {booking.booking_time || '—'}
                     </td>
                     <td className={styles.td} data-label="Status">
                       <span
@@ -178,6 +195,13 @@ function BookingsScreen() {
         onClose={() => setDeleteConfirmBooking(null)}
         onConfirm={handleDeleteConfirm}
         booking={deleteConfirmBooking}
+      />
+
+      <ConfirmAmountModal
+        open={Boolean(pendingPayload)}
+        onClose={handleCancelAmount}
+        onConfirm={handleConfirmAmount}
+        onCancel={handleCancelAmount}
       />
     </div>
   );

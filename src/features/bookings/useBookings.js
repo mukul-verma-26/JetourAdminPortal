@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import { INITIAL_BOOKINGS } from './constants';
 
-function sortByBookingDate(bookings) {
+function sortByBookingTime(bookings) {
   return [...bookings].sort((a, b) => {
-    const dateA = new Date(a.booking_date.split('/').reverse().join('-') + 'T' + a.booking_time);
-    const dateB = new Date(b.booking_date.split('/').reverse().join('-') + 'T' + b.booking_time);
-    return dateB - dateA;
+    const timeA = a.booking_time || '00:00';
+    const timeB = b.booking_time || '00:00';
+    return timeB.localeCompare(timeA);
   });
 }
 
@@ -17,12 +17,12 @@ export function useBookings() {
       ...booking,
       id: String(Date.now()),
     };
-    setBookings((prev) => sortByBookingDate([newBooking, ...prev]));
+    setBookings((prev) => sortByBookingTime([newBooking, ...prev]));
   }, []);
 
   const updateBooking = useCallback((id, updatedBooking) => {
     setBookings((prev) =>
-      sortByBookingDate(
+      sortByBookingTime(
         prev.map((b) => (b.id === id ? { ...b, ...updatedBooking, id } : b))
       )
     );

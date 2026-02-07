@@ -10,16 +10,20 @@ import {
   FiSettings,
   FiTool,
   FiUser,
+  FiNavigation,
+  FiBox,
 } from 'react-icons/fi';
 import styles from './Sidebar.module.scss';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: FiBarChart2 },
   { to: '/bookings', label: 'Bookings', icon: FiCalendar, badge: 5 },
+  { to: '/packages', label: 'Packages', icon: FiBox },
   { to: '/customers', label: 'Customers', icon: FiUsers },
   { to: '/technicians', label: 'Technicians', icon: FiTool },
   { to: '/drivers', label: 'Drivers', icon: FiUser },
   { to: '/service-vans', label: 'Service Vans', icon: FiTruck },
+  { to: '/vehicles', label: 'Vehicles', icon: FiNavigation },
   { to: '/inventory', label: 'Inventory', icon: FiPackage },
   { to: '/schedule', label: 'Schedule', icon: FiClock },
   { to: '/reports', label: 'Reports', icon: FiTrendingUp },
