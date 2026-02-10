@@ -7,7 +7,7 @@ export const CUSTOMER_STATUS_OPTIONS = [
 export const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
+  { value: 'others', label: 'Others' },
 ];
 
 export const PREFERRED_LANGUAGE_OPTIONS = [

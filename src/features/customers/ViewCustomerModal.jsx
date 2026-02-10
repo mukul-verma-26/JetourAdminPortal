@@ -129,10 +129,6 @@ function ViewCustomerModal({ open, onClose, customer }) {
             <p className={styles.value}>{vehicles}</p>
           </div>
           <div className={styles.row}>
-            <span className={styles.label}>Total Bookings</span>
-            <p className={styles.value}>{customer.totalBookings ?? 0}</p>
-          </div>
-          <div className={styles.row}>
             <span className={styles.label}>Status</span>
             <p className={styles.value}>
               <span className={`${styles.statusBadge} ${statusClass}`}>

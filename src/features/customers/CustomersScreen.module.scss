@@ -84,24 +84,17 @@
   margin-bottom: 1.25rem;
 }
 
-.searchWrap {
+.searchFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   flex: 1;
-  min-width: 200px;
-  position: relative;
+  align-items: center;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: theme.$TEXT_TERTIARY;
-  pointer-events: none;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+.filterInput {
+  min-width: 160px;
+  padding: 0.625rem 0.75rem;
   font-size: 0.9375rem;
   font-family: inherit;
   color: theme.$TEXT_PRIMARY;
@@ -117,6 +110,23 @@
 
   &::placeholder {
     color: theme.$TEXT_TERTIARY;
+  }
+}
+
+.searchBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
   }
 }
 

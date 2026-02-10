@@ -52,18 +52,24 @@ export function useCustomers() {
 
   const filteredCustomers = useMemo(
     () => ({
-      bySearch: (list, query) => {
-        if (!query.trim()) return list;
-        const q = query.trim().toLowerCase();
-        return list.filter(
-          (c) =>
-            c.name.toLowerCase().includes(q) ||
-            (c.phone && c.phone.toLowerCase().includes(q)) ||
-            (c.email && c.email.toLowerCase().includes(q)) ||
-            (c.customerId && c.customerId.toLowerCase().includes(q)) ||
-            (c.civilId && c.civilId.toLowerCase().includes(q)) ||
-            (c.passportNumber && c.passportNumber.toLowerCase().includes(q))
-        );
+      byFilters: (list, filters) => {
+        const { name, email, phone } = filters || {};
+        return list.filter((c) => {
+          if (name && name.trim()) {
+            const nameLower = (c.name || '').toLowerCase();
+            if (!nameLower.includes(name.trim().toLowerCase())) return false;
+          }
+          if (email && email.trim()) {
+            const emailLower = (c.email || '').toLowerCase();
+            if (!emailLower.includes(email.trim().toLowerCase())) return false;
+          }
+          if (phone && phone.trim()) {
+            const phoneNormalized = (c.phone || '').replace(/\D/g, '');
+            const searchDigits = phone.trim().replace(/\D/g, '');
+            if (!phoneNormalized.includes(searchDigits)) return false;
+          }
+          return true;
+        });
       },
       byStatus: (list, status) => {
         if (!status || status === 'all') return list;

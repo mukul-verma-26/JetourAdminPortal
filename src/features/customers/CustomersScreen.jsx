@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FiPlus, FiEye, FiEdit2, FiTrash2, FiSearch } from 'react-icons/fi';
+import { FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useCustomers } from './useCustomers';
 import { CUSTOMER_STATUS_OPTIONS } from './constants';
 import CreateEditCustomerModal from './CreateEditCustomerModal';
@@ -50,7 +50,10 @@ function CustomersScreen() {
     deleteCustomer,
     filteredCustomers,
   } = useCustomers();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [filterEmail, setFilterEmail] = useState('');
+  const [filterPhone, setFilterPhone] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState({ name: '', email: '', phone: '' });
   const [statusFilter, setStatusFilter] = useState('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
@@ -58,9 +61,17 @@ function CustomersScreen() {
   const [deleteConfirmCustomer, setDeleteConfirmCustomer] = useState(null);
 
   const displayedCustomers = useMemo(() => {
-    const bySearch = filteredCustomers.bySearch(customers, searchQuery);
-    return filteredCustomers.byStatus(bySearch, statusFilter);
-  }, [customers, searchQuery, statusFilter, filteredCustomers]);
+    const byFilters = filteredCustomers.byFilters(customers, appliedFilters);
+    return filteredCustomers.byStatus(byFilters, statusFilter);
+  }, [customers, appliedFilters, statusFilter, filteredCustomers]);
+
+  const handleSearch = () => {
+    setAppliedFilters({
+      name: filterName,
+      email: filterEmail,
+      phone: filterPhone,
+    });
+  };
 
   const handleCreateSubmit = (payload) => {
     addCustomer(payload);
@@ -102,20 +113,38 @@ function CustomersScreen() {
       </div>
 
       <div className={styles.filters}>
-        <div className={styles.searchWrap}>
-          <FiSearch
-            className={styles.searchIcon}
-            size={18}
-            aria-hidden
+        <div className={styles.searchFields}>
+          <input
+            type="text"
+            className={styles.filterInput}
+            placeholder="Name"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            aria-label="Filter by name"
           />
           <input
-            type="search"
-            className={styles.searchInput}
-            placeholder="Search by name, phone, email, or VIN..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Search customers"
+            type="text"
+            className={styles.filterInput}
+            placeholder="Email"
+            value={filterEmail}
+            onChange={(e) => setFilterEmail(e.target.value)}
+            aria-label="Filter by email"
           />
+          <input
+            type="text"
+            className={styles.filterInput}
+            placeholder="Phone number"
+            value={filterPhone}
+            onChange={(e) => setFilterPhone(e.target.value)}
+            aria-label="Filter by phone number"
+          />
+          <button
+            type="button"
+            className={styles.searchBtn}
+            onClick={handleSearch}
+          >
+            Search
+          </button>
         </div>
         <select
           className={styles.statusSelect}
@@ -140,7 +169,6 @@ function CustomersScreen() {
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Contact</th>
                 <th className={styles.th}>Vehicles</th>
-                <th className={styles.th}>Total Bookings</th>
                 <th className={styles.th}>Joined</th>
                 <th className={styles.th}>Status</th>
                 <th className={styles.th}>Actions</th>
@@ -150,12 +178,12 @@ function CustomersScreen() {
               {displayedCustomers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={7}
                     className={`${styles.td} ${styles.emptyCell}`}
                   >
                     <p className={styles.empty}>
                       No customers found.
-                      {searchQuery || statusFilter !== 'all'
+                      {(appliedFilters.name || appliedFilters.email || appliedFilters.phone || statusFilter !== 'all')
                         ? ' Try adjusting your search or filters.'
                         : ' Add a customer to get started.'}
                     </p>
@@ -192,9 +220,6 @@ function CustomersScreen() {
                     </td>
                     <td className={styles.td} data-label="Vehicles">
                       {getVehicleCount(customer)}
-                    </td>
-                    <td className={styles.td} data-label="Total Bookings">
-                      {customer.totalBookings ?? 0}
                     </td>
                     <td className={styles.td} data-label="Joined">
                       {formatJoined(getJoiningDate(customer))}
