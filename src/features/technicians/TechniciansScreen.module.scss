@@ -54,7 +54,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -203,6 +203,11 @@
 }
 
 .statusOffDuty {
+  background: rgba(158, 158, 158, 0.12);
+  color: #757575;
+}
+
+.statusInactive {
   background: rgba(158, 158, 158, 0.12);
   color: #757575;
 }

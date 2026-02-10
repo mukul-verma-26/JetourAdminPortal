@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
 import { useTechnicians } from './useTechnicians';
-import { EXPERTISE_OPTIONS, STATUS_OPTIONS } from './constants';
+import { STATUS_OPTIONS } from './constants';
 import CreateEditTechnicianModal from './CreateEditTechnicianModal';
 import ViewTechnicianModal from './ViewTechnicianModal';
 import ConfirmDeleteTechnicianModal from './ConfirmDeleteTechnicianModal';
 import styles from './TechniciansScreen.module.scss';
-
-function getExpertiseLabel(value) {
-  return EXPERTISE_OPTIONS.find((o) => o.value === value)?.label || value;
-}
 
 function getStatusLabel(value) {
   return STATUS_OPTIONS.find((o) => o.value === value)?.label || value;
@@ -24,8 +20,7 @@ function getInitials(name) {
 
 const STATUS_CLASS_MAP = {
   active: 'statusActive',
-  off_duty: 'statusOffDuty',
-  on_leave: 'statusOnLeave',
+  inactive: 'statusInactive',
 };
 
 function TechniciansScreen() {
@@ -81,10 +76,6 @@ function TechniciansScreen() {
           <span className={styles.statLabel}>On Duty</span>
         </div>
         <div className={styles.statCard}>
-          <span className={`${styles.statValue} ${styles.statOrange}`}>{stats.onJob}</span>
-          <span className={styles.statLabel}>On Job</span>
-        </div>
-        <div className={styles.statCard}>
           <span className={styles.statValue}>{stats.avgRating}</span>
           <span className={styles.statLabel}>Avg Rating</span>
         </div>
@@ -98,8 +89,6 @@ function TechniciansScreen() {
                 <th className={styles.th}>Technician ID</th>
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Contact</th>
-                <th className={styles.th}>Expertise</th>
-                <th className={styles.th}>Jobs Completed</th>
                 <th className={styles.th}>Rating</th>
                 <th className={styles.th}>Status</th>
                 <th className={styles.th}>Actions</th>
@@ -108,7 +97,7 @@ function TechniciansScreen() {
             <tbody>
               {technicians.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className={`${styles.td} ${styles.emptyCell}`}>
+                  <td colSpan={6} className={`${styles.td} ${styles.emptyCell}`}>
                     <p className={styles.empty}>No technicians yet. Add one to get started.</p>
                   </td>
                 </tr>
@@ -127,21 +116,15 @@ function TechniciansScreen() {
                     <td className={styles.td} data-label="Contact">
                       {technician.contact}
                     </td>
-                    <td className={styles.td} data-label="Expertise">
-                      {getExpertiseLabel(technician.expertise)}
-                    </td>
-                    <td className={styles.td} data-label="Jobs Completed">
-                      {technician.jobsCompleted}
-                    </td>
                     <td className={styles.td} data-label="Rating">
                       <span className={styles.ratingCell}>
-                        {technician.rating}
+                        {Math.round(technician.rating)}
                         <FiStar className={styles.starIcon} size={14} />
                       </span>
                     </td>
                     <td className={styles.td} data-label="Status">
                       <span
-                        className={`${styles.statusBadge} ${styles[STATUS_CLASS_MAP[technician.status]] || styles.statusOffDuty}`}
+                        className={`${styles.statusBadge} ${styles[STATUS_CLASS_MAP[technician.status]] || styles.statusInactive}`}
                       >
                         {getStatusLabel(technician.status)}
                       </span>

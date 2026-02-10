@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEye, FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
 import { useDrivers } from './useDrivers';
 import { STATUS_OPTIONS } from './constants';
 import CreateEditDriverModal from './CreateEditDriverModal';
@@ -20,8 +20,7 @@ function getInitials(name) {
 
 const STATUS_CLASS_MAP = {
   active: 'statusActive',
-  off_duty: 'statusOffDuty',
-  on_leave: 'statusOnLeave',
+  inactive: 'statusInactive',
 };
 
 function DriversScreen() {
@@ -76,10 +75,6 @@ function DriversScreen() {
           <span className={`${styles.statValue} ${styles.statGreen}`}>{stats.onDuty}</span>
           <span className={styles.statLabel}>On Duty</span>
         </div>
-        <div className={styles.statCard}>
-          <span className={`${styles.statValue} ${styles.statOrange}`}>{stats.onJob}</span>
-          <span className={styles.statLabel}>On Job</span>
-        </div>
       </div>
 
       <div className={styles.card}>
@@ -90,7 +85,7 @@ function DriversScreen() {
                 <th className={styles.th}>Driver ID</th>
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Contact</th>
-                <th className={styles.th}>Jobs Completed</th>
+                <th className={styles.th}>Rating</th>
                 <th className={styles.th}>Status</th>
                 <th className={styles.th}>Actions</th>
               </tr>
@@ -122,7 +117,7 @@ function DriversScreen() {
                     </td>
                     <td className={styles.td} data-label="Status">
                       <span
-                        className={`${styles.statusBadge} ${styles[STATUS_CLASS_MAP[driver.status]] || styles.statusOffDuty}`}
+                        className={`${styles.statusBadge} ${styles[STATUS_CLASS_MAP[driver.status]] || styles.statusInactive}`}
                       >
                         {getStatusLabel(driver.status)}
                       </span>

@@ -9,7 +9,7 @@ export function useDrivers() {
     const newDriver = {
       ...driver,
       id: newId,
-      jobsCompleted: driver.jobsCompleted || 0,
+      rating: driver.rating || 0,
     };
     setDrivers((prev) => [...prev, newDriver]);
   }, []);
@@ -27,10 +27,7 @@ export function useDrivers() {
   const stats = useMemo(() => {
     const total = drivers.length;
     const onDuty = drivers.filter((d) => d.status === 'active').length;
-    const onJob = drivers.filter(
-      (d) => d.status === 'active' && d.jobsCompleted > 100
-    ).length;
-    return { total, onDuty, onJob };
+    return { total, onDuty };
   }, [drivers]);
 
   return { drivers, stats, addDriver, updateDriver, deleteDriver };

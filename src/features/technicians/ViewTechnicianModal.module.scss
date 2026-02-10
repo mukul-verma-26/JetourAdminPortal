@@ -15,7 +15,7 @@
   background: theme.$SURFACE;
   border-radius: 12px;
   width: 100%;
-  max-width: 420px;
+  max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -60,14 +60,41 @@
   padding: 1.5rem;
 }
 
-.row {
+.photoSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.photoImage {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.photoPlaceholder {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.attributesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+.attrItem {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 }
 
 .label {
@@ -111,6 +138,11 @@
 }
 
 .statusOffDuty {
+  background: rgba(158, 158, 158, 0.12);
+  color: #757575;
+}
+
+.statusInactive {
   background: rgba(158, 158, 158, 0.12);
   color: #757575;
 }

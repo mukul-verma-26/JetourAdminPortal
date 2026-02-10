@@ -9,7 +9,6 @@ export function useTechnicians() {
     const newTechnician = {
       ...technician,
       id: newId,
-      jobsCompleted: technician.jobsCompleted || 0,
       rating: technician.rating || 0,
     };
     setTechnicians((prev) => [...prev, newTechnician]);
@@ -28,16 +27,13 @@ export function useTechnicians() {
   const stats = useMemo(() => {
     const total = technicians.length;
     const onDuty = technicians.filter((t) => t.status === 'active').length;
-    const onJob = technicians.filter(
-      (t) => t.status === 'active' && t.jobsCompleted > 100
-    ).length;
     const avgRating =
       total > 0
         ? (
-            technicians.reduce((sum, t) => sum + t.rating, 0) / total
+            technicians.reduce((sum, t) => sum + (t.rating || 0), 0) / total
           ).toFixed(1)
         : '0.0';
-    return { total, onDuty, onJob, avgRating };
+    return { total, onDuty, avgRating };
   }, [technicians]);
 
   return { technicians, stats, addTechnician, updateTechnician, deleteTechnician };

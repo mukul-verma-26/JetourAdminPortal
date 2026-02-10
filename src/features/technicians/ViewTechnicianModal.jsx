@@ -1,25 +1,31 @@
 import { FiX, FiStar } from 'react-icons/fi';
-import { EXPERTISE_OPTIONS, STATUS_OPTIONS } from './constants';
+import { GENDER_OPTIONS, STATUS_OPTIONS } from './constants';
 import styles from './ViewTechnicianModal.module.scss';
 
-function getExpertiseLabel(value) {
-  return EXPERTISE_OPTIONS.find((o) => o.value === value)?.label || value;
+function getGenderLabel(value) {
+  return GENDER_OPTIONS.find((o) => o.value === value)?.label || value;
 }
 
 function getStatusLabel(value) {
   return STATUS_OPTIONS.find((o) => o.value === value)?.label || value;
 }
 
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
 const STATUS_CLASS_MAP = {
   active: 'statusActive',
-  off_duty: 'statusOffDuty',
-  on_leave: 'statusOnLeave',
+  inactive: 'statusInactive',
 };
 
 function ViewTechnicianModal({ open, onClose, technician }) {
   if (!open || !technician) return null;
 
-  const statusClass = styles[STATUS_CLASS_MAP[technician.status]] || styles.statusOffDuty;
+  const statusClass = styles[STATUS_CLASS_MAP[technician.status]] || styles.statusInactive;
 
   return (
     <div
@@ -44,42 +50,61 @@ function ViewTechnicianModal({ open, onClose, technician }) {
           </button>
         </div>
         <div className={styles.body}>
-          <div className={styles.row}>
-            <span className={styles.label}>Technician ID</span>
-            <p className={styles.value}>{technician.id}</p>
+          <div className={styles.photoSection}>
+            {technician.photo ? (
+              <img
+                src={technician.photo}
+                alt={technician.name}
+                className={styles.photoImage}
+              />
+            ) : (
+              <div className={styles.photoPlaceholder}>
+                {getInitials(technician.name)}
+              </div>
+            )}
           </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Name</span>
-            <p className={styles.value}>{technician.name}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Contact</span>
-            <p className={styles.value}>{technician.contact}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Expertise</span>
-            <p className={styles.value}>{getExpertiseLabel(technician.expertise)}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Jobs Completed</span>
-            <p className={styles.value}>{technician.jobsCompleted}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Rating</span>
-            <p className={styles.value}>
-              <span className={styles.ratingValue}>
-                {technician.rating}
-                <FiStar className={styles.starIcon} size={14} />
-              </span>
-            </p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Status</span>
-            <p className={styles.value}>
-              <span className={`${styles.statusBadge} ${statusClass}`}>
-                {getStatusLabel(technician.status)}
-              </span>
-            </p>
+          <div className={styles.attributesGrid}>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Technician ID</span>
+              <p className={styles.value}>{technician.id}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Name</span>
+              <p className={styles.value}>{technician.name}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Contact</span>
+              <p className={styles.value}>{technician.contact}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Civil ID</span>
+              <p className={styles.value}>{technician.civilId || '-'}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Nationality</span>
+              <p className={styles.value}>{technician.nationality || '-'}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Gender</span>
+              <p className={styles.value}>{getGenderLabel(technician.gender)}</p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Rating</span>
+              <p className={styles.value}>
+                <span className={styles.ratingValue}>
+                  {Math.round(technician.rating)}
+                  <FiStar className={styles.starIcon} size={14} />
+                </span>
+              </p>
+            </div>
+            <div className={styles.attrItem}>
+              <span className={styles.label}>Status</span>
+              <p className={styles.value}>
+                <span className={`${styles.statusBadge} ${statusClass}`}>
+                  {getStatusLabel(technician.status)}
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
