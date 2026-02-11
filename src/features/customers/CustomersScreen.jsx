@@ -28,11 +28,6 @@ function formatJoined(dateStr) {
   return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 }
 
-function getVehicleCount(customer) {
-  if (Array.isArray(customer.vehicles)) return customer.vehicles.length;
-  return typeof customer.vehicles === 'number' ? customer.vehicles : 0;
-}
-
 function getJoiningDate(customer) {
   return customer.joiningDate || customer.joined;
 }
@@ -168,7 +163,6 @@ function CustomersScreen() {
                 <th className={styles.th}>Customer ID</th>
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Contact</th>
-                <th className={styles.th}>Vehicles</th>
                 <th className={styles.th}>Joined</th>
                 <th className={styles.th}>Status</th>
                 <th className={styles.th}>Actions</th>
@@ -178,7 +172,7 @@ function CustomersScreen() {
               {displayedCustomers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className={`${styles.td} ${styles.emptyCell}`}
                   >
                     <p className={styles.empty}>
@@ -217,9 +211,6 @@ function CustomersScreen() {
                           </p>
                         )}
                       </div>
-                    </td>
-                    <td className={styles.td} data-label="Vehicles">
-                      {getVehicleCount(customer)}
                     </td>
                     <td className={styles.td} data-label="Joined">
                       {formatJoined(getJoiningDate(customer))}

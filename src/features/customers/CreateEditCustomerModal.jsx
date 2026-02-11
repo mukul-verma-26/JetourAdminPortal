@@ -41,8 +41,6 @@ function CreateEditCustomerModal({
     flat_no: '',
     paci_details: '',
     google_location: '',
-    vehicles: [],
-    vehiclesDisplay: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,12 +50,6 @@ function CreateEditCustomerModal({
   useEffect(() => {
     if (initialData) {
       const phoneDigits = (initialData.phone || '').replace(/\D/g, '').slice(-8);
-      const vehiclesDisplay =
-        Array.isArray(initialData.vehicles) && initialData.vehicles.length > 0
-          ? initialData.vehicles
-              .map((v) => (typeof v === 'object' ? v.modelName : v))
-              .join('\n')
-          : '';
       setFormData({
         name: initialData.name || '',
         phone: phoneDigits,
@@ -78,8 +70,6 @@ function CreateEditCustomerModal({
         flat_no: initialData.flat_no || '',
         paci_details: initialData.paci_details || '',
         google_location: initialData.google_location || '',
-        vehicles: initialData.vehicles || [],
-        vehiclesDisplay,
       });
     } else {
       setFormData({
@@ -102,8 +92,6 @@ function CreateEditCustomerModal({
         flat_no: '',
         paci_details: '',
         google_location: '',
-        vehicles: [],
-        vehiclesDisplay: '',
       });
     }
     setErrors({});
@@ -242,18 +230,8 @@ function CreateEditCustomerModal({
     };
 
     if (isEdit) {
-      const vehiclesRaw = (formData.vehiclesDisplay || '').trim();
-      const vehicles = vehiclesRaw
-        ? vehiclesRaw
-            .split(/\n/)
-            .map((s) => s.trim())
-            .filter(Boolean)
-            .map((modelName) => ({ modelName }))
-        : [];
-      payload.vehicles = vehicles;
       onSubmit(initialData.id, payload);
     } else {
-      payload.vehicles = [];
       onSubmit(payload);
     }
 
@@ -618,25 +596,6 @@ function CreateEditCustomerModal({
             />
             {errors.google_location && <div className={styles.errorMessage}>{errors.google_location}</div>}
           </div>
-
-          {isEdit && (
-            <div className={styles.editSection}>
-              <div className={styles.field}>
-                <label htmlFor="customer-vehicles" className={styles.label}>
-                  Vehicles (one model name per line)
-                </label>
-                <textarea
-                  id="customer-vehicles"
-                  name="vehicles"
-                  className={styles.textarea}
-                  placeholder={'JETOUR X70\nJETOUR X90'}
-                  rows={3}
-                  value={formData.vehiclesDisplay}
-                  onChange={(e) => handleChange({ target: { name: 'vehiclesDisplay', value: e.target.value } })}
-                />
-              </div>
-            </div>
-          )}
 
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>

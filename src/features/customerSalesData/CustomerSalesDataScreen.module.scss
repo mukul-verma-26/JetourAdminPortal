@@ -1,0 +1,280 @@
+@use '../../styles/theme' as theme;
+
+.screen {
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.headerText {
+  flex: 0 1 auto;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.searchFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;
+  align-items: center;
+}
+
+.filterInput {
+  min-width: 160px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}
+
+.searchBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.statusSelect {
+  min-width: 140px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.card {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  border: 1px solid theme.$BORDER;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$BACKGROUND;
+  border-bottom: 1px solid theme.$BORDER;
+  white-space: nowrap;
+}
+
+.td {
+  padding: 0.75rem 1rem;
+  color: theme.$TEXT_PRIMARY;
+  border-bottom: 1px solid theme.$BORDER;
+  vertical-align: middle;
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.tr:hover .td {
+  background: rgba(27, 169, 165, 0.04);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+.statusActive {
+  background: rgba(76, 175, 80, 0.12);
+  color: theme.$SUCCESS;
+}
+
+.statusInactive {
+  background: rgba(158, 158, 158, 0.2);
+  color: theme.$TEXT_SECONDARY;
+}
+
+.emptyCell {
+  text-align: center;
+}
+
+.emptyCell::before {
+  display: none;
+}
+
+.empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .tableWrap {
+    display: block;
+  }
+
+  .table {
+    display: block;
+  }
+
+  .thead {
+    display: none;
+  }
+
+  .tr {
+    display: block;
+    padding: 1rem;
+    border-bottom: 1px solid theme.$BORDER;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: none;
+    gap: 0.75rem;
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: theme.$TEXT_SECONDARY;
+      flex-shrink: 0;
+    }
+  }
+
+  .tr:hover .td {
+    background: transparent;
+  }
+
+  .tr:hover {
+    background: rgba(27, 169, 165, 0.04);
+  }
+}

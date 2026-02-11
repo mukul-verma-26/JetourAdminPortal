@@ -8,7 +8,6 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
     image: '',
     category: 'suv',
     modelName: '',
-    modelYear: '',
   });
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState('');
@@ -21,11 +20,10 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
         image: initialData.image || '',
         category: initialData.category || 'suv',
         modelName: initialData.modelName || '',
-        modelYear: String(initialData.modelYear || ''),
       });
       setImagePreview(initialData.image || '');
     } else {
-      setFormData({ image: '', category: 'suv', modelName: '', modelYear: '' });
+      setFormData({ image: '', category: 'suv', modelName: '' });
       setImagePreview('');
     }
     setErrors({});
@@ -38,31 +36,6 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
       setErrors((prev) => {
         const next = { ...prev };
         delete next[name];
-        return next;
-      });
-    }
-  };
-
-  const handleYearChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    setFormData((prev) => ({ ...prev, modelYear: value }));
-    if (errors.modelYear) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next.modelYear;
-        return next;
-      });
-    }
-  };
-
-  const handleImageUrlChange = (e) => {
-    const value = e.target.value;
-    setFormData((prev) => ({ ...prev, image: value }));
-    setImagePreview(value);
-    if (errors.image) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next.image;
         return next;
       });
     }
@@ -97,11 +70,6 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
     if (!formData.modelName.trim()) {
       newErrors.modelName = 'Model name is required';
     }
-    if (!formData.modelYear.trim()) {
-      newErrors.modelYear = 'Model year is required';
-    } else if (!/^\d{4}$/.test(formData.modelYear.trim())) {
-      newErrors.modelYear = 'Enter a valid 4-digit year';
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -114,7 +82,6 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
       image: formData.image.trim(),
       category: formData.category,
       modelName: formData.modelName.trim(),
-      modelYear: parseInt(formData.modelYear, 10),
     };
 
     if (isEdit) {
@@ -178,7 +145,7 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
               ) : (
                 <label className={styles.uploadPlaceholder} htmlFor="vehicleFileInput">
                   <FiUpload size={24} />
-                  <span>Click to upload or enter URL below</span>
+                  <span>Click to upload</span>
                 </label>
               )}
               <input
@@ -189,55 +156,28 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
                 onChange={handleFileChange}
               />
             </div>
-            <input
-              type="text"
-              name="image"
-              className={`${styles.input} ${errors.image ? styles.inputError : ''}`}
-              placeholder="Or paste image URL here..."
-              value={formData.image.startsWith('data:') ? '' : formData.image}
-              onChange={handleImageUrlChange}
-            />
+            <p className={styles.imageHint}>Image should not exceed 2MB</p>
             {errors.image && <div className={styles.errorMessage}>{errors.image}</div>}
           </div>
 
-          <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="category" className={styles.label}>
-                Vehicle Category <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="category"
-                name="category"
-                className={`${styles.select} ${errors.category ? styles.inputError : ''}`}
-                value={formData.category}
-                onChange={handleChange}
-              >
-                {CATEGORY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              {errors.category && <div className={styles.errorMessage}>{errors.category}</div>}
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor="modelYear" className={styles.label}>
-                Model Year <span className={styles.required}>*</span>
-              </label>
-              <input
-                id="modelYear"
-                name="modelYear"
-                type="text"
-                inputMode="numeric"
-                className={`${styles.input} ${errors.modelYear ? styles.inputError : ''}`}
-                placeholder="e.g. 2025"
-                value={formData.modelYear}
-                onChange={handleYearChange}
-                maxLength={4}
-              />
-              {errors.modelYear && <div className={styles.errorMessage}>{errors.modelYear}</div>}
-            </div>
+          <div className={styles.field}>
+            <label htmlFor="category" className={styles.label}>
+              Vehicle Category <span className={styles.required}>*</span>
+            </label>
+            <select
+              id="category"
+              name="category"
+              className={`${styles.select} ${errors.category ? styles.inputError : ''}`}
+              value={formData.category}
+              onChange={handleChange}
+            >
+              {CATEGORY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {errors.category && <div className={styles.errorMessage}>{errors.category}</div>}
           </div>
 
           <div className={styles.field}>
@@ -249,7 +189,7 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
               name="modelName"
               type="text"
               className={`${styles.input} ${errors.modelName ? styles.inputError : ''}`}
-              placeholder="e.g. JETOUR X90 Plus"
+              placeholder="e.g. JETOUR X70 Plus"
               value={formData.modelName}
               onChange={handleChange}
             />

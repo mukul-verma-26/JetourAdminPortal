@@ -1,10 +1,15 @@
-import styles from './ConfirmDeleteVehicleModal.module.scss';
+import styles from './ConfirmDeleteSalesDataModal.module.scss';
 
-function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle }) {
-  if (!open || !vehicle) return null;
+function ConfirmDeleteSalesDataModal({
+  open,
+  onClose,
+  onConfirm,
+  salesData,
+}) {
+  if (!open || !salesData) return null;
 
   const handleConfirm = () => {
-    onConfirm(vehicle.id);
+    onConfirm(salesData.id);
     onClose();
   };
 
@@ -14,13 +19,13 @@ function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle }) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-delete-vehicle-title"
+      aria-labelledby="confirm-delete-sales-data-title"
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.body}>
-          <h2 id="confirm-delete-vehicle-title" className={styles.message}>
-            Are you sure you want to delete{' '}
-            <strong>{vehicle.modelName}</strong>?
+          <h2 id="confirm-delete-sales-data-title" className={styles.message}>
+            Are you sure you want to delete sales data {salesData.salesDataId} (
+            {salesData.registrationNumber})?
           </h2>
           <div className={styles.actions}>
             <button
@@ -44,4 +49,4 @@ function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle }) {
   );
 }
 
-export default ConfirmDeleteVehicleModal;
+export default ConfirmDeleteSalesDataModal;

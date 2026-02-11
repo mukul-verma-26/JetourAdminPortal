@@ -34,7 +34,7 @@ export function useVehicles() {
   const vehicleOptions = useMemo(() => {
     return vehicles.map((v) => ({
       id: v.id,
-      name: `${v.modelName} (${v.modelYear})`,
+      name: v.modelName,
     }));
   }, [vehicles]);
 

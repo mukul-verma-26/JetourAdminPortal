@@ -21,7 +21,6 @@ export const SERVICE_OPTIONS = [
 ];
 
 export const VEHICLES = [
-  { id: 'VH-001', name: 'JETOUR X90 Plus (2025)' },
   { id: 'VH-002', name: 'JETOUR X70 Plus (2024)' },
   { id: 'VH-003', name: 'JETOUR Dashing (2025)' },
   { id: 'VH-004', name: 'JETOUR X50 (2024)' },
@@ -30,7 +29,6 @@ export const VEHICLES = [
 ];
 
 export const VEHICLE_TIER = {
-  'JETOUR X90 Plus (2025)': 'T2',
   'JETOUR X70 Plus (2024)': 'T1',
   'JETOUR Dashing (2025)': 'T1',
   'JETOUR X50 (2024)': 'T1',
@@ -83,7 +81,7 @@ export const INITIAL_BOOKINGS = sortByBookingTime([
     flat_no: '8',
     paci_details: 'PACI-20260130-001',
     google_location: 'Jabriya, Block 5, Hawally Governorate, Kuwait',
-    vehicle_model: 'JETOUR X90 Plus (2025)',
+    vehicle_model: 'JETOUR X70 Plus (2024)',
     vehicle_registration: 'KW-1234',
     vehicle_year: '2024',
     mileage: '45,200',
@@ -251,7 +249,7 @@ export const INITIAL_BOOKINGS = sortByBookingTime([
     flat_no: '6',
     paci_details: 'PACI-20260131-005',
     google_location: 'Block 3, Mangaf, Ahmadi Governorate, Kuwait',
-    vehicle_model: 'JETOUR X90 Plus (2025)',
+    vehicle_model: 'JETOUR T2 (2026)',
     vehicle_registration: 'KW-7890',
     vehicle_year: '2026',
     mileage: '5,400',

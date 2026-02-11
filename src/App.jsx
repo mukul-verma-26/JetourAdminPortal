@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import { BookingsScreen } from './features/bookings';
 import { CustomersScreen } from './features/customers';
+import { CustomerSalesDataScreen } from './features/customerSalesData';
 import { TechniciansScreen } from './features/technicians';
 import { DriversScreen } from './features/drivers';
 import { ServiceVansScreen } from './features/serviceVans';
@@ -22,6 +23,7 @@ function App() {
           <Route path="bookings" element={<BookingsScreen />} />
           <Route path="packages" element={<PackagesScreen />} />
           <Route path="customers" element={<CustomersScreen />} />
+          <Route path="customer-sales-data" element={<CustomerSalesDataScreen />} />
           <Route path="technicians" element={<TechniciansScreen />} />
           <Route path="drivers" element={<DriversScreen />} />
           <Route path="service-vans" element={<ServiceVansScreen />} />

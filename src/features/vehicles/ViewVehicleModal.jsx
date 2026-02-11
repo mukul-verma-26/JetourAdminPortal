@@ -58,10 +58,6 @@ function ViewVehicleModal({ open, onClose, vehicle }) {
             <p className={styles.value}>{vehicle.modelName}</p>
           </div>
           <div className={styles.row}>
-            <span className={styles.label}>Model Year</span>
-            <p className={styles.value}>{vehicle.modelYear}</p>
-          </div>
-          <div className={styles.row}>
             <span className={styles.label}>Category</span>
             <p className={styles.value}>
               <span className={`${styles.categoryBadge} ${categoryClass}`}>

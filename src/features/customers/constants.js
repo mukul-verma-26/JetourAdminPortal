@@ -55,7 +55,7 @@ export const INITIAL_CUSTOMERS = sortByJoiningDate([
     joiningDate: '2024-03-15',
     preferredLanguage: 'en',
     vehicles: [
-      { modelName: 'JETOUR X90' },
+      { modelName: 'JETOUR X70' },
       { modelName: 'JETOUR Dashing' },
     ],
     totalBookings: 8,
@@ -91,7 +91,7 @@ export const INITIAL_CUSTOMERS = sortByJoiningDate([
     passportNumber: 'P45678901',
     joiningDate: '2024-09-10',
     preferredLanguage: 'ar',
-    vehicles: [{ modelName: 'JETOUR X90 Plus' }],
+    vehicles: [{ modelName: 'JETOUR X70 Plus' }],
     totalBookings: 3,
     status: 'active',
   },

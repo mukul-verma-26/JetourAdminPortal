@@ -5,6 +5,10 @@ export const ROUTE_TITLES = {
     title: 'Customer Management',
     subtitle: 'View and manage customer information',
   },
+  '/customer-sales-data': {
+    title: 'Customer Sales Data',
+    subtitle: 'View and manage customer sales data',
+  },
   '/technicians': { title: 'Technicians', subtitle: null },
   '/service-vans': { title: 'Service Vans', subtitle: null },
   '/inventory': { title: 'Inventory', subtitle: null },

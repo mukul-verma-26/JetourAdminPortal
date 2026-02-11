@@ -30,7 +30,6 @@ export function useCustomers() {
         id: nextId,
         customerId: nextCustomerId,
         joiningDate,
-        vehicles: Array.isArray(customer.vehicles) ? customer.vehicles : [],
         totalBookings: customer.totalBookings ?? 0,
         status: customer.status || 'active',
       };
@@ -41,7 +40,11 @@ export function useCustomers() {
   const updateCustomer = useCallback((id, updated) => {
     setCustomers((prev) =>
       sortByJoiningDate(
-        prev.map((c) => (c.id === id ? { ...c, ...updated, id } : c))
+        prev.map((c) => {
+          if (c.id !== id) return c;
+          const { vehicles: _v, ...rest } = c;
+          return { ...rest, ...updated, id };
+        })
       )
     );
   }, []);

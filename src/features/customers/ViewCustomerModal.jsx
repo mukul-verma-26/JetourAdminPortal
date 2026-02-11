@@ -47,12 +47,6 @@ function ViewCustomerModal({ open, onClose, customer }) {
 
   const statusClass =
     STATUS_CLASS_MAP[customer.status] || styles.statusActive;
-  const vehicles =
-    Array.isArray(customer.vehicles) && customer.vehicles.length > 0
-      ? customer.vehicles
-          .map((v) => (typeof v === 'object' ? v.modelName : v))
-          .join(', ')
-      : '—';
   const joiningDate = customer.joiningDate || customer.joined;
 
   return (
@@ -123,10 +117,6 @@ function ViewCustomerModal({ open, onClose, customer }) {
             <p className={styles.value}>
               {getLanguageLabel(customer.preferredLanguage)}
             </p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Vehicles</span>
-            <p className={styles.value}>{vehicles}</p>
           </div>
           <div className={styles.row}>
             <span className={styles.label}>Status</span>

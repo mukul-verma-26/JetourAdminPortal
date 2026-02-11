@@ -15,7 +15,7 @@
   background: theme.$SURFACE;
   border-radius: 12px;
   width: 100%;
-  max-width: 520px;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -65,12 +65,16 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0;
 
-  .fieldRow > & {
+  &:last-child {
     margin-bottom: 0;
   }
 }
@@ -84,7 +88,7 @@
 }
 
 .required {
-  color: theme.$ERROR;
+  color: #ef4444;
 }
 
 .input,
@@ -110,7 +114,11 @@
 }
 
 .inputError {
-  border-color: theme.$ERROR !important;
+  border-color: #ef4444;
+
+  &:focus {
+    border-color: #ef4444;
+  }
 }
 
 .select {
@@ -118,85 +126,32 @@
   appearance: auto;
 }
 
-.imageUploadArea {
-  margin-bottom: 0.5rem;
-  border: 2px dashed theme.$BORDER;
-  border-radius: 10px;
-  overflow: hidden;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: theme.$PRIMARY;
-  }
-}
-
-.uploadPlaceholder {
+.phoneInputWrapper {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  padding: 2rem 1rem;
-  color: theme.$TEXT_TERTIARY;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: color 0.2s;
-
-  &:hover {
-    color: theme.$PRIMARY;
-  }
 }
 
-.previewWrapper {
-  position: relative;
-  width: 100%;
-  height: 180px;
+.phonePrefix {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  white-space: nowrap;
+  user-select: none;
 }
 
-.previewImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.removeImageBtn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: theme.$ERROR;
-  }
-}
-
-.fileInput {
-  display: none;
-}
-
-.imageHint {
-  font-size: 0.8125rem;
-  color: theme.$TEXT_TERTIARY;
-  margin-top: 0.25rem;
-  margin-bottom: 0;
+.phoneInput {
+  flex: 1;
 }
 
 .errorMessage {
+  margin-top: 0.375rem;
   font-size: 0.8125rem;
-  color: theme.$ERROR;
-  margin-top: 0.25rem;
+  color: #ef4444;
 }
 
 .actions {
@@ -237,13 +192,14 @@
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover {
+  &:hover:not(.disabled) {
     background: theme.$PRIMARY_DARK;
   }
-}
 
-@media (max-width: 480px) {
-  .fieldRow {
-    grid-template-columns: 1fr;
+  &.disabled {
+    background: theme.$BORDER;
+    color: theme.$TEXT_TERTIARY;
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 }
