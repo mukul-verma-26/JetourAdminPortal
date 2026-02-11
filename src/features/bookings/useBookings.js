@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { INITIAL_BOOKINGS } from './constants';
 
 function sortByBookingTime(bookings) {
@@ -11,6 +11,31 @@ function sortByBookingTime(bookings) {
 
 export function useBookings() {
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
+
+  const filteredBookings = useMemo(
+    () => ({
+      byFilters: (list, filters) => {
+        const { name, phone, vin } = filters || {};
+        return list.filter((b) => {
+          if (name && name.trim()) {
+            const nameLower = (b.name || '').toLowerCase();
+            if (!nameLower.includes(name.trim().toLowerCase())) return false;
+          }
+          if (phone && phone.trim()) {
+            const phoneNormalized = (b.phone || '').replace(/\D/g, '');
+            const searchDigits = phone.trim().replace(/\D/g, '');
+            if (!phoneNormalized.includes(searchDigits)) return false;
+          }
+          if (vin && vin.trim()) {
+            const vinLower = (b.vehicle_registration || b.vin || '').toLowerCase();
+            if (!vinLower.includes(vin.trim().toLowerCase())) return false;
+          }
+          return true;
+        });
+      },
+    }),
+    []
+  );
 
   const addBooking = useCallback((booking) => {
     const newBooking = {
@@ -32,5 +57,11 @@ export function useBookings() {
     setBookings((prev) => prev.filter((b) => b.id !== id));
   }, []);
 
-  return { bookings, addBooking, updateBooking, deleteBooking };
+  return {
+    bookings,
+    addBooking,
+    updateBooking,
+    deleteBooking,
+    filteredBookings,
+  };
 }

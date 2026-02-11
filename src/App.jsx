@@ -9,6 +9,7 @@ import { DriversScreen } from './features/drivers';
 import { ServiceVansScreen } from './features/serviceVans';
 import { VehiclesScreen } from './features/vehicles';
 import { SettingsScreen } from './features/settings';
+import { PackagesProvider } from './features/settings/PackagesContext';
 import { InventoryScreen } from './features/inventory';
 import PlaceholderPage from './pages/PlaceholderPage';
 import { ToastContainer } from './components/shared/Toast';
@@ -16,6 +17,7 @@ import { ToastContainer } from './components/shared/Toast';
 function App() {
   return (
     <BrowserRouter>
+      <PackagesProvider>
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -34,6 +36,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
+      </PackagesProvider>
     </BrowserRouter>
   );
 }

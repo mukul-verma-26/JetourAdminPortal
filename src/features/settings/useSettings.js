@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { INITIAL_SERVICE_PACKAGES, createEmptyPricingRow } from './constants';
+import { createEmptyPricingRow } from './constants';
+import { usePackagesContext } from './PackagesContext';
 
 export function useSettings() {
-  const [packages, setPackages] = useState(INITIAL_SERVICE_PACKAGES);
+  const { packages, setPackages } = usePackagesContext();
   const [packageModalOpen, setPackageModalOpen] = useState(false);
   const [packageToEdit, setPackageToEdit] = useState(null);
   const [managePackageModalOpen, setManagePackageModalOpen] = useState(false);

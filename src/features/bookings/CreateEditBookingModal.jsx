@@ -3,13 +3,23 @@ import { FiX } from 'react-icons/fi';
 import {
   STATUS_OPTIONS,
   GENDER_OPTIONS,
-  SERVICE_OPTIONS,
   VEHICLES,
-  VEHICLE_TIER,
   TECHNICIANS,
   DRIVERS,
   SERVICE_VANS,
 } from './constants';
+
+function getVehicleBaseName(vehicleModel) {
+  if (!vehicleModel) return '';
+  return vehicleModel.replace(/\s*\(\d{4}\)\s*$/, '').trim();
+}
+
+function getPackagePrice(pkg, vehicleModel) {
+  if (!pkg?.pricingMatrix?.[0]?.prices) return '';
+  const baseName = getVehicleBaseName(vehicleModel);
+  const prices = pkg.pricingMatrix[0].prices;
+  return prices[baseName] ?? Object.values(prices)[0] ?? '';
+}
 import TimePicker from './components/TimePicker';
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
@@ -20,7 +30,9 @@ function CreateEditBookingModal({
   onClose,
   initialData,
   onSubmit,
+  servicePackages = [],
 }) {
+  const activePackages = servicePackages.filter((p) => p.status === 'active');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,6 +59,7 @@ function CreateEditBookingModal({
     technician_id: '',
     service_van_id: '',
     additional_notes: '',
+    amount: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -82,6 +95,7 @@ function CreateEditBookingModal({
         technician_id: initialData.technician_detail?.id || '',
         service_van_id: initialData.service_van?.id || '',
         additional_notes: initialData.additional_notes || '',
+        amount: initialData.amount || initialData.service_package?.amount || '',
       });
     } else {
       setFormData({
@@ -110,6 +124,7 @@ function CreateEditBookingModal({
         technician_id: '',
         service_van_id: '',
         additional_notes: '',
+        amount: '',
       });
     }
     setErrors({});
@@ -138,9 +153,7 @@ function CreateEditBookingModal({
       newErrors.name = 'Customer name is required';
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Customer email is required';
-    } else if (!validateEmail(formData.email)) {
+    if (formData.email.trim() && !validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
@@ -154,36 +167,8 @@ function CreateEditBookingModal({
       newErrors.phone = 'Please enter a valid phone number (7-8 digits)';
     }
 
-    if (!formData.governorate.trim()) {
-      newErrors.governorate = 'Governorate is required';
-    }
-
-    if (!formData.area.trim()) {
-      newErrors.area = 'Area is required';
-    }
-
-    if (!formData.block.trim()) {
-      newErrors.block = 'Block is required';
-    }
-
-    if (!formData.street.trim()) {
-      newErrors.street = 'Street is required';
-    }
-
-    if (!formData.building_no.trim()) {
-      newErrors.building_no = 'Building number is required';
-    }
-
-    if (!formData.floor_no.trim()) {
-      newErrors.floor_no = 'Floor number is required';
-    }
-
-    if (!formData.flat_no.trim()) {
-      newErrors.flat_no = 'Flat number is required';
-    }
-
-    if (!formData.paci_details.trim()) {
-      newErrors.paci_details = 'PACI details is required';
+    if (!formData.google_location.trim()) {
+      newErrors.google_location = 'Customer Google Location is required';
     }
 
     if (!formData.vehicle_model.trim()) {
@@ -241,19 +226,11 @@ function CreateEditBookingModal({
   const isFormValid = () => {
     const baseValid =
       formData.name.trim() &&
-      formData.email.trim() &&
-      validateEmail(formData.email) &&
+      (!formData.email.trim() || validateEmail(formData.email)) &&
       formData.gender &&
       formData.phone.trim() &&
       validatePhone(formData.phone) &&
-      formData.governorate.trim() &&
-      formData.area.trim() &&
-      formData.block.trim() &&
-      formData.street.trim() &&
-      formData.building_no.trim() &&
-      formData.floor_no.trim() &&
-      formData.flat_no.trim() &&
-      formData.paci_details.trim() &&
+      formData.google_location.trim() &&
       formData.vehicle_model.trim() &&
       formData.vehicle_registration.trim() &&
       formData.vehicle_year.trim() &&
@@ -271,6 +248,15 @@ function CreateEditBookingModal({
       return baseValid && formData.status;
     }
     return baseValid;
+  };
+
+  const handleCalculateAmount = () => {
+    const selectedServicePackage = activePackages.find(
+      (sp) => sp.id === formData.service_package_id
+    );
+    if (!selectedServicePackage) return;
+    const calculatedAmount = getPackagePrice(selectedServicePackage, formData.vehicle_model);
+    setFormData((prev) => ({ ...prev, amount: calculatedAmount }));
   };
 
   const handleChange = (e) => {
@@ -299,18 +285,11 @@ function CreateEditBookingModal({
     }
   };
 
-  const handleVehicleYearChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    setFormData((prev) => ({ ...prev, vehicle_year: value }));
-    
-    if (errors.vehicle_year) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.vehicle_year;
-        return newErrors;
-      });
-    }
-  };
+  const currentYear = new Date().getFullYear();
+  const MODEL_YEAR_OPTIONS = Array.from(
+    { length: currentYear - 2015 + 1 },
+    (_, i) => String(currentYear - i)
+  );
 
   const handleMileageChange = (e) => {
     const value = e.target.value.replace(/[^\d,]/g, '');
@@ -376,7 +355,7 @@ function CreateEditBookingModal({
 
     setIsSubmitting(true);
 
-    const selectedServicePackage = SERVICE_OPTIONS.find(
+    const selectedServicePackage = activePackages.find(
       (sp) => sp.id === formData.service_package_id
     );
     const selectedTechnician = TECHNICIANS.find(
@@ -389,10 +368,11 @@ function CreateEditBookingModal({
       (sv) => sv.id === formData.service_van_id
     );
 
-    const vehicleTier = VEHICLE_TIER[formData.vehicle_model] || 'T1';
-    const calculatedAmount = selectedServicePackage
-      ? (vehicleTier === 'T2' ? selectedServicePackage.priceT2 : selectedServicePackage.priceT1)
-      : '';
+    const calculatedAmount =
+      formData.amount ||
+      (selectedServicePackage
+        ? getPackagePrice(selectedServicePackage, formData.vehicle_model)
+        : '');
 
     const payload = {
       name: formData.name.trim(),
@@ -414,12 +394,12 @@ function CreateEditBookingModal({
       vehicle_year: formData.vehicle_year.trim(),
       mileage: formData.mileage.trim(),
       service_package: selectedServicePackage
-        ? { id: selectedServicePackage.id, name: selectedServicePackage.name, amount: calculatedAmount }
+        ? { id: selectedServicePackage.id, name: selectedServicePackage.name, amount: String(calculatedAmount) }
         : null,
       booking_time: formData.booking_time,
       booking_date: formData.booking_date,
       ...(isEdit ? { status: formData.status } : {}),
-      amount: calculatedAmount,
+      amount: String(calculatedAmount),
       technician_detail: selectedTechnician
         ? { id: selectedTechnician.id, name: selectedTechnician.name }
         : null,
@@ -491,7 +471,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="email" className={styles.label}>
-                Customer Email <span className={styles.required}>*</span>
+                Customer Email
               </label>
               <input
                 id="email"
@@ -554,7 +534,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="governorate" className={styles.label}>
-                Governorate <span className={styles.required}>*</span>
+                Governorate
               </label>
               <input
                 id="governorate"
@@ -570,7 +550,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="area" className={styles.label}>
-                Area <span className={styles.required}>*</span>
+                Area
               </label>
               <input
                 id="area"
@@ -588,7 +568,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="block" className={styles.label}>
-                Block <span className={styles.required}>*</span>
+                Block
               </label>
               <input
                 id="block"
@@ -604,7 +584,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="street" className={styles.label}>
-                Street <span className={styles.required}>*</span>
+                Street
               </label>
               <input
                 id="street"
@@ -622,7 +602,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="building_no" className={styles.label}>
-                Building No. <span className={styles.required}>*</span>
+                Building No.
               </label>
               <input
                 id="building_no"
@@ -638,7 +618,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="floor_no" className={styles.label}>
-                Floor No. <span className={styles.required}>*</span>
+                Floor No.
               </label>
               <input
                 id="floor_no"
@@ -656,7 +636,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="flat_no" className={styles.label}>
-                Flat No. <span className={styles.required}>*</span>
+                Flat No.
               </label>
               <input
                 id="flat_no"
@@ -672,7 +652,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="paci_details" className={styles.label}>
-                PACI Details <span className={styles.required}>*</span>
+                PACI Details
               </label>
               <input
                 id="paci_details"
@@ -689,7 +669,7 @@ function CreateEditBookingModal({
 
           <div className={styles.field}>
             <label htmlFor="google_location" className={styles.label}>
-              Customer Google Location
+              Customer Google Location <span className={styles.required}>*</span>
             </label>
             <GoogleLocationInput
               id="google_location"
@@ -749,17 +729,20 @@ function CreateEditBookingModal({
               <label htmlFor="vehicle_year" className={styles.label}>
                 Vehicle Year <span className={styles.required}>*</span>
               </label>
-              <input
+              <select
                 id="vehicle_year"
                 name="vehicle_year"
-                type="text"
-                inputMode="numeric"
-                className={`${styles.input} ${errors.vehicle_year ? styles.inputError : ''}`}
-                placeholder="e.g. 2024"
+                className={`${styles.select} ${errors.vehicle_year ? styles.inputError : ''}`}
                 value={formData.vehicle_year}
-                onChange={handleVehicleYearChange}
-                maxLength={4}
-              />
+                onChange={handleChange}
+              >
+                <option value="">Select year</option>
+                {MODEL_YEAR_OPTIONS.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
               {errors.vehicle_year && <div className={styles.errorMessage}>{errors.vehicle_year}</div>}
             </div>
 
@@ -791,35 +774,45 @@ function CreateEditBookingModal({
                 onChange={handleChange}
               >
                 <option value="">Select a service package</option>
-                {SERVICE_OPTIONS.map((sp) => {
-                  const tier = VEHICLE_TIER[formData.vehicle_model];
-                  const price = tier === 'T2' ? sp.priceT2 : sp.priceT1;
+                {activePackages.map((sp) => {
+                  const price = getPackagePrice(sp, formData.vehicle_model);
                   return (
                     <option key={sp.id} value={sp.id}>
-                      {sp.name} — {price === '0' ? 'Free' : `${price} KD`}
+                      {sp.name} — {price === '' || price === '0' ? 'Free' : `${price} KD`}
                     </option>
                   );
                 })}
               </select>
               {errors.service_package_id && <div className={styles.errorMessage}>{errors.service_package_id}</div>}
             </div>
+
+            <div className={styles.field}>
+              <label htmlFor="amount" className={styles.label}>
+                Amount
+              </label>
+              <div className={styles.amountRow}>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="text"
+                  className={`${styles.input} ${errors.amount ? styles.inputError : ''}`}
+                  placeholder="KD"
+                  value={formData.amount}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className={styles.calculateBtn}
+                  onClick={handleCalculateAmount}
+                  disabled={!formData.service_package_id || !formData.vehicle_model}
+                >
+                  Calculate Amount
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="booking_time" className={styles.label}>
-                Booking Time <span className={styles.required}>*</span>
-              </label>
-              <TimePicker
-                id="booking_time"
-                name="booking_time"
-                value={formData.booking_time}
-                onChange={handleTimeChange}
-                error={errors.booking_time}
-              />
-              {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
-            </div>
-
             <div className={styles.field}>
               <label htmlFor="booking_date" className={styles.label}>
                 Booking Date <span className={styles.required}>*</span>
@@ -833,6 +826,20 @@ function CreateEditBookingModal({
                 placeholder="Select booking date"
               />
               {errors.booking_date && <div className={styles.errorMessage}>{errors.booking_date}</div>}
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="booking_time" className={styles.label}>
+                Booking Time <span className={styles.required}>*</span>
+              </label>
+              <TimePicker
+                id="booking_time"
+                name="booking_time"
+                value={formData.booking_time}
+                onChange={handleTimeChange}
+                error={errors.booking_time}
+              />
+              {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
             </div>
           </div>
 

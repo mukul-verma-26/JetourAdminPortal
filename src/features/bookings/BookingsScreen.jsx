@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useBookings } from './useBookings';
+import { usePackagesContext } from '../settings/PackagesContext';
 import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
 import ViewBookingModal from './ViewBookingModal';
@@ -26,7 +27,12 @@ const STATUS_CLASS_MAP = {
 };
 
 function BookingsScreen() {
-  const { bookings, addBooking, updateBooking, deleteBooking } = useBookings();
+  const { bookings, addBooking, updateBooking, deleteBooking, filteredBookings } = useBookings();
+  const { packages } = usePackagesContext();
+  const [filterName, setFilterName] = useState('');
+  const [filterPhone, setFilterPhone] = useState('');
+  const [filterVin, setFilterVin] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState({ name: '', phone: '', vin: '' });
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editBooking, setEditBooking] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
@@ -72,6 +78,22 @@ function BookingsScreen() {
   const openView = (booking) => setViewBooking(booking);
   const openDeleteConfirm = (booking) => setDeleteConfirmBooking(booking);
 
+  const displayedBookings = useMemo(
+    () => filteredBookings.byFilters(bookings, appliedFilters),
+    [bookings, appliedFilters, filteredBookings]
+  );
+
+  const handleSearch = () => {
+    setAppliedFilters({
+      name: filterName,
+      phone: filterPhone,
+      vin: filterVin,
+    });
+  };
+
+  const hasActiveFilters =
+    appliedFilters.name || appliedFilters.phone || appliedFilters.vin;
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -84,6 +106,42 @@ function BookingsScreen() {
           <FiPlus size={18} aria-hidden />
           Create Booking
         </button>
+      </div>
+
+      <div className={styles.filters}>
+        <div className={styles.searchFields}>
+          <input
+            type="text"
+            className={styles.filterInput}
+            placeholder="Name"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            aria-label="Filter by name"
+          />
+          <input
+            type="text"
+            className={styles.filterInput}
+            placeholder="Mobile number"
+            value={filterPhone}
+            onChange={(e) => setFilterPhone(e.target.value)}
+            aria-label="Filter by mobile number"
+          />
+          <input
+            type="text"
+            className={styles.filterInput}
+            placeholder="VIN"
+            value={filterVin}
+            onChange={(e) => setFilterVin(e.target.value)}
+            aria-label="Filter by VIN"
+          />
+          <button
+            type="button"
+            className={styles.searchBtn}
+            onClick={handleSearch}
+          >
+            Search
+          </button>
+        </div>
       </div>
 
       <div className={styles.card}>
@@ -101,14 +159,18 @@ function BookingsScreen() {
               </tr>
             </thead>
             <tbody>
-              {bookings.length === 0 ? (
+              {displayedBookings.length === 0 ? (
                 <tr>
                   <td colSpan={7} className={`${styles.td} ${styles.emptyCell}`}>
-                    <p className={styles.empty}>No bookings yet. Create one to get started.</p>
+                    <p className={styles.empty}>
+                      {hasActiveFilters
+                        ? 'No bookings found. Try adjusting your search.'
+                        : 'No bookings yet. Create one to get started.'}
+                    </p>
                   </td>
                 </tr>
               ) : (
-                bookings.map((booking) => (
+                displayedBookings.map((booking) => (
                   <tr key={booking.id} className={styles.tr}>
                     <td className={styles.td} data-label="Customer">
                       <div>
@@ -175,6 +237,7 @@ function BookingsScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        servicePackages={packages}
       />
 
       <CreateEditBookingModal
@@ -182,6 +245,7 @@ function BookingsScreen() {
         onClose={() => setEditBooking(null)}
         initialData={editBooking || undefined}
         onSubmit={handleEditSubmit}
+        servicePackages={packages}
       />
 
       <ViewBookingModal
