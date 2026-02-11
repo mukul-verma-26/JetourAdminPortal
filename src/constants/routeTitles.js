@@ -14,7 +14,10 @@ export const ROUTE_TITLES = {
   '/inventory': { title: 'Inventory', subtitle: null },
   '/schedule': { title: 'Schedule', subtitle: null },
   '/reports': { title: 'Reports', subtitle: null },
-  '/settings': { title: 'Settings', subtitle: null },
+  '/settings': {
+    title: 'System Settings',
+    subtitle: 'Configure system preferences and integrations',
+  },
 };
 
 export function getRouteMeta(pathname) {

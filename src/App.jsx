@@ -8,7 +8,7 @@ import { TechniciansScreen } from './features/technicians';
 import { DriversScreen } from './features/drivers';
 import { ServiceVansScreen } from './features/serviceVans';
 import { VehiclesScreen } from './features/vehicles';
-import { PackagesScreen } from './features/packages';
+import { SettingsScreen } from './features/settings';
 import { InventoryScreen } from './features/inventory';
 import PlaceholderPage from './pages/PlaceholderPage';
 import { ToastContainer } from './components/shared/Toast';
@@ -21,7 +21,6 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="bookings" element={<BookingsScreen />} />
-          <Route path="packages" element={<PackagesScreen />} />
           <Route path="customers" element={<CustomersScreen />} />
           <Route path="customer-sales-data" element={<CustomerSalesDataScreen />} />
           <Route path="technicians" element={<TechniciansScreen />} />
@@ -31,7 +30,7 @@ function App() {
           <Route path="inventory" element={<InventoryScreen />} />
           <Route path="schedule" element={<PlaceholderPage />} />
           <Route path="reports" element={<PlaceholderPage />} />
-          <Route path="settings" element={<PlaceholderPage />} />
+          <Route path="settings" element={<SettingsScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

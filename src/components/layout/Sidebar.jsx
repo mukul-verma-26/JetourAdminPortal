@@ -11,7 +11,6 @@ import {
   FiTool,
   FiUser,
   FiNavigation,
-  FiBox,
   FiDollarSign,
 } from 'react-icons/fi';
 import styles from './Sidebar.module.scss';
@@ -19,7 +18,6 @@ import styles from './Sidebar.module.scss';
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: FiBarChart2 },
   { to: '/bookings', label: 'Bookings', icon: FiCalendar, badge: 5 },
-  { to: '/packages', label: 'Packages', icon: FiBox },
   { to: '/customers', label: 'Customers', icon: FiUsers },
   { to: '/customer-sales-data', label: 'Customer Sales Data', icon: FiDollarSign },
   { to: '/technicians', label: 'Technicians', icon: FiTool },

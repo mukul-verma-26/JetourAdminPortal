@@ -1,0 +1,65 @@
+@use '../../styles/theme' as theme;
+
+.screen {
+  padding: 0;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0;
+}
+
+.addBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

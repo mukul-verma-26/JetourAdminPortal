@@ -1,0 +1,72 @@
+@use '../../../styles/theme' as theme;
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.configureBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.manageBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: theme.$BORDER;
+  }
+}
