@@ -1,6 +1,8 @@
 import { useSettings } from './useSettings';
 import ServicePackageCard from './components/ServicePackageCard';
 import CreateEditPackageModal from './CreateEditPackageModal';
+import ManagePackageModal from './ManagePackageModal';
+import ConfirmDeletePackageModal from './ConfirmDeletePackageModal';
 import styles from './SettingsScreen.module.scss';
 
 function SettingsScreen() {
@@ -8,11 +10,19 @@ function SettingsScreen() {
     packages,
     packageModalOpen,
     packageToEdit,
+    managePackageModalOpen,
+    packageToManage,
+    deleteConfirmPackage,
     handleOpenAddPackage,
     handleConfigurePackage,
     handleManagePackage,
     handleClosePackageModal,
+    handleCloseManagePackageModal,
     handlePackageSubmit,
+    handleManagePackageSubmit,
+    handleDeletePackage,
+    handleOpenDeleteConfirm,
+    handleCloseDeleteConfirm,
   } = useSettings();
 
   return (
@@ -47,6 +57,24 @@ function SettingsScreen() {
         onClose={handleClosePackageModal}
         initialData={packageToEdit}
         onSubmit={handlePackageSubmit}
+      />
+
+      <ManagePackageModal
+        open={managePackageModalOpen}
+        onClose={handleCloseManagePackageModal}
+        package={packageToManage}
+        onSubmit={handleManagePackageSubmit}
+        onDelete={(pkg) => {
+          handleCloseManagePackageModal();
+          handleOpenDeleteConfirm(pkg);
+        }}
+      />
+
+      <ConfirmDeletePackageModal
+        open={Boolean(deleteConfirmPackage)}
+        onClose={handleCloseDeleteConfirm}
+        onConfirm={handleDeletePackage}
+        package={deleteConfirmPackage}
       />
     </div>
   );

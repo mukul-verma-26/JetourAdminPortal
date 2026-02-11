@@ -1,0 +1,99 @@
+@use '../../../styles/theme' as theme;
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.mileageCol {
+  min-width: 120px;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: 1px solid theme.$BORDER;
+  background: theme.$BACKGROUND;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.priceCol {
+  min-width: 140px;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: 1px solid theme.$BORDER;
+  background: theme.$BACKGROUND;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.actionsCol {
+  min-width: 90px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid theme.$BORDER;
+  background: theme.$BACKGROUND;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 6px;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}
+
+.removeBtn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$ERROR;
+  background: transparent;
+  border: 1px solid theme.$BORDER;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.addRowBtn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$PRIMARY;
+  background: theme.$PRIMARY_LIGHT;
+  border: 1px dashed theme.$PRIMARY;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(27, 169, 165, 0.15);
+  }
+}

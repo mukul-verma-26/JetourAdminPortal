@@ -1,0 +1,137 @@
+@use '../../styles/theme' as theme;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.5rem;
+}
+
+.modal {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 95vw;
+  min-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid theme.$BORDER;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid theme.$BORDER;
+  flex-wrap: wrap;
+}
+
+.rightActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cancelBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: theme.$BORDER;
+  }
+}
+
+.submitBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$ERROR;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #d32f2f;
+  }
+}
