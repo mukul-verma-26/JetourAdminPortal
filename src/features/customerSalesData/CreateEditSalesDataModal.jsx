@@ -24,6 +24,7 @@ function CreateEditSalesDataModal({
     vehicleId: '',
     registrationNumber: '',
     vin: '',
+    soldDate: '',
     modelYear: '',
     variantName: '',
     color: '',
@@ -47,6 +48,7 @@ function CreateEditSalesDataModal({
         vehicleId: initialData.vehicleId || '',
         registrationNumber: initialData.registrationNumber || '',
         vin: initialData.vin || '',
+        soldDate: initialData.soldDate || '',
         modelYear: initialData.modelYear || '',
         variantName: initialData.variantName || '',
         color: initialData.color || '',
@@ -63,6 +65,7 @@ function CreateEditSalesDataModal({
         vehicleId: '',
         registrationNumber: '',
         vin: '',
+        soldDate: '',
         modelYear: '',
         variantName: '',
         color: '',
@@ -96,6 +99,10 @@ function CreateEditSalesDataModal({
 
     if (!formData.vin.trim()) {
       newErrors.vin = 'VIN is required';
+    }
+
+    if (!formData.soldDate.trim()) {
+      newErrors.soldDate = 'Sold date is required';
     }
 
     if (!formData.modelYear) {
@@ -145,6 +152,17 @@ function CreateEditSalesDataModal({
     }
   };
 
+  const handleSoldDateChange = (e) => {
+    setFormData((prev) => ({ ...prev, soldDate: e.target.value }));
+    if (errors.soldDate) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.soldDate;
+        return newErrors;
+      });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -160,6 +178,7 @@ function CreateEditSalesDataModal({
       vehicleId: formData.vehicleId,
       registrationNumber: formData.registrationNumber.trim(),
       vin: formData.vin.trim(),
+      soldDate: formData.soldDate.trim(),
       modelYear: formData.modelYear,
       variantName: formData.variantName.trim(),
       color: formData.color.trim(),
@@ -306,6 +325,23 @@ function CreateEditSalesDataModal({
           </div>
 
           <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label htmlFor="sold-date" className={styles.label}>
+                Sold Date <span className={styles.required}>*</span>
+              </label>
+              <DatePicker
+                id="sold-date"
+                name="soldDate"
+                value={formData.soldDate}
+                onChange={handleSoldDateChange}
+                error={errors.soldDate}
+                placeholder="Select sold date"
+              />
+              {errors.soldDate && (
+                <div className={styles.errorMessage}>{errors.soldDate}</div>
+              )}
+            </div>
+
             <div className={styles.field}>
               <label htmlFor="model-year" className={styles.label}>
                 Model Year <span className={styles.required}>*</span>

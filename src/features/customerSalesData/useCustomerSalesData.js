@@ -49,7 +49,7 @@ export function useCustomerSalesData() {
   const filteredSalesData = useMemo(
     () => ({
       byFilters: (list, filters) => {
-        const { customerName, contact, vin } = filters || {};
+        const { customerName, contact, vin, dateFrom, dateTo } = filters || {};
         return list.filter((item) => {
           if (customerName && customerName.trim()) {
             const nameLower = (item.customerName || '').toLowerCase();
@@ -63,6 +63,14 @@ export function useCustomerSalesData() {
           if (vin && vin.trim()) {
             const vinLower = (item.vin || '').toLowerCase();
             if (!vinLower.includes(vin.trim().toLowerCase())) return false;
+          }
+          if (dateFrom && dateFrom.trim()) {
+            const itemDate = item.soldDate || '';
+            if (!itemDate || itemDate < dateFrom.trim()) return false;
+          }
+          if (dateTo && dateTo.trim()) {
+            const itemDate = item.soldDate || '';
+            if (!itemDate || itemDate > dateTo.trim()) return false;
           }
           return true;
         });

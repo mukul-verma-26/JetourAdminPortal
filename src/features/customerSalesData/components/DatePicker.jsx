@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { FiCalendar } from 'react-icons/fi';
+import { createPortal } from 'react-dom';
+import { FiCalendar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './DatePicker.module.scss';
 
 const DAYS_OF_WEEK = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -8,15 +9,13 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-const CURRENT_YEAR = new Date().getFullYear();
-const MIN_YEAR = 1920;
-const MAX_YEAR = CURRENT_YEAR;
-const YEARS = Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => MAX_YEAR - i);
-
 function DatePicker({ value, onChange, name, id, error, placeholder }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const wrapperRef = useRef(null);
+  const displayRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (value) {
@@ -24,20 +23,56 @@ function DatePicker({ value, onChange, name, id, error, placeholder }) {
       if (!isNaN(date.getTime())) {
         setViewDate(date);
       }
-    } else {
-      setViewDate(new Date());
     }
   }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      const inWrapper = wrapperRef.current?.contains(e.target);
+      const inDropdown = dropdownRef.current?.contains(e.target);
+      if (!inWrapper && !inDropdown) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const DROPDOWN_WIDTH = 300;
+  const DROPDOWN_OFFSET = 6;
+  const VIEWPORT_PADDING = 8;
+
+  const updateDropdownPosition = () => {
+    if (displayRef.current) {
+      const rect = displayRef.current.getBoundingClientRect();
+      let left = rect.left;
+      const rightEdge = left + DROPDOWN_WIDTH;
+      if (rightEdge > window.innerWidth - VIEWPORT_PADDING) {
+        left = window.innerWidth - DROPDOWN_WIDTH - VIEWPORT_PADDING;
+      }
+      if (left < VIEWPORT_PADDING) {
+        left = VIEWPORT_PADDING;
+      }
+      let top = rect.bottom + DROPDOWN_OFFSET;
+      const dropdownHeight = 320;
+      if (top + dropdownHeight > window.innerHeight - VIEWPORT_PADDING) {
+        top = Math.max(VIEWPORT_PADDING, rect.top - dropdownHeight - DROPDOWN_OFFSET);
+      }
+      setDropdownPosition({ top, left });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && displayRef.current) {
+      updateDropdownPosition();
+      window.addEventListener('scroll', updateDropdownPosition, true);
+      window.addEventListener('resize', updateDropdownPosition);
+      return () => {
+        window.removeEventListener('scroll', updateDropdownPosition, true);
+        window.removeEventListener('resize', updateDropdownPosition);
+      };
+    }
+  }, [isOpen]);
 
   const selectedDate = value ? new Date(value + 'T00:00:00') : null;
   const today = new Date();
@@ -88,14 +123,12 @@ function DatePicker({ value, onChange, name, id, error, placeholder }) {
     setIsOpen(false);
   };
 
-  const handleMonthChange = (e) => {
-    const newMonth = parseInt(e.target.value, 10);
-    setViewDate(new Date(year, newMonth, 1));
+  const goToPrevMonth = () => {
+    setViewDate(new Date(year, month - 1, 1));
   };
 
-  const handleYearChange = (e) => {
-    const newYear = parseInt(e.target.value, 10);
-    setViewDate(new Date(newYear, month, 1));
+  const goToNextMonth = () => {
+    setViewDate(new Date(year, month + 1, 1));
   };
 
   const isSameDay = (a, b) =>
@@ -112,11 +145,75 @@ function DatePicker({ value, onChange, name, id, error, placeholder }) {
 
   const displayText = formatDisplayDate();
 
+  const dropdownContent = isOpen && (
+    <div
+      ref={dropdownRef}
+      className={styles.dropdown}
+      style={{
+        position: 'fixed',
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div className={styles.calendarHeader}>
+        <button type="button" className={styles.navBtn} onClick={goToPrevMonth}>
+          <FiChevronLeft size={18} />
+        </button>
+        <span className={styles.monthYear}>
+          {MONTHS[month]} {year}
+        </span>
+        <button type="button" className={styles.navBtn} onClick={goToNextMonth}>
+          <FiChevronRight size={18} />
+        </button>
+      </div>
+
+      <div className={styles.daysHeader}>
+        {DAYS_OF_WEEK.map((d) => (
+          <span key={d} className={styles.dayLabel}>{d}</span>
+        ))}
+      </div>
+
+      <div className={styles.daysGrid}>
+        {calendarDays.map((dayObj, idx) => {
+          const isSelected = selectedDate && isSameDay(dayObj.date, selectedDate);
+          const isTodayCell = isSameDay(dayObj.date, today);
+
+          return (
+            <button
+              key={idx}
+              type="button"
+              className={[
+                styles.dayCell,
+                !dayObj.currentMonth ? styles.dayCellOutside : '',
+                isSelected ? styles.dayCellSelected : '',
+                isTodayCell && !isSelected ? styles.dayCellToday : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => handleDayClick(dayObj)}
+            >
+              {dayObj.day}
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedDate && (
+        <div className={styles.selectedPreview}>{displayText}</div>
+      )}
+    </div>
+  );
+
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       <div
+        ref={displayRef}
         className={`${styles.display} ${error ? styles.displayError : ''} ${isOpen ? styles.displayActive : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) updateDropdownPosition();
+          setIsOpen(!isOpen);
+        }}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
@@ -127,71 +224,7 @@ function DatePicker({ value, onChange, name, id, error, placeholder }) {
         </span>
       </div>
 
-      {isOpen && (
-        <div className={styles.dropdown}>
-          <div className={styles.monthYearRow}>
-            <select
-              className={styles.monthSelect}
-              value={month}
-              onChange={handleMonthChange}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {MONTHS.map((m, idx) => (
-                <option key={m} value={idx}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <select
-              className={styles.yearSelect}
-              value={year}
-              onChange={handleYearChange}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {YEARS.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.daysHeader}>
-            {DAYS_OF_WEEK.map((d) => (
-              <span key={d} className={styles.dayLabel}>{d}</span>
-            ))}
-          </div>
-
-          <div className={styles.daysGrid}>
-            {calendarDays.map((dayObj, idx) => {
-              const isSelected = selectedDate && isSameDay(dayObj.date, selectedDate);
-              const isTodayCell = isSameDay(dayObj.date, today);
-
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  className={[
-                    styles.dayCell,
-                    !dayObj.currentMonth ? styles.dayCellOutside : '',
-                    isSelected ? styles.dayCellSelected : '',
-                    isTodayCell && !isSelected ? styles.dayCellToday : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  onClick={() => handleDayClick(dayObj)}
-                >
-                  {dayObj.day}
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedDate && (
-            <div className={styles.selectedPreview}>{displayText}</div>
-          )}
-        </div>
-      )}
+      {createPortal(dropdownContent, document.body)}
 
       <input type="hidden" name={name} id={id} value={value || ''} />
     </div>

@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload } from 'react-icons/fi';
+import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useCustomerSalesData } from './useCustomerSalesData';
 import { useVehicles } from '../vehicles/useVehicles';
 import { COLOR_SWATCH_MAP } from './constants';
 import CreateEditSalesDataModal from './CreateEditSalesDataModal';
 import ViewSalesDataModal from './ViewSalesDataModal';
 import ConfirmDeleteSalesDataModal from './ConfirmDeleteSalesDataModal';
+import DatePicker from './components/DatePicker';
 import styles from './CustomerSalesDataScreen.module.scss';
 
 function CustomerSalesDataScreen() {
@@ -21,11 +22,16 @@ function CustomerSalesDataScreen() {
   const [filterCustomerName, setFilterCustomerName] = useState('');
   const [filterContact, setFilterContact] = useState('');
   const [filterVin, setFilterVin] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
     customerName: '',
     contact: '',
     vin: '',
+    dateFrom: '',
+    dateTo: '',
   });
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [viewItem, setViewItem] = useState(null);
@@ -40,8 +46,32 @@ function CustomerSalesDataScreen() {
       customerName: filterCustomerName,
       contact: filterContact,
       vin: filterVin,
+      dateFrom: filterDateFrom,
+      dateTo: filterDateTo,
     });
   };
+
+  const handleClearFilters = () => {
+    setFilterCustomerName('');
+    setFilterContact('');
+    setFilterVin('');
+    setFilterDateFrom('');
+    setFilterDateTo('');
+    setAppliedFilters({
+      customerName: '',
+      contact: '',
+      vin: '',
+      dateFrom: '',
+      dateTo: '',
+    });
+  };
+
+  const hasActiveFilters =
+    appliedFilters.customerName ||
+    appliedFilters.contact ||
+    appliedFilters.vin ||
+    appliedFilters.dateFrom ||
+    appliedFilters.dateTo;
 
   const handleCreateSubmit = (payload) => {
     addSalesData(payload, vehicleOptions);
@@ -83,39 +113,120 @@ function CustomerSalesDataScreen() {
         </div>
       </div>
 
-      <div className={styles.filters}>
-        <div className={styles.searchFields}>
-          <input
-            type="text"
-            className={styles.filterInput}
-            placeholder="Customer name"
-            value={filterCustomerName}
-            onChange={(e) => setFilterCustomerName(e.target.value)}
-            aria-label="Filter by customer name"
-          />
-          <input
-            type="text"
-            className={styles.filterInput}
-            placeholder="Contact number"
-            value={filterContact}
-            onChange={(e) => setFilterContact(e.target.value)}
-            aria-label="Filter by contact"
-          />
-          <input
-            type="text"
-            className={styles.filterInput}
-            placeholder="VIN"
-            value={filterVin}
-            onChange={(e) => setFilterVin(e.target.value)}
-            aria-label="Filter by VIN"
-          />
-          <button
-            type="button"
-            className={styles.searchBtn}
-            onClick={handleSearch}
-          >
-            Search
-          </button>
+      <div className={styles.filtersAccordion}>
+        <button
+          type="button"
+          className={styles.accordionHeader}
+          onClick={() => setFiltersExpanded((prev) => !prev)}
+          aria-expanded={filtersExpanded}
+          aria-controls="filters-content"
+        >
+          {filtersExpanded ? (
+            <FiChevronDown size={20} aria-hidden />
+          ) : (
+            <FiChevronRight size={20} aria-hidden />
+          )}
+          <span className={styles.accordionTitle}>Filters</span>
+          {hasActiveFilters && (
+            <span className={styles.accordionBadge}>
+              {[appliedFilters.customerName, appliedFilters.contact, appliedFilters.vin, appliedFilters.dateFrom, appliedFilters.dateTo].filter(Boolean).length} active
+            </span>
+          )}
+        </button>
+        <div
+          id="filters-content"
+          className={`${styles.accordionBody} ${filtersExpanded ? styles.accordionBodyOpen : ''}`}
+        >
+          <div className={styles.accordionBodyInner}>
+            <div className={styles.filtersGrid}>
+              <div className={styles.filterField}>
+                <label htmlFor="filter_customer_name" className={styles.filterLabel}>
+                  Customer name
+                </label>
+                <input
+                  type="text"
+                  id="filter_customer_name"
+                  className={styles.filterInput}
+                  placeholder="Customer name"
+                  value={filterCustomerName}
+                  onChange={(e) => setFilterCustomerName(e.target.value)}
+                  aria-label="Filter by customer name"
+                />
+              </div>
+              <div className={styles.filterField}>
+                <label htmlFor="filter_contact" className={styles.filterLabel}>
+                  Contact number
+                </label>
+                <input
+                  type="text"
+                  id="filter_contact"
+                  className={styles.filterInput}
+                  placeholder="Contact number"
+                  value={filterContact}
+                  onChange={(e) => setFilterContact(e.target.value)}
+                  aria-label="Filter by contact"
+                />
+              </div>
+              <div className={styles.filterField}>
+                <label htmlFor="filter_vin" className={styles.filterLabel}>
+                  VIN
+                </label>
+                <input
+                  type="text"
+                  id="filter_vin"
+                  className={styles.filterInput}
+                  placeholder="VIN"
+                  value={filterVin}
+                  onChange={(e) => setFilterVin(e.target.value)}
+                  aria-label="Filter by VIN"
+                />
+              </div>
+              <div className={styles.filterField}>
+                <label htmlFor="filter_date_from" className={styles.filterLabel}>
+                  From date
+                </label>
+                <DatePicker
+                  id="filter_date_from"
+                  name="filter_date_from"
+                  value={filterDateFrom}
+                  onChange={(e) => setFilterDateFrom(e.target.value)}
+                  placeholder="Select from date"
+                />
+              </div>
+              <div className={styles.filterField}>
+                <label htmlFor="filter_date_to" className={styles.filterLabel}>
+                  To date
+                </label>
+                <DatePicker
+                  id="filter_date_to"
+                  name="filter_date_to"
+                  value={filterDateTo}
+                  onChange={(e) => setFilterDateTo(e.target.value)}
+                  placeholder="Select to date"
+                />
+              </div>
+            </div>
+            <div className={styles.filterActions}>
+              <button
+                type="button"
+                className={styles.searchBtn}
+                onClick={handleSearch}
+              >
+                <FiSearch size={18} aria-hidden />
+                Search
+              </button>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className={styles.clearBtn}
+                  onClick={handleClearFilters}
+                >
+                  <FiX size={18} aria-hidden />
+                  Clear filters
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -129,7 +240,7 @@ function CustomerSalesDataScreen() {
                 <th className={styles.th}>Vehicle</th>
                 <th className={styles.th}>Color</th>
                 <th className={styles.th}>VIN</th>
-                <th className={styles.th}>Model Year</th>
+                <th className={styles.th}>Sold Date</th>
                 <th className={styles.th}>Actions</th>
               </tr>
             </thead>
@@ -142,7 +253,7 @@ function CustomerSalesDataScreen() {
                   >
                     <p className={styles.empty}>
                       No sales data found.
-                      {(appliedFilters.customerName || appliedFilters.contact || appliedFilters.vin)
+                      {(appliedFilters.customerName || appliedFilters.contact || appliedFilters.vin || appliedFilters.dateFrom || appliedFilters.dateTo)
                         ? ' Try adjusting your search or filters.'
                         : ' Add details to get started.'}
                     </p>
@@ -179,8 +290,10 @@ function CustomerSalesDataScreen() {
                     <td className={styles.td} data-label="VIN">
                       {item.vin}
                     </td>
-                    <td className={styles.td} data-label="Model Year">
-                      {item.modelYear}
+                    <td className={styles.td} data-label="Sold Date">
+                      {item.soldDate
+                        ? new Date(item.soldDate).toLocaleDateString(undefined, { dateStyle: 'medium' })
+                        : '—'}
                     </td>
                     <td className={styles.td} data-label="Actions">
                       <div className={styles.actions}>

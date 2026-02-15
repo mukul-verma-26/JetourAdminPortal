@@ -75,6 +75,10 @@ function ViewSalesDataModal({ open, onClose, salesData }) {
             <p className={styles.value}>{salesData.vin || '—'}</p>
           </div>
           <div className={styles.row}>
+            <span className={styles.label}>Sold Date</span>
+            <p className={styles.value}>{formatDate(salesData.soldDate)}</p>
+          </div>
+          <div className={styles.row}>
             <span className={styles.label}>Model Year</span>
             <p className={styles.value}>{salesData.modelYear || '—'}</p>
           </div>
