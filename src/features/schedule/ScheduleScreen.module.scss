@@ -1,0 +1,86 @@
+@use '../../styles/theme' as theme;
+
+.screen {
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0;
+}
+
+.saveBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: theme.$PRIMARY_DARK;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.5rem 0;
+}
+
+.sectionDesc {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  margin: 0 0 1rem 0;
+}
+
+.error {
+  font-size: 0.875rem;
+  color: theme.$ERROR;
+  margin: -0.5rem 0 0.75rem 0;
+}
+
+.card {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  border: 1px solid theme.$BORDER;
+  padding: 1.5rem;
+}
+
+.previewCard {
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  border: 1px solid theme.$BORDER;
+  padding: 1.5rem;
+}

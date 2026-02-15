@@ -6,7 +6,6 @@ import {
   FiTruck,
   FiPackage,
   FiClock,
-  FiTrendingUp,
   FiSettings,
   FiTool,
   FiUser,
@@ -26,21 +25,22 @@ const NAV_ITEMS = [
   { to: '/vehicles', label: 'Vehicles', icon: FiNavigation },
   { to: '/inventory', label: 'Inventory', icon: FiPackage },
   { to: '/schedule', label: 'Schedule', icon: FiClock },
-  { to: '/reports', label: 'Reports', icon: FiTrendingUp },
   { to: '/settings', label: 'Settings', icon: FiSettings },
 ];
 
 function Sidebar({ isOpen, onClose }) {
   return (
     <>
-      <div
-        className={`${styles.overlay} ${isOpen ? styles.overlayVisible : ''}`}
-        onClick={onClose}
-        onKeyDown={(e) => e.key === 'Escape' && onClose()}
-        role="button"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
+      {isOpen && (
+        <div
+          className={`${styles.overlay} ${styles.overlayVisible}`}
+          onClick={onClose}
+          onKeyDown={(e) => e.key === 'Escape' && onClose()}
+          role="button"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+      )}
       <aside
         className={`${styles.sidebar} ${!isOpen ? styles.sidebarHidden : ''}`}
         aria-label="Main navigation"

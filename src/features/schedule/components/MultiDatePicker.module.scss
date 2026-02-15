@@ -1,0 +1,140 @@
+@use '../../../styles/theme' as theme;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}
+
+.calendarSection {
+  flex: 0 0 auto;
+  width: 280px;
+  min-width: 240px;
+  pointer-events: auto;
+}
+
+.selectedPanel {
+  flex: 1;
+  min-width: 0;
+}
+
+.selectedLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: theme.$TEXT_TERTIARY;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 6px;
+  background: theme.$BACKGROUND;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.monthYear {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.daysHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 0.25rem;
+}
+
+.dayLabel {
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: theme.$TEXT_TERTIARY;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-height: 1.75rem;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: theme.$PRIMARY_LIGHT;
+    color: theme.$PRIMARY;
+  }
+}
+
+.dayCellOutside {
+  color: theme.$TEXT_TERTIARY;
+  opacity: 0.5;
+}
+
+.dayCellHoliday {
+  background: rgba(244, 67, 54, 0.2) !important;
+  color: theme.$ERROR !important;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.3) !important;
+  }
+}
+
+.dayCellToday {
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+  font-weight: 600;
+}
+
+.dayCellPast {
+  color: theme.$TEXT_TERTIARY;
+  opacity: 0.5;
+  cursor: not-allowed;
+}

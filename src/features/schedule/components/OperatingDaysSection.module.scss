@@ -1,0 +1,28 @@
+@use '../../../styles/theme' as theme;
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 1rem 0;
+}
+
+.error {
+  font-size: 0.875rem;
+  color: theme.$ERROR;
+  margin: -0.5rem 0 0.75rem 0;
+}
+
+.dayCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+  }
+}

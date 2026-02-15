@@ -1,0 +1,69 @@
+@use '../../../styles/theme' as theme;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.75rem;
+  min-width: 100px;
+  border-radius: 12px;
+  border: 2px solid theme.$BORDER;
+  background: theme.$SURFACE;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cardEnabled {
+  border-color: theme.$PRIMARY;
+  background: rgba(27, 169, 165, 0.04);
+
+  &:hover {
+    border-color: theme.$PRIMARY_DARK;
+  }
+}
+
+.cardDisabled {
+  border-color: theme.$BORDER;
+  background: theme.$BACKGROUND;
+  opacity: 0.85;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dayName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 2px solid theme.$BORDER;
+  border-radius: 4px;
+  background: theme.$SURFACE;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.cardEnabled .checkbox {
+  background: theme.$PRIMARY;
+  border-color: theme.$PRIMARY;
+  color: theme.$SURFACE;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+}

@@ -1,0 +1,86 @@
+@use '../../../styles/theme' as theme;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.example {
+  font-size: 0.8125rem;
+  color: theme.$TEXT_TERTIARY;
+  margin: 0;
+}
+
+.ranges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rangeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.timeInputs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.timeField {
+  flex: 1;
+  min-width: 120px;
+}
+
+.toLabel {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+  flex-shrink: 0;
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(244, 67, 54, 0.1);
+    color: theme.$ERROR;
+  }
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$PRIMARY;
+  background: theme.$PRIMARY_LIGHT;
+  border: 1px dashed theme.$PRIMARY;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+
+  &:hover {
+    background: rgba(27, 169, 165, 0.15);
+  }
+}

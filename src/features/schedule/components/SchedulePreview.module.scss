@@ -1,0 +1,57 @@
+@use '../../../styles/theme' as theme;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rangeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rangeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: theme.$BACKGROUND;
+  border-radius: 8px;
+  border: 1px solid theme.$BORDER;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.timeRange {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.bookingCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: theme.$TEXT_SECONDARY;
+}
+
+.closed,
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%;
+  background: theme.$BACKGROUND;
+  border-radius: 8px;
+  border: 1px dashed theme.$BORDER;
+}
+
+.closedText,
+.emptyText {
+  font-size: 0.9375rem;
+  color: theme.$TEXT_TERTIARY;
+  margin: 0;
+}

@@ -1,0 +1,63 @@
+@use '../../../styles/theme' as theme;
+
+.section {
+  margin-bottom: 2.5rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  background: theme.$SURFACE;
+  overflow: hidden;
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+
+  &:hover {
+    background: theme.$BACKGROUND;
+  }
+}
+
+.accordionTitle {
+  flex: 1;
+}
+
+.accordionIcon {
+  flex-shrink: 0;
+  color: theme.$TEXT_SECONDARY;
+  transition: transform 0.2s ease;
+}
+
+.accordionIconOpen {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordionContentOpen {
+  max-height: 800px;
+}
+
+.calendarCard {
+  padding: 0 1rem 1rem 1rem;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+  background: theme.$SURFACE;
+  border-radius: 0 0 12px 12px;
+}
