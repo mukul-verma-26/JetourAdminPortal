@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import { STATUS_OPTIONS, PACKAGE_DETAIL_OPTIONS } from './constants';
+import { normalizeDetailsToItems } from './helpers';
+import PackageDetailsList from './components/PackageDetailsList';
 import styles from './CreateEditPackageModal.module.scss';
+
+const DETAIL_OPTION_LOOKUP = Object.fromEntries(
+  PACKAGE_DETAIL_OPTIONS.map((o) => [o.id, o.label])
+);
 
 function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -15,10 +21,12 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
 
   useEffect(() => {
     if (initialData) {
+      const rawDetails = initialData.details ?? [];
+      const details = normalizeDetailsToItems(rawDetails, DETAIL_OPTION_LOOKUP);
       setFormData({
         name: initialData.name || '',
         status: initialData.status || 'active',
-        details: Array.isArray(initialData.details) ? [...initialData.details] : [],
+        details: details.length > 0 ? details : [],
       });
     } else {
       setFormData({ name: '', status: 'active', details: [] });
@@ -32,13 +40,8 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
-  const handleDetailToggle = (id) => {
-    setFormData((prev) => ({
-      ...prev,
-      details: prev.details.includes(id)
-        ? prev.details.filter((d) => d !== id)
-        : [...prev.details, id],
-    }));
+  const handleDetailsChange = (details) => {
+    setFormData((prev) => ({ ...prev, details }));
   };
 
   const validateForm = () => {
@@ -52,10 +55,13 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    const details = formData.details
+      .filter((d) => d.checked && (d.label || '').trim())
+      .map((d) => ({ id: d.id, label: d.label.trim() }));
     const payload = {
       name: formData.name.trim(),
       status: formData.status,
-      details: formData.details,
+      details,
     };
     if (isEdit) {
       onSubmit(initialData.id, payload);
@@ -119,19 +125,10 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
           </div>
           <div className={styles.field}>
             <span className={styles.label}>Package details</span>
-            <div className={styles.checkboxGroup}>
-              {PACKAGE_DETAIL_OPTIONS.map((opt) => (
-                <label key={opt.id} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.details.includes(opt.id)}
-                    onChange={() => handleDetailToggle(opt.id)}
-                    className={styles.checkbox}
-                  />
-                  <span>{opt.label}</span>
-                </label>
-              ))}
-            </div>
+            <PackageDetailsList
+              items={formData.details}
+              onChange={handleDetailsChange}
+            />
           </div>
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>

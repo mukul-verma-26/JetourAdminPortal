@@ -69,12 +69,11 @@
 .actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   margin-top: 1.5rem;
   padding-top: 1.25rem;
   border-top: 1px solid theme.$BORDER;
-  flex-wrap: wrap;
 }
 
 .rightActions {
@@ -113,25 +112,5 @@
 
   &:hover {
     background: theme.$PRIMARY_DARK;
-  }
-}
-
-.deleteBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: inherit;
-  color: theme.$SURFACE;
-  background: theme.$ERROR;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #d32f2f;
   }
 }

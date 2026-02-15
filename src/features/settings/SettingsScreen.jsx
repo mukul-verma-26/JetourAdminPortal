@@ -64,10 +64,6 @@ function SettingsScreen() {
         onClose={handleCloseManagePackageModal}
         package={packageToManage}
         onSubmit={handleManagePackageSubmit}
-        onDelete={(pkg) => {
-          handleCloseManagePackageModal();
-          handleOpenDeleteConfirm(pkg);
-        }}
       />
 
       <ConfirmDeletePackageModal

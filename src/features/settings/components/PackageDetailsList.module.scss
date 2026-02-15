@@ -1,0 +1,115 @@
+@use '../../../styles/theme' as theme;
+
+.wrapper {
+  margin-top: 0.5rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 1px solid theme.$BORDER;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:checked {
+    background: transparent;
+    border-color: theme.$PRIMARY;
+
+    &::after {
+      content: '';
+      width: 0.3rem;
+      height: 0.55rem;
+      border: solid theme.$PRIMARY;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+      margin-bottom: 0.15rem;
+    }
+  }
+}
+
+.input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: theme.$TEXT_SECONDARY;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(244, 67, 54, 0.08);
+    color: #ef4444;
+  }
+}
+
+.addBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$PRIMARY;
+  background: theme.$PRIMARY_LIGHT;
+  border: 1px dashed theme.$PRIMARY;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(27, 169, 165, 0.15);
+  }
+}

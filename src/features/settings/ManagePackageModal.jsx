@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiX, FiTrash2 } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
 import ManagePackageTable from './components/ManagePackageTable';
 import { createEmptyPricingRow, VEHICLE_MODELS } from './constants';
 import styles from './ManagePackageModal.module.scss';
@@ -17,7 +17,7 @@ function normalizePricingMatrix(pricingMatrix, vehicleNames) {
   });
 }
 
-function ManagePackageModal({ open, onClose, package: pkg, onSubmit, onDelete }) {
+function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -36,11 +36,6 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit, onDelete })
     const payload = { pricingMatrix: rows };
     onSubmit(pkg.id, payload);
     onClose();
-  };
-
-  const handleDelete = () => {
-    onClose();
-    onDelete(pkg);
   };
 
   if (!open || !pkg) return null;
@@ -69,15 +64,6 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit, onDelete })
             onAddRow={handleAddRow}
           />
           <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              aria-label="Delete package"
-            >
-              <FiTrash2 size={16} />
-              Delete Package
-            </button>
             <div className={styles.rightActions}>
               <button type="button" className={styles.cancelBtn} onClick={onClose}>
                 Cancel

@@ -2,6 +2,21 @@
  * Package pricing helpers – pure logic, no React.
  */
 
+export function normalizeDetailsToItems(details, optionLookup = {}) {
+  if (!Array.isArray(details)) return [];
+  return details.map((item) => {
+    if (typeof item === 'string') {
+      const label = optionLookup[item] ?? item;
+      return { id: item, label, checked: true };
+    }
+    return {
+      id: item.id ?? `detail-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      label: item.label ?? '',
+      checked: item.checked !== false,
+    };
+  });
+}
+
 export function parseMileage(value) {
   const cleaned = String(value).replace(/[^\d]/g, '');
   return cleaned;
