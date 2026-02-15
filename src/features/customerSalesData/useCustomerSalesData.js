@@ -49,16 +49,16 @@ export function useCustomerSalesData() {
   const filteredSalesData = useMemo(
     () => ({
       byFilters: (list, filters) => {
-        const { contact, registration, vin } = filters || {};
+        const { customerName, contact, vin } = filters || {};
         return list.filter((item) => {
+          if (customerName && customerName.trim()) {
+            const nameLower = (item.customerName || '').toLowerCase();
+            if (!nameLower.includes(customerName.trim().toLowerCase())) return false;
+          }
           if (contact && contact.trim()) {
             const phoneNormalized = (item.customerContactNumber || '').replace(/\D/g, '');
             const searchDigits = contact.trim().replace(/\D/g, '');
             if (!phoneNormalized.includes(searchDigits)) return false;
-          }
-          if (registration && registration.trim()) {
-            const regLower = (item.registrationNumber || '').toLowerCase();
-            if (!regLower.includes(registration.trim().toLowerCase())) return false;
           }
           if (vin && vin.trim()) {
             const vinLower = (item.vin || '').toLowerCase();
@@ -66,10 +66,6 @@ export function useCustomerSalesData() {
           }
           return true;
         });
-      },
-      byStatus: (list, status) => {
-        if (!status || status === 'all') return list;
-        return list.filter((item) => item.customerStatus === status);
       },
     }),
     []

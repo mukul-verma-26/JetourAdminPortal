@@ -3,7 +3,6 @@ import { FiX } from 'react-icons/fi';
 import {
   STATUS_OPTIONS,
   GENDER_OPTIONS,
-  VEHICLES,
   TECHNICIANS,
   DRIVERS,
   SERVICE_VANS,
@@ -31,6 +30,7 @@ function CreateEditBookingModal({
   initialData,
   onSubmit,
   servicePackages = [],
+  vehicleOptions = [],
 }) {
   const activePackages = servicePackages.filter((p) => p.status === 'active');
   const [formData, setFormData] = useState({
@@ -180,7 +180,7 @@ function CreateEditBookingModal({
     }
 
     if (!formData.vehicle_year.trim()) {
-      newErrors.vehicle_year = 'Vehicle year is required';
+      newErrors.vehicle_year = 'Vehicle model year is required';
     } else if (!/^\d{4}$/.test(formData.vehicle_year.trim())) {
       newErrors.vehicle_year = 'Enter a valid 4-digit year';
     }
@@ -286,9 +286,10 @@ function CreateEditBookingModal({
   };
 
   const currentYear = new Date().getFullYear();
+  const maxYear = currentYear + 5;
   const MODEL_YEAR_OPTIONS = Array.from(
-    { length: currentYear - 2015 + 1 },
-    (_, i) => String(currentYear - i)
+    { length: maxYear - 2015 + 1 },
+    (_, i) => String(maxYear - i)
   );
 
   const handleMileageChange = (e) => {
@@ -429,12 +430,11 @@ function CreateEditBookingModal({
   return (
     <div
       className={styles.overlay}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modal}>
         <div className={styles.header}>
           <h2 id="modal-title" className={styles.title}>
             {title}
@@ -698,7 +698,7 @@ function CreateEditBookingModal({
                 onChange={handleChange}
               >
                 <option value="">Select a vehicle</option>
-                {VEHICLES.map((v) => (
+                {vehicleOptions.map((v) => (
                   <option key={v.id} value={v.name}>
                     {v.name}
                   </option>
@@ -727,7 +727,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="vehicle_year" className={styles.label}>
-                Vehicle Year <span className={styles.required}>*</span>
+                Vehicle model year <span className={styles.required}>*</span>
               </label>
               <select
                 id="vehicle_year"
@@ -955,8 +955,8 @@ function CreateEditBookingModal({
             </button>
             <button
               type="submit"
-              className={`${styles.submitBtn} ${!isFormValid() || isSubmitting ? styles.disabled : ''}`}
-              disabled={!isFormValid() || isSubmitting}
+              className={`${styles.submitBtn} ${isSubmitting ? styles.disabled : ''}`}
+              disabled={isSubmitting}
             >
               {isEdit ? 'Update' : 'Create'}
             </button>

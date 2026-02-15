@@ -15,7 +15,7 @@ export function useBookings() {
   const filteredBookings = useMemo(
     () => ({
       byFilters: (list, filters) => {
-        const { name, phone, vin } = filters || {};
+        const { name, phone, vin, dateFrom, dateTo } = filters || {};
         return list.filter((b) => {
           if (name && name.trim()) {
             const nameLower = (b.name || '').toLowerCase();
@@ -29,6 +29,14 @@ export function useBookings() {
           if (vin && vin.trim()) {
             const vinLower = (b.vehicle_registration || b.vin || '').toLowerCase();
             if (!vinLower.includes(vin.trim().toLowerCase())) return false;
+          }
+          if (dateFrom && dateFrom.trim()) {
+            const bookingDate = b.booking_date || '';
+            if (!bookingDate || bookingDate < dateFrom.trim()) return false;
+          }
+          if (dateTo && dateTo.trim()) {
+            const bookingDate = b.booking_date || '';
+            if (!bookingDate || bookingDate > dateTo.trim()) return false;
           }
           return true;
         });

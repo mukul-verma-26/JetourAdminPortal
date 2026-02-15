@@ -2,22 +2,11 @@ import { useState, useMemo } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload } from 'react-icons/fi';
 import { useCustomerSalesData } from './useCustomerSalesData';
 import { useVehicles } from '../vehicles/useVehicles';
-import { CUSTOMER_STATUS_OPTIONS } from './constants';
+import { COLOR_SWATCH_MAP } from './constants';
 import CreateEditSalesDataModal from './CreateEditSalesDataModal';
 import ViewSalesDataModal from './ViewSalesDataModal';
 import ConfirmDeleteSalesDataModal from './ConfirmDeleteSalesDataModal';
 import styles from './CustomerSalesDataScreen.module.scss';
-
-function getStatusLabel(value) {
-  return (
-    CUSTOMER_STATUS_OPTIONS.find((o) => o.value === value)?.label || value
-  );
-}
-
-const STATUS_CLASS_MAP = {
-  active: styles.statusActive,
-  inactive: styles.statusInactive,
-};
 
 function CustomerSalesDataScreen() {
   const {
@@ -29,29 +18,27 @@ function CustomerSalesDataScreen() {
   } = useCustomerSalesData();
   const { vehicleOptions } = useVehicles();
 
+  const [filterCustomerName, setFilterCustomerName] = useState('');
   const [filterContact, setFilterContact] = useState('');
-  const [filterRegistration, setFilterRegistration] = useState('');
   const [filterVin, setFilterVin] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
+    customerName: '',
     contact: '',
-    registration: '',
     vin: '',
   });
-  const [statusFilter, setStatusFilter] = useState('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [viewItem, setViewItem] = useState(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
 
   const displayedItems = useMemo(() => {
-    const byFilters = filteredSalesData.byFilters(salesDataList, appliedFilters);
-    return filteredSalesData.byStatus(byFilters, statusFilter);
-  }, [salesDataList, appliedFilters, statusFilter, filteredSalesData]);
+    return filteredSalesData.byFilters(salesDataList, appliedFilters);
+  }, [salesDataList, appliedFilters, filteredSalesData]);
 
   const handleSearch = () => {
     setAppliedFilters({
+      customerName: filterCustomerName,
       contact: filterContact,
-      registration: filterRegistration,
       vin: filterVin,
     });
   };
@@ -101,18 +88,18 @@ function CustomerSalesDataScreen() {
           <input
             type="text"
             className={styles.filterInput}
-            placeholder="Contact number"
-            value={filterContact}
-            onChange={(e) => setFilterContact(e.target.value)}
-            aria-label="Filter by contact"
+            placeholder="Customer name"
+            value={filterCustomerName}
+            onChange={(e) => setFilterCustomerName(e.target.value)}
+            aria-label="Filter by customer name"
           />
           <input
             type="text"
             className={styles.filterInput}
-            placeholder="Registration number"
-            value={filterRegistration}
-            onChange={(e) => setFilterRegistration(e.target.value)}
-            aria-label="Filter by registration"
+            placeholder="Contact number"
+            value={filterContact}
+            onChange={(e) => setFilterContact(e.target.value)}
+            aria-label="Filter by contact"
           />
           <input
             type="text"
@@ -130,18 +117,6 @@ function CustomerSalesDataScreen() {
             Search
           </button>
         </div>
-        <select
-          className={styles.statusSelect}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          aria-label="Filter by status"
-        >
-          {CUSTOMER_STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className={styles.card}>
@@ -149,13 +124,12 @@ function CustomerSalesDataScreen() {
           <table className={styles.table}>
             <thead className={styles.thead}>
               <tr>
-                <th className={styles.th}>Sales Data ID</th>
+                <th className={styles.th}>Customer Name</th>
                 <th className={styles.th}>Contact</th>
                 <th className={styles.th}>Vehicle</th>
-                <th className={styles.th}>Registration</th>
+                <th className={styles.th}>Color</th>
                 <th className={styles.th}>VIN</th>
                 <th className={styles.th}>Model Year</th>
-                <th className={styles.th}>Status</th>
                 <th className={styles.th}>Actions</th>
               </tr>
             </thead>
@@ -163,13 +137,12 @@ function CustomerSalesDataScreen() {
               {displayedItems.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={7}
                     className={`${styles.td} ${styles.emptyCell}`}
                   >
                     <p className={styles.empty}>
                       No sales data found.
-                      {(appliedFilters.contact || appliedFilters.registration ||
-                        appliedFilters.vin || statusFilter !== 'all')
+                      {(appliedFilters.customerName || appliedFilters.contact || appliedFilters.vin)
                         ? ' Try adjusting your search or filters.'
                         : ' Add details to get started.'}
                     </p>
@@ -178,8 +151,8 @@ function CustomerSalesDataScreen() {
               ) : (
                 displayedItems.map((item) => (
                   <tr key={item.id} className={styles.tr}>
-                    <td className={styles.td} data-label="Sales Data ID">
-                      {item.salesDataId}
+                    <td className={styles.td} data-label="Customer Name">
+                      {item.customerName || '—'}
                     </td>
                     <td className={styles.td} data-label="Contact">
                       {item.customerContactNumber}
@@ -187,21 +160,27 @@ function CustomerSalesDataScreen() {
                     <td className={styles.td} data-label="Vehicle">
                       {item.vehicleName}
                     </td>
-                    <td className={styles.td} data-label="Registration">
-                      {item.registrationNumber}
+                    <td className={styles.td} data-label="Color">
+                      <span className={styles.colorCell}>
+                        {item.color && (
+                          <span
+                            className={styles.colorSwatch}
+                            style={{
+                              backgroundColor:
+                                COLOR_SWATCH_MAP[item.color] || '#e0e0e0',
+                            }}
+                            title={item.color}
+                            aria-hidden
+                          />
+                        )}
+                        {item.color || '—'}
+                      </span>
                     </td>
                     <td className={styles.td} data-label="VIN">
                       {item.vin}
                     </td>
                     <td className={styles.td} data-label="Model Year">
                       {item.modelYear}
-                    </td>
-                    <td className={styles.td} data-label="Status">
-                      <span
-                        className={`${styles.statusBadge} ${STATUS_CLASS_MAP[item.customerStatus] || styles.statusActive}`}
-                      >
-                        {getStatusLabel(item.customerStatus)}
-                      </span>
                     </td>
                     <td className={styles.td} data-label="Actions">
                       <div className={styles.actions}>

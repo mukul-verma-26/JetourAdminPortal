@@ -1,17 +1,10 @@
 import { FiX } from 'react-icons/fi';
 import {
-  CUSTOMER_STATUS_OPTIONS,
   TRANSMISSION_OPTIONS,
   FUEL_TYPE_OPTIONS,
   SALES_LABEL_OPTIONS,
 } from './constants';
 import styles from './ViewSalesDataModal.module.scss';
-
-function getStatusLabel(value) {
-  return (
-    CUSTOMER_STATUS_OPTIONS.find((o) => o.value === value)?.label || value
-  );
-}
 
 function getTransmissionLabel(value) {
   return TRANSMISSION_OPTIONS.find((o) => o.value === value)?.label || value || '—';
@@ -31,16 +24,8 @@ function formatDate(dateStr) {
   return d.toLocaleDateString(undefined, { dateStyle: 'medium' });
 }
 
-const STATUS_CLASS_MAP = {
-  active: styles.statusActive,
-  inactive: styles.statusInactive,
-};
-
 function ViewSalesDataModal({ open, onClose, salesData }) {
   if (!open || !salesData) return null;
-
-  const statusClass =
-    STATUS_CLASS_MAP[salesData.customerStatus] || styles.statusActive;
 
   return (
     <div
@@ -70,6 +55,10 @@ function ViewSalesDataModal({ open, onClose, salesData }) {
             <p className={styles.value}>{salesData.salesDataId}</p>
           </div>
           <div className={styles.row}>
+            <span className={styles.label}>Customer Name</span>
+            <p className={styles.value}>{salesData.customerName || '—'}</p>
+          </div>
+          <div className={styles.row}>
             <span className={styles.label}>Customer Contact</span>
             <p className={styles.value}>{salesData.customerContactNumber || '—'}</p>
           </div>
@@ -78,8 +67,8 @@ function ViewSalesDataModal({ open, onClose, salesData }) {
             <p className={styles.value}>{salesData.vehicleName || '—'}</p>
           </div>
           <div className={styles.row}>
-            <span className={styles.label}>Registration Number</span>
-            <p className={styles.value}>{salesData.registrationNumber || '—'}</p>
+            <span className={styles.label}>Color</span>
+            <p className={styles.value}>{salesData.color || '—'}</p>
           </div>
           <div className={styles.row}>
             <span className={styles.label}>VIN</span>
@@ -92,10 +81,6 @@ function ViewSalesDataModal({ open, onClose, salesData }) {
           <div className={styles.row}>
             <span className={styles.label}>Variant Name</span>
             <p className={styles.value}>{salesData.variantName || '—'}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Color</span>
-            <p className={styles.value}>{salesData.color || '—'}</p>
           </div>
           <div className={styles.row}>
             <span className={styles.label}>Last Service Date</span>
@@ -116,14 +101,6 @@ function ViewSalesDataModal({ open, onClose, salesData }) {
           <div className={styles.row}>
             <span className={styles.label}>Sales Label</span>
             <p className={styles.value}>{getSalesLabelLabel(salesData.salesLabel)}</p>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Customer Status</span>
-            <p className={styles.value}>
-              <span className={`${styles.statusBadge} ${statusClass}`}>
-                {getStatusLabel(salesData.customerStatus)}
-              </span>
-            </p>
           </div>
         </div>
       </div>

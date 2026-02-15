@@ -173,7 +173,7 @@ function ViewBookingModal({ open, onClose, booking }) {
 
           <div className={styles.fieldRow}>
             <div className={styles.field}>
-              <span className={styles.label}>Vehicle Year</span>
+              <span className={styles.label}>Vehicle model year</span>
               <p className={styles.value}>{booking.vehicle_year || '—'}</p>
             </div>
             <div className={styles.field}>

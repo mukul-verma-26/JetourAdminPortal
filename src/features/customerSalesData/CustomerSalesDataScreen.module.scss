@@ -216,6 +216,21 @@
   }
 }
 
+.colorCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.colorSwatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  border: 1px solid theme.$BORDER;
+  flex-shrink: 0;
+}
+
 .statusBadge {
   display: inline-block;
   padding: 0.25rem 0.5rem;

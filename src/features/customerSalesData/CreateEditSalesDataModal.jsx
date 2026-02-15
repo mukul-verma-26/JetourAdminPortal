@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import {
-  CUSTOMER_STATUS_OPTIONS,
   TRANSMISSION_OPTIONS,
   FUEL_TYPE_OPTIONS,
   SALES_LABEL_OPTIONS,
@@ -9,10 +8,6 @@ import {
 } from './constants';
 import DatePicker from './components/DatePicker';
 import styles from './CreateEditSalesDataModal.module.scss';
-
-const STATUS_OPTIONS_FOR_FORM = CUSTOMER_STATUS_OPTIONS.filter(
-  (o) => o.value !== 'all'
-);
 const PHONE_PREFIX = '+965';
 const MODEL_YEAR_OPTIONS = getModelYearOptions();
 
@@ -24,6 +19,7 @@ function CreateEditSalesDataModal({
   vehicleOptions,
 }) {
   const [formData, setFormData] = useState({
+    customerName: '',
     customerContactNumber: '',
     vehicleId: '',
     registrationNumber: '',
@@ -36,7 +32,6 @@ function CreateEditSalesDataModal({
     transmission: '',
     fuelType: 'petrol',
     salesLabel: '',
-    customerStatus: 'active',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,6 +42,7 @@ function CreateEditSalesDataModal({
     if (initialData) {
       const phoneDigits = (initialData.customerContactNumber || '').replace(/\D/g, '').slice(-8);
       setFormData({
+        customerName: initialData.customerName || '',
         customerContactNumber: phoneDigits,
         vehicleId: initialData.vehicleId || '',
         registrationNumber: initialData.registrationNumber || '',
@@ -59,10 +55,10 @@ function CreateEditSalesDataModal({
         transmission: initialData.transmission || '',
         fuelType: initialData.fuelType || 'petrol',
         salesLabel: initialData.salesLabel || '',
-        customerStatus: initialData.customerStatus || 'active',
       });
     } else {
       setFormData({
+        customerName: '',
         customerContactNumber: '',
         vehicleId: '',
         registrationNumber: '',
@@ -75,7 +71,6 @@ function CreateEditSalesDataModal({
         transmission: '',
         fuelType: 'petrol',
         salesLabel: '',
-        customerStatus: 'active',
       });
     }
     setErrors({});
@@ -99,10 +94,6 @@ function CreateEditSalesDataModal({
       newErrors.vehicleId = 'Vehicle is required';
     }
 
-    if (!formData.registrationNumber.trim()) {
-      newErrors.registrationNumber = 'Registration number is required';
-    }
-
     if (!formData.vin.trim()) {
       newErrors.vin = 'VIN is required';
     }
@@ -113,10 +104,6 @@ function CreateEditSalesDataModal({
 
     if (!formData.fuelType) {
       newErrors.fuelType = 'Fuel type is required';
-    }
-
-    if (!formData.customerStatus) {
-      newErrors.customerStatus = 'Customer status is required';
     }
 
     setErrors(newErrors);
@@ -166,6 +153,7 @@ function CreateEditSalesDataModal({
     setIsSubmitting(true);
 
     const payload = {
+      customerName: formData.customerName.trim(),
       customerContactNumber: formData.customerContactNumber.trim()
         ? `${PHONE_PREFIX}${formData.customerContactNumber.trim()}`
         : '',
@@ -180,7 +168,6 @@ function CreateEditSalesDataModal({
       transmission: formData.transmission || null,
       fuelType: formData.fuelType,
       salesLabel: formData.salesLabel || null,
-      customerStatus: formData.customerStatus,
     };
 
     if (isEdit) {
@@ -221,6 +208,21 @@ function CreateEditSalesDataModal({
         </div>
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label htmlFor="customer-name" className={styles.label}>
+                Customer Name
+              </label>
+              <input
+                id="customer-name"
+                name="customerName"
+                type="text"
+                className={styles.input}
+                placeholder="e.g. Ahmed Al-Rashid"
+                value={formData.customerName}
+                onChange={handleChange}
+              />
+            </div>
+
             <div className={styles.field}>
               <label htmlFor="customer-contact" className={styles.label}>
                 Customer Contact Number <span className={styles.required}>*</span>
@@ -271,20 +273,17 @@ function CreateEditSalesDataModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="registration" className={styles.label}>
-                Registration Number <span className={styles.required}>*</span>
+                Registration Number
               </label>
               <input
                 id="registration"
                 name="registrationNumber"
                 type="text"
-                className={`${styles.input} ${errors.registrationNumber ? styles.inputError : ''}`}
-                placeholder="e.g. ABC 1234"
+                className={styles.input}
+                placeholder="e.g. ABC 1234 (optional)"
                 value={formData.registrationNumber}
                 onChange={handleChange}
               />
-              {errors.registrationNumber && (
-                <div className={styles.errorMessage}>{errors.registrationNumber}</div>
-              )}
             </div>
 
             <div className={styles.field}>
@@ -454,30 +453,6 @@ function CreateEditSalesDataModal({
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="customer-status" className={styles.label}>
-                Customer Status <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="customer-status"
-                name="customerStatus"
-                className={`${styles.select} ${errors.customerStatus ? styles.inputError : ''}`}
-                value={formData.customerStatus}
-                onChange={handleChange}
-              >
-                {STATUS_OPTIONS_FOR_FORM.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              {errors.customerStatus && (
-                <div className={styles.errorMessage}>{errors.customerStatus}</div>
-              )}
             </div>
           </div>
 

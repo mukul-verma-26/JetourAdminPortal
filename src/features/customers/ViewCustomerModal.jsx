@@ -52,7 +52,6 @@ function ViewCustomerModal({ open, onClose, customer }) {
   return (
     <div
       className={styles.overlay}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
       aria-labelledby="view-customer-title"

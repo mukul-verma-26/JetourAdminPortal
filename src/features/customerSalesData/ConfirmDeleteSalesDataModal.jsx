@@ -25,7 +25,7 @@ function ConfirmDeleteSalesDataModal({
         <div className={styles.body}>
           <h2 id="confirm-delete-sales-data-title" className={styles.message}>
             Are you sure you want to delete sales data {salesData.salesDataId} (
-            {salesData.registrationNumber})?
+            {salesData.vin || '—'})?
           </h2>
           <div className={styles.actions}>
             <button
