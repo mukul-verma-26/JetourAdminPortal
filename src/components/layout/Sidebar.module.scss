@@ -26,15 +26,19 @@
 .logoBlock {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.logoText {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.logoImg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 7.5rem;
+  margin-bottom: 0.25rem;
+  object-fit: contain;
+  background: #fff;
 }
 
 .tagline {

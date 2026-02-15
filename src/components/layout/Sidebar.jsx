@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import logoJetour from '../../assets/logo-jetour.png';
 import {
   FiBarChart2,
   FiCalendar,
@@ -46,8 +47,11 @@ function Sidebar({ isOpen, onClose }) {
         aria-label="Main navigation"
       >
         <div className={styles.logoBlock}>
-          <h2 className={styles.logoText}>JETOUR</h2>
-          <p className={styles.tagline}>Admin Portal</p>
+          <img
+            src={logoJetour}
+            alt="Jetour"
+            className={styles.logoImg}
+          />
         </div>
         <nav className={styles.nav}>
           <ul className={styles.navList}>
