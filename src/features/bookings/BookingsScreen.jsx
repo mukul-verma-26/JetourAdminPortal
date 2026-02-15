@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload } from 'react-icons/fi';
 import { useBookings } from './useBookings';
 import { usePackagesContext } from '../settings/PackagesContext';
 import { STATUS_OPTIONS } from './constants';
@@ -98,14 +98,20 @@ function BookingsScreen() {
     <div className={styles.screen}>
       <div className={styles.header}>
         <h2 className={styles.title}>Bookings</h2>
-        <button
-          type="button"
-          className={styles.createBtn}
-          onClick={() => setCreateModalOpen(true)}
-        >
-          <FiPlus size={18} aria-hidden />
-          Create Booking
-        </button>
+        <div className={styles.headerActions}>
+          <button type="button" className={styles.exportBtn}>
+            <FiDownload size={18} aria-hidden />
+            Export report
+          </button>
+          <button
+            type="button"
+            className={styles.createBtn}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            <FiPlus size={18} aria-hidden />
+            Create Booking
+          </button>
+        </div>
       </div>
 
       <div className={styles.filters}>

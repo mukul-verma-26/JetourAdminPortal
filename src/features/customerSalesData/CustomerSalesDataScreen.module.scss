@@ -37,6 +37,26 @@
   flex-shrink: 0;
 }
 
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: theme.$BORDER;
+  }
+}
+
 .addBtn {
   display: inline-flex;
   align-items: center;

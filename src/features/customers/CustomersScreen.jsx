@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload } from 'react-icons/fi';
 import { useCustomers } from './useCustomers';
 import { CUSTOMER_STATUS_OPTIONS } from './constants';
 import CreateEditCustomerModal from './CreateEditCustomerModal';
@@ -93,6 +93,10 @@ function CustomersScreen() {
           </p>
         </div>
         <div className={styles.headerActions}>
+          <button type="button" className={styles.exportBtn}>
+            <FiDownload size={18} aria-hidden />
+            Export report
+          </button>
           <button type="button" className={styles.importBtn}>
             Import from Dealer System
           </button>
