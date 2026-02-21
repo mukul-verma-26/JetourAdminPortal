@@ -144,25 +144,29 @@
 }
 
 .phoneInputWrapper {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: stretch;
 }
 
-.phonePrefix {
-  padding: 0.625rem 0.75rem;
+.phonePrefixInline {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 500;
   color: theme.$TEXT_SECONDARY;
-  background: theme.$BACKGROUND;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  white-space: nowrap;
+  pointer-events: none;
   user-select: none;
 }
 
 .phoneInput {
   flex: 1;
+  padding-left: 1.5rem;
 }
 
 .photoSection {

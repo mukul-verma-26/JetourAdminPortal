@@ -24,20 +24,28 @@ const STATUS_CLASS_MAP = {
 };
 
 function DriversScreen() {
-  const { drivers, stats, addDriver, updateDriver, deleteDriver } = useDrivers();
+  const { drivers, stats, addDriver, updateDriver, deleteDriver, isLoading, isCreating, isUpdating, isDeleting } = useDrivers();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editDriver, setEditDriver] = useState(null);
   const [viewDriver, setViewDriver] = useState(null);
   const [deleteConfirmDriver, setDeleteConfirmDriver] = useState(null);
 
-  const handleCreateSubmit = (payload) => {
-    addDriver(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addDriver(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in addDriver
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateDriver(id, payload);
-    setEditDriver(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateDriver(id, payload);
+      setEditDriver(null);
+    } catch {
+      // Error handled in updateDriver
+    }
   };
 
   const handleDeleteConfirm = (id) => {
@@ -75,6 +83,10 @@ function DriversScreen() {
           <span className={`${styles.statValue} ${styles.statGreen}`}>{stats.onDuty}</span>
           <span className={styles.statLabel}>On Duty</span>
         </div>
+        <div className={styles.statCard}>
+          <span className={styles.statValue}>{stats.avgRating}</span>
+          <span className={styles.statLabel}>Avg Rating</span>
+        </div>
       </div>
 
       <div className={styles.card}>
@@ -91,7 +103,13 @@ function DriversScreen() {
               </tr>
             </thead>
             <tbody>
-              {drivers.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className={`${styles.td} ${styles.emptyCell}`}>
+                    <p className={styles.empty}>Loading drivers...</p>
+                  </td>
+                </tr>
+              ) : drivers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className={`${styles.td} ${styles.emptyCell}`}>
                     <p className={styles.empty}>No drivers yet. Add one to get started.</p>
@@ -112,8 +130,11 @@ function DriversScreen() {
                     <td className={styles.td} data-label="Contact">
                       {driver.contact}
                     </td>
-                    <td className={styles.td} data-label="Jobs Completed">
-                      {driver.jobsCompleted}
+                    <td className={styles.td} data-label="Rating">
+                      <span className={styles.ratingCell}>
+                        {Math.round(driver.rating)}
+                        <FiStar className={styles.starIcon} size={14} />
+                      </span>
                     </td>
                     <td className={styles.td} data-label="Status">
                       <span
@@ -162,6 +183,7 @@ function DriversScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditDriverModal
@@ -169,6 +191,7 @@ function DriversScreen() {
         onClose={() => setEditDriver(null)}
         initialData={editDriver || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewDriverModal
@@ -182,6 +205,7 @@ function DriversScreen() {
         onClose={() => setDeleteConfirmDriver(null)}
         onConfirm={handleDeleteConfirm}
         driver={deleteConfirmDriver}
+        isDeleting={isDeleting}
       />
     </div>
   );

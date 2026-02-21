@@ -1,11 +1,10 @@
 import styles from './ConfirmDeleteDriverModal.module.scss';
 
-function ConfirmDeleteDriverModal({ open, onClose, onConfirm, driver }) {
+function ConfirmDeleteDriverModal({ open, onClose, onConfirm, driver, isDeleting = false }) {
   if (!open || !driver) return null;
 
-  const handleConfirm = () => {
-    onConfirm(driver.id);
-    onClose();
+  const handleConfirm = async () => {
+    await onConfirm(driver.id);
   };
 
   return (
@@ -34,8 +33,9 @@ function ConfirmDeleteDriverModal({ open, onClose, onConfirm, driver }) {
               type="button"
               className={styles.deleteBtn}
               onClick={handleConfirm}
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>
