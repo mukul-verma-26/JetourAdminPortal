@@ -5,6 +5,7 @@ import {
   GENDER_OPTIONS,
   PREFERRED_LANGUAGE_OPTIONS,
 } from './constants';
+import { buildCustomerPayload } from './helpers';
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
 import styles from './CreateEditCustomerModal.module.scss';
@@ -13,13 +14,12 @@ const STATUS_OPTIONS_FOR_FORM = CUSTOMER_STATUS_OPTIONS.filter(
   (o) => o.value !== 'all'
 );
 
-const PHONE_PREFIX = '+965';
-
 function CreateEditCustomerModal({
   open,
   onClose,
   initialData,
   onSubmit,
+  isSubmitting = false,
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -43,13 +43,12 @@ function CreateEditCustomerModal({
     google_location: '',
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = Boolean(initialData?.id);
 
   useEffect(() => {
     if (initialData) {
-      const phoneDigits = (initialData.phone || '').replace(/\D/g, '').slice(-8);
+      const phoneDigits = (initialData.phone || initialData.contact_number || '').replace(/\D/g, '').slice(0, 15);
       setFormData({
         name: initialData.name || '',
         phone: phoneDigits,
@@ -104,8 +103,8 @@ function CreateEditCustomerModal({
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^\d{7,8}$/;
-    return phoneRegex.test(phone.replace(/\s/g, ''));
+    const digits = (phone || '').replace(/\D/g, '');
+    return digits.length >= 8 && digits.length <= 15;
   };
 
   const validateForm = () => {
@@ -118,7 +117,7 @@ function CreateEditCustomerModal({
     if (!formData.phone.trim()) {
       newErrors.phone = 'Contact number is required';
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = 'Please enter a valid phone number (7-8 digits only)';
+      newErrors.phone = 'Contact must be 8-15 digits';
     }
 
     if (!formData.dob) {
@@ -158,7 +157,7 @@ function CreateEditCustomerModal({
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const value = e.target.value.replace(/\D/g, '').slice(0, 15);
     setFormData((prev) => ({ ...prev, phone: value }));
     if (errors.phone) {
       setErrors((prev) => {
@@ -197,46 +196,28 @@ function CreateEditCustomerModal({
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    setIsSubmitting(true);
+    const payload = buildCustomerPayload({
+      ...formData,
+      contact_number: formData.phone.trim() ? `+${formData.phone.replace(/\D/g, '')}` : '',
+    });
 
-    const payload = {
-      name: formData.name.trim(),
-      gender: formData.gender,
-      dob: formData.dob,
-      phone: formData.phone.trim() ? `${PHONE_PREFIX}${formData.phone.trim()}` : '',
-      email: formData.email.trim(),
-      civilId: formData.civilId.trim(),
-      passportNumber: formData.passportNumber.trim(),
-      nationality: formData.nationality.trim(),
-      preferredLanguage: formData.preferredLanguage,
-      status: formData.status,
-      governorate: formData.governorate.trim(),
-      area: formData.area.trim(),
-      block: formData.block.trim(),
-      street: formData.street.trim(),
-      building_no: formData.building_no.trim(),
-      floor_no: formData.floor_no.trim(),
-      flat_no: formData.flat_no.trim(),
-      paci_details: formData.paci_details.trim(),
-      google_location: formData.google_location.trim(),
-      locationData: formData.locationData || null,
-    };
-
-    if (isEdit) {
-      onSubmit(initialData.id, payload);
-    } else {
-      onSubmit(payload);
+    try {
+      if (isEdit) {
+        await onSubmit(initialData.id, payload);
+      } else {
+        await onSubmit(payload);
+      }
+      onClose();
+    } catch {
+      // Error handled in useCustomers
     }
-
-    setIsSubmitting(false);
-    onClose();
   };
 
   if (!open) return null;
@@ -287,17 +268,17 @@ function CreateEditCustomerModal({
                 Contact Number <span className={styles.required}>*</span>
               </label>
               <div className={styles.phoneInputWrapper}>
-                <span className={styles.phonePrefix}>{PHONE_PREFIX}</span>
+                <span className={styles.phonePrefixInline} aria-hidden="true">+</span>
                 <input
                   id="customer-phone"
                   name="phone"
                   type="tel"
                   inputMode="numeric"
                   className={`${styles.input} ${styles.phoneInput} ${errors.phone ? styles.inputError : ''}`}
-                  placeholder="12345678"
+                  placeholder="965 12345678"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  maxLength={8}
+                  maxLength={15}
                 />
               </div>
               {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}
@@ -605,7 +586,7 @@ function CreateEditCustomerModal({
               className={styles.submitBtn}
               disabled={isSubmitting}
             >
-              {isEdit ? 'Update' : 'Add'}
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Adding...') : isEdit ? 'Update' : 'Add'}
             </button>
           </div>
         </form>

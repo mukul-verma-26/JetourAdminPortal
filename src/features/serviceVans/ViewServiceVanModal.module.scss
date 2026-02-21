@@ -60,6 +60,30 @@
   padding: 1.5rem;
 }
 
+.photoSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.photoImage {
+  width: 200px;
+  height: 140px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.photoPlaceholder {
+  width: 200px;
+  height: 140px;
+  border-radius: 12px;
+  background: theme.$PRIMARY_LIGHT;
+  color: theme.$PRIMARY;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .row {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-import { FiX } from 'react-icons/fi';
+import { FiX, FiTruck } from 'react-icons/fi';
 import { STATUS_OPTIONS } from './constants';
 import styles from './ViewServiceVanModal.module.scss';
 
@@ -54,6 +54,19 @@ function ViewServiceVanModal({ open, onClose, van }) {
           </button>
         </div>
         <div className={styles.body}>
+          <div className={styles.photoSection}>
+            {van.photo ? (
+              <img
+                src={van.photo}
+                alt={van.vehicleModel}
+                className={styles.photoImage}
+              />
+            ) : (
+              <div className={styles.photoPlaceholder}>
+                <FiTruck size={48} />
+              </div>
+            )}
+          </div>
           <div className={styles.row}>
             <span className={styles.label}>Vehicle ID</span>
             <p className={styles.value}>{van.id}</p>

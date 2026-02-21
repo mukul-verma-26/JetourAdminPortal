@@ -156,6 +156,17 @@
   overflow: hidden;
 }
 
+.emptyState {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.9375rem;
+
+  p {
+    margin: 0;
+  }
+}
+
 .tableWrap {
   overflow-x: auto;
 }

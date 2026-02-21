@@ -44,6 +44,10 @@ function CustomersScreen() {
     updateCustomer,
     deleteCustomer,
     filteredCustomers,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
   } = useCustomers();
   const [filterName, setFilterName] = useState('');
   const [filterEmail, setFilterEmail] = useState('');
@@ -68,19 +72,31 @@ function CustomersScreen() {
     });
   };
 
-  const handleCreateSubmit = (payload) => {
-    addCustomer(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addCustomer(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in useCustomers
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateCustomer(id, payload);
-    setEditCustomer(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateCustomer(id, payload);
+      setEditCustomer(null);
+    } catch {
+      // Error handled in useCustomers
+    }
   };
 
-  const handleDeleteConfirm = (id) => {
-    deleteCustomer(id);
-    setDeleteConfirmCustomer(null);
+  const handleDeleteConfirm = async (id) => {
+    try {
+      await deleteCustomer(id);
+      setDeleteConfirmCustomer(null);
+    } catch {
+      // Error handled in useCustomers
+    }
   };
 
   return (
@@ -160,6 +176,11 @@ function CustomersScreen() {
       </div>
 
       <div className={styles.card}>
+        {isLoading ? (
+          <div className={styles.emptyState}>
+            <p>Loading customers...</p>
+          </div>
+        ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead className={styles.thead}>
@@ -262,12 +283,14 @@ function CustomersScreen() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       <CreateEditCustomerModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditCustomerModal
@@ -275,6 +298,7 @@ function CustomersScreen() {
         onClose={() => setEditCustomer(null)}
         initialData={editCustomer || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewCustomerModal
@@ -288,6 +312,7 @@ function CustomersScreen() {
         onClose={() => setDeleteConfirmCustomer(null)}
         onConfirm={handleDeleteConfirm}
         customer={deleteConfirmCustomer}
+        isDeleting={isDeleting}
       />
     </div>
   );

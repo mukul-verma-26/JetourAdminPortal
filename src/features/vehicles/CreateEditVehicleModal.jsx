@@ -1,95 +1,54 @@
-import { useState, useEffect } from 'react';
-import { FiX, FiUpload } from 'react-icons/fi';
+import { useRef } from 'react';
+import { FiX } from 'react-icons/fi';
+import { useVehicleForm } from './useVehicleForm';
+import VehiclePhotoSection from './VehiclePhotoSection';
 import { CATEGORY_OPTIONS } from './constants';
 import styles from './CreateEditVehicleModal.module.scss';
 
-function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
-  const [formData, setFormData] = useState({
-    image: '',
-    category: 'suv',
-    modelName: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [imagePreview, setImagePreview] = useState('');
+function CreateEditVehicleModal({
+  open,
+  onClose,
+  initialData,
+  onSubmit,
+  isSubmitting = false,
+}) {
+  const fileInputRef = useRef(null);
+  const {
+    register,
+    handleSubmit,
+    errors,
+    vehicle_image,
+    imagePreview,
+    setImageFromFile,
+    setValue,
+    setError,
+    buildPayload,
+    validationRules,
+    isEdit,
+  } = useVehicleForm(initialData, open);
 
-  const isEdit = Boolean(initialData?.id);
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        image: initialData.image || '',
-        category: initialData.category || 'suv',
-        modelName: initialData.modelName || '',
-      });
-      setImagePreview(initialData.image || '');
-    } else {
-      setFormData({ image: '', category: 'suv', modelName: '' });
-      setImagePreview('');
+  const onFormSubmit = (data) => {
+    const hasImage = vehicle_image instanceof File || (vehicle_image && String(vehicle_image).trim());
+    if (!hasImage) {
+      setError('vehicle_image', { type: 'manual', message: 'Vehicle image is required' });
+      return;
     }
-    setErrors({});
-  }, [initialData, open]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      });
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, image: reader.result }));
-      setImagePreview(reader.result);
-      if (errors.image) {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next.image;
-          return next;
-        });
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.image.trim()) {
-      newErrors.image = 'Vehicle image is required';
-    }
-    if (!formData.category) {
-      newErrors.category = 'Category is required';
-    }
-    if (!formData.modelName.trim()) {
-      newErrors.modelName = 'Model name is required';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    const payload = {
-      image: formData.image.trim(),
-      category: formData.category,
-      modelName: formData.modelName.trim(),
-    };
-
+    const payload = buildPayload({ ...data, vehicle_image });
     if (isEdit) {
       onSubmit(initialData.id, payload);
     } else {
       onSubmit(payload);
     }
-    onClose();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setImageFromFile(file);
+    e.target.value = '';
+  };
+
+  const handleRemoveImage = () => {
+    setValue('vehicle_image', null, { shouldValidate: true });
   };
 
   if (!open) return null;
@@ -118,58 +77,23 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
             <FiX size={20} />
           </button>
         </div>
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit(onFormSubmit)}>
+          <VehiclePhotoSection
+            image={imagePreview}
+            onImageClick={() => fileInputRef.current?.click()}
+            onFileChange={handleFileChange}
+            fileInputRef={fileInputRef}
+            onRemove={handleRemoveImage}
+            error={errors.vehicle_image?.message}
+          />
           <div className={styles.field}>
-            <label className={styles.label}>
-              Vehicle Image <span className={styles.required}>*</span>
-            </label>
-            <div className={styles.imageUploadArea}>
-              {imagePreview ? (
-                <div className={styles.previewWrapper}>
-                  <img
-                    src={imagePreview}
-                    alt="Vehicle preview"
-                    className={styles.previewImage}
-                  />
-                  <button
-                    type="button"
-                    className={styles.removeImageBtn}
-                    onClick={() => {
-                      setFormData((prev) => ({ ...prev, image: '' }));
-                      setImagePreview('');
-                    }}
-                  >
-                    <FiX size={16} />
-                  </button>
-                </div>
-              ) : (
-                <label className={styles.uploadPlaceholder} htmlFor="vehicleFileInput">
-                  <FiUpload size={24} />
-                  <span>Click to upload</span>
-                </label>
-              )}
-              <input
-                id="vehicleFileInput"
-                type="file"
-                accept="image/*"
-                className={styles.fileInput}
-                onChange={handleFileChange}
-              />
-            </div>
-            <p className={styles.imageHint}>Image should not exceed 2MB</p>
-            {errors.image && <div className={styles.errorMessage}>{errors.image}</div>}
-          </div>
-
-          <div className={styles.field}>
-            <label htmlFor="category" className={styles.label}>
+            <label htmlFor="vehicle_category" className={styles.label}>
               Vehicle Category <span className={styles.required}>*</span>
             </label>
             <select
-              id="category"
-              name="category"
-              className={`${styles.select} ${errors.category ? styles.inputError : ''}`}
-              value={formData.category}
-              onChange={handleChange}
+              id="vehicle_category"
+              className={`${styles.select} ${errors.vehicle_category ? styles.inputError : ''}`}
+              {...register('vehicle_category', validationRules.vehicle_category)}
             >
               {CATEGORY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -177,31 +101,35 @@ function CreateEditVehicleModal({ open, onClose, initialData, onSubmit }) {
                 </option>
               ))}
             </select>
-            {errors.category && <div className={styles.errorMessage}>{errors.category}</div>}
+            {errors.vehicle_category && (
+              <div className={styles.errorMessage}>{errors.vehicle_category.message}</div>
+            )}
           </div>
-
           <div className={styles.field}>
-            <label htmlFor="modelName" className={styles.label}>
+            <label htmlFor="vehicle_model" className={styles.label}>
               Model Name <span className={styles.required}>*</span>
             </label>
             <input
-              id="modelName"
-              name="modelName"
+              id="vehicle_model"
               type="text"
-              className={`${styles.input} ${errors.modelName ? styles.inputError : ''}`}
-              placeholder="e.g. JETOUR X70 Plus"
-              value={formData.modelName}
-              onChange={handleChange}
+              className={`${styles.input} ${errors.vehicle_model ? styles.inputError : ''}`}
+              placeholder="e.g. Toyota Hiace"
+              {...register('vehicle_model', validationRules.vehicle_model)}
             />
-            {errors.modelName && <div className={styles.errorMessage}>{errors.modelName}</div>}
+            {errors.vehicle_model && (
+              <div className={styles.errorMessage}>{errors.vehicle_model.message}</div>
+            )}
           </div>
-
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.submitBtn}>
-              {isEdit ? 'Update' : 'Add Vehicle'}
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Adding...') : isEdit ? 'Update' : 'Add Vehicle'}
             </button>
           </div>
         </form>

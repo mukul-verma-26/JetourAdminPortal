@@ -5,11 +5,12 @@ function ConfirmDeleteCustomerModal({
   onClose,
   onConfirm,
   customer,
+  isDeleting = false,
 }) {
   if (!open || !customer) return null;
 
-  const handleConfirm = () => {
-    onConfirm(customer.id);
+  const handleConfirm = async () => {
+    await onConfirm(customer.id);
     onClose();
   };
 
@@ -38,8 +39,9 @@ function ConfirmDeleteCustomerModal({
               type="button"
               className={styles.deleteBtn}
               onClick={handleConfirm}
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>

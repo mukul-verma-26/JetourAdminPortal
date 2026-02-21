@@ -18,25 +18,47 @@ const CATEGORY_CLASS_MAP = {
 };
 
 function VehiclesScreen() {
-  const { vehicles, stats, addVehicle, updateVehicle, deleteVehicle } = useVehicles();
+  const {
+    vehicles,
+    stats,
+    addVehicle,
+    updateVehicle,
+    deleteVehicle,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useVehicles();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editVehicle, setEditVehicle] = useState(null);
   const [viewVehicle, setViewVehicle] = useState(null);
   const [deleteConfirmVehicle, setDeleteConfirmVehicle] = useState(null);
 
-  const handleCreateSubmit = (payload) => {
-    addVehicle(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addVehicle(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in addVehicle
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateVehicle(id, payload);
-    setEditVehicle(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateVehicle(id, payload);
+      setEditVehicle(null);
+    } catch {
+      // Error handled in updateVehicle
+    }
   };
 
-  const handleDeleteConfirm = (id) => {
-    deleteVehicle(id);
-    setDeleteConfirmVehicle(null);
+  const handleDeleteConfirm = async (id) => {
+    try {
+      await deleteVehicle(id);
+      setDeleteConfirmVehicle(null);
+    } catch {
+      // Error handled in deleteVehicle
+    }
   };
 
   return (
@@ -76,7 +98,11 @@ function VehiclesScreen() {
       </div>
 
       <div className={styles.vehiclesGrid}>
-        {vehicles.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.emptyState}>
+            <p>Loading vehicles...</p>
+          </div>
+        ) : vehicles.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No vehicles yet. Add one to get started.</p>
           </div>
@@ -137,6 +163,7 @@ function VehiclesScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditVehicleModal
@@ -144,6 +171,7 @@ function VehiclesScreen() {
         onClose={() => setEditVehicle(null)}
         initialData={editVehicle || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewVehicleModal
@@ -157,6 +185,7 @@ function VehiclesScreen() {
         onClose={() => setDeleteConfirmVehicle(null)}
         onConfirm={handleDeleteConfirm}
         vehicle={deleteConfirmVehicle}
+        isDeleting={isDeleting}
       />
     </div>
   );

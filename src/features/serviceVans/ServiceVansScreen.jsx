@@ -32,20 +32,38 @@ const STATUS_CLASS_MAP = {
 };
 
 function ServiceVansScreen() {
-  const { serviceVans, stats, addServiceVan, updateServiceVan, deleteServiceVan } = useServiceVans();
+  const {
+    serviceVans,
+    stats,
+    addServiceVan,
+    updateServiceVan,
+    deleteServiceVan,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useServiceVans();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editVan, setEditVan] = useState(null);
   const [viewVan, setViewVan] = useState(null);
   const [deleteConfirmVan, setDeleteConfirmVan] = useState(null);
 
-  const handleCreateSubmit = (payload) => {
-    addServiceVan(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addServiceVan(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in addServiceVan
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateServiceVan(id, payload);
-    setEditVan(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateServiceVan(id, payload);
+      setEditVan(null);
+    } catch {
+      // Error handled in updateServiceVan
+    }
   };
 
   const handleDeleteConfirm = (id) => {
@@ -90,7 +108,11 @@ function ServiceVansScreen() {
       </div>
 
       <div className={styles.vansGrid}>
-        {serviceVans.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.emptyState}>
+            <p>Loading service vans...</p>
+          </div>
+        ) : serviceVans.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No service vans yet. Add one to get started.</p>
           </div>
@@ -98,8 +120,14 @@ function ServiceVansScreen() {
           serviceVans.map((van) => (
             <div key={van.id} className={styles.vanCard}>
               <div className={styles.vanHeader}>
-                <div className={styles.vanIcon}>
-                  <FiTruck size={24} />
+                <div className={styles.vanThumb}>
+                  {van.photo ? (
+                    <img src={van.photo} alt={van.vehicleModel} className={styles.vanThumbImg} />
+                  ) : (
+                    <div className={styles.vanIcon}>
+                      <FiTruck size={24} />
+                    </div>
+                  )}
                 </div>
                 <div className={styles.vanInfo}>
                   <h3 className={styles.vanId}>{van.id}</h3>
@@ -157,6 +185,7 @@ function ServiceVansScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditServiceVanModal
@@ -164,6 +193,7 @@ function ServiceVansScreen() {
         onClose={() => setEditVan(null)}
         initialData={editVan || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewServiceVanModal
@@ -177,6 +207,7 @@ function ServiceVansScreen() {
         onClose={() => setDeleteConfirmVan(null)}
         onConfirm={handleDeleteConfirm}
         van={deleteConfirmVan}
+        isDeleting={isDeleting}
       />
     </div>
   );

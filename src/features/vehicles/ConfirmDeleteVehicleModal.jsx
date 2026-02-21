@@ -1,11 +1,10 @@
 import styles from './ConfirmDeleteVehicleModal.module.scss';
 
-function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle }) {
+function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle, isDeleting = false }) {
   if (!open || !vehicle) return null;
 
-  const handleConfirm = () => {
-    onConfirm(vehicle.id);
-    onClose();
+  const handleConfirm = async () => {
+    await onConfirm(vehicle.id);
   };
 
   return (
@@ -34,8 +33,9 @@ function ConfirmDeleteVehicleModal({ open, onClose, onConfirm, vehicle }) {
               type="button"
               className={styles.deleteBtn}
               onClick={handleConfirm}
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>
