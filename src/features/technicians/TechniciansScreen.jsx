@@ -24,20 +24,28 @@ const STATUS_CLASS_MAP = {
 };
 
 function TechniciansScreen() {
-  const { technicians, stats, addTechnician, updateTechnician, deleteTechnician } = useTechnicians();
+  const { technicians, stats, addTechnician, updateTechnician, deleteTechnician, isLoading, isCreating, isUpdating, isDeleting } = useTechnicians();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editTechnician, setEditTechnician] = useState(null);
   const [viewTechnician, setViewTechnician] = useState(null);
   const [deleteConfirmTechnician, setDeleteConfirmTechnician] = useState(null);
 
-  const handleCreateSubmit = (payload) => {
-    addTechnician(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addTechnician(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in addTechnician
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateTechnician(id, payload);
-    setEditTechnician(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateTechnician(id, payload);
+      setEditTechnician(null);
+    } catch {
+      // Error handled in updateTechnician
+    }
   };
 
   const handleDeleteConfirm = (id) => {
@@ -95,7 +103,13 @@ function TechniciansScreen() {
               </tr>
             </thead>
             <tbody>
-              {technicians.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className={`${styles.td} ${styles.emptyCell}`}>
+                    <p className={styles.empty}>Loading technicians...</p>
+                  </td>
+                </tr>
+              ) : technicians.length === 0 ? (
                 <tr>
                   <td colSpan={6} className={`${styles.td} ${styles.emptyCell}`}>
                     <p className={styles.empty}>No technicians yet. Add one to get started.</p>
@@ -169,6 +183,7 @@ function TechniciansScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditTechnicianModal
@@ -176,6 +191,7 @@ function TechniciansScreen() {
         onClose={() => setEditTechnician(null)}
         initialData={editTechnician || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewTechnicianModal
@@ -189,6 +205,7 @@ function TechniciansScreen() {
         onClose={() => setDeleteConfirmTechnician(null)}
         onConfirm={handleDeleteConfirm}
         technician={deleteConfirmTechnician}
+        isDeleting={isDeleting}
       />
     </div>
   );
