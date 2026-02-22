@@ -4,13 +4,13 @@ import styles from './GoogleLocationInput.module.scss';
 
 function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) {
   const inputRef = useRef(null);
-  const autocompleteRef = useRef(null);
+  const searchBoxRef = useRef(null);
 
   useEffect(() => {
     if (!window.google || !window.google.maps || !window.google.maps.places) {
       const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
       if (existingScript) {
-        existingScript.addEventListener('load', initializeAutocomplete);
+        existingScript.addEventListener('load', initializeSearchBox);
       } else {
         const script = document.createElement('script');
         const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -21,53 +21,53 @@ function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) 
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
         script.async = true;
         script.defer = true;
-        script.onload = initializeAutocomplete;
+        script.onload = initializeSearchBox;
         script.onerror = () => {
           console.error('Failed to load Google Maps API');
         };
         document.head.appendChild(script);
       }
     } else {
-      initializeAutocomplete();
+      initializeSearchBox();
     }
 
     return () => {
-      if (autocompleteRef.current) {
-        window.google?.maps?.event?.clearInstanceListeners?.(autocompleteRef.current);
+      if (searchBoxRef.current) {
+        window.google?.maps?.event?.clearInstanceListeners?.(searchBoxRef.current);
       }
     };
   }, []);
 
-  const initializeAutocomplete = () => {
+  const initializeSearchBox = () => {
     if (!inputRef.current || !window.google?.maps?.places) return;
 
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ['address'],
-      fields: ['formatted_address', 'geometry', 'address_components'],
-    });
+    const searchBox = new window.google.maps.places.SearchBox(inputRef.current);
 
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
+    searchBox.addListener('places_changed', () => {
+      const places = searchBox.getPlaces();
+      if (!places || places.length === 0) return;
 
-      if (place.geometry) {
+      const place = places[0];
+      if (place.geometry && place.geometry.location) {
         const location = {
-          formatted_address: place.formatted_address,
+          formatted_address: place.formatted_address || place.name || '',
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
-          address_components: place.address_components,
+          address_components: place.address_components || [],
         };
+        const displayValue = place.formatted_address || place.name || '';
 
         onChange({
           target: {
             name,
-            value: place.formatted_address,
+            value: displayValue,
             locationData: location,
           },
         });
       }
     });
 
-    autocompleteRef.current = autocomplete;
+    searchBoxRef.current = searchBox;
   };
 
   const handleInputChange = (e) => {
