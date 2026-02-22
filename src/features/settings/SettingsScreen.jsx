@@ -1,5 +1,6 @@
 import { useSettings } from './useSettings';
-import ServicePackageCard from './components/ServicePackageCard';
+import PackagesAccordion from './components/PackagesAccordion';
+import ExtraDetailsSection from './components/ExtraDetailsSection';
 import CreateEditPackageModal from './CreateEditPackageModal';
 import ManagePackageModal from './ManagePackageModal';
 import ConfirmDeletePackageModal from './ConfirmDeletePackageModal';
@@ -24,6 +25,11 @@ function SettingsScreen() {
     handleDeletePackage,
     handleOpenDeleteConfirm,
     handleCloseDeleteConfirm,
+    bufferTimeMinutes,
+    convenienceFee,
+    handleBufferTimeChange,
+    handleConvenienceFeeChange,
+    handleExtraDetailsUpdate,
   } = useSettings();
 
   return (
@@ -33,31 +39,21 @@ function SettingsScreen() {
         <p className={styles.subtitle}>Configure system preferences and integrations</p>
       </div>
 
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>Service Packages</h3>
-          <button type="button" className={styles.addBtn} onClick={handleOpenAddPackage}>
-            Add Package
-          </button>
-        </div>
-        <div className={styles.cardsList}>
-          {isLoading ? (
-            <div className={styles.emptyState}>
-              <p>Loading packages...</p>
-            </div>
-          ) : (
-          packages.map((pkg) => (
-            <ServicePackageCard
-              key={pkg.id}
-              name={pkg.name}
-              description={pkg.description}
-              onConfigure={() => handleConfigurePackage(pkg.id)}
-              onManage={() => handleManagePackage(pkg.id)}
-            />
-          ))
-          )}
-        </div>
-      </section>
+      <PackagesAccordion
+        packages={packages}
+        isLoading={isLoading}
+        onAddPackage={handleOpenAddPackage}
+        onConfigurePackage={handleConfigurePackage}
+        onManagePackage={handleManagePackage}
+      />
+
+      <ExtraDetailsSection
+        bufferTimeMinutes={bufferTimeMinutes}
+        convenienceFee={convenienceFee}
+        onBufferTimeChange={handleBufferTimeChange}
+        onConvenienceFeeChange={handleConvenienceFeeChange}
+        onUpdate={handleExtraDetailsUpdate}
+      />
 
       <CreateEditPackageModal
         open={packageModalOpen}

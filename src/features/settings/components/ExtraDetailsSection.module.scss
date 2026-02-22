@@ -1,0 +1,127 @@
+@use '../../../styles/theme' as theme;
+
+.section {
+  margin-bottom: 2.5rem;
+  padding: 1.25rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  background: theme.$SURFACE;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 1rem 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.updateBtn {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.fields {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.inputWithPrefix {
+  display: flex;
+  align-items: center;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  background: theme.$SURFACE;
+  overflow: hidden;
+
+  &:focus-within {
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.prefix {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border-right: 1px solid theme.$BORDER;
+}
+
+.inputStandalone {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}
+
+.input {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: transparent;
+  border: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}

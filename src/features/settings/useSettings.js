@@ -30,6 +30,8 @@ export function useSettings() {
   const [managePackageModalOpen, setManagePackageModalOpen] = useState(false);
   const [packageToManage, setPackageToManage] = useState(null);
   const [deleteConfirmPackage, setDeleteConfirmPackage] = useState(null);
+  const [bufferTimeMinutes, setBufferTimeMinutes] = useState('');
+  const [convenienceFee, setConvenienceFee] = useState('');
 
   const handleOpenAddPackage = useCallback(() => {
     setPackageToEdit(null);
@@ -179,6 +181,21 @@ export function useSettings() {
     setDeleteConfirmPackage(null);
   }, []);
 
+  const handleBufferTimeChange = useCallback((value) => {
+    setBufferTimeMinutes(value);
+  }, []);
+
+  const handleConvenienceFeeChange = useCallback((value) => {
+    setConvenienceFee(value);
+  }, []);
+
+  const handleExtraDetailsUpdate = useCallback(() => {
+    // TODO: persist bufferTimeMinutes and convenienceFee via API
+    if (typeof window?.showToast === 'function') {
+      window.showToast('Extra details updated', 'success');
+    }
+  }, []);
+
   return {
     packages,
     isLoading,
@@ -197,5 +214,10 @@ export function useSettings() {
     handleDeletePackage,
     handleOpenDeleteConfirm,
     handleCloseDeleteConfirm,
+    bufferTimeMinutes,
+    convenienceFee,
+    handleBufferTimeChange,
+    handleConvenienceFeeChange,
+    handleExtraDetailsUpdate,
   };
 }
