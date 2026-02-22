@@ -46,6 +46,12 @@ export async function createServiceVan(payload) {
     if (typeof body.vehicle_image !== 'string') {
       body.vehicle_image = '';
     }
+    if (payload.technician_id) {
+      body.technician_id = payload.technician_id;
+    }
+    if (payload.driver_id) {
+      body.driver_id = payload.driver_id;
+    }
     const { data } = await apiClient.post('/service-vans', body);
     return data;
   } catch (error) {
@@ -77,6 +83,12 @@ export async function updateServiceVan(id, payload) {
     };
     if (typeof body.vehicle_image !== 'string') {
       body.vehicle_image = '';
+    }
+    if (payload.technician_id) {
+      body.technician_id = payload.technician_id;
+    }
+    if (payload.driver_id) {
+      body.driver_id = payload.driver_id;
     }
     const { data } = await apiClient.put(`/service-vans/${id}`, body);
     return data;

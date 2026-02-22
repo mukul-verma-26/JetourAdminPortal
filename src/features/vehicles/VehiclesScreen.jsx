@@ -126,7 +126,6 @@ function VehiclesScreen() {
                 <div className={styles.vehicleInfo}>
                   <h3 className={styles.vehicleName}>{vehicle.modelName}</h3>
                 </div>
-                <p className={styles.vehicleId}>{vehicle.id}</p>
               </div>
 
               <div className={styles.vehicleActions}>

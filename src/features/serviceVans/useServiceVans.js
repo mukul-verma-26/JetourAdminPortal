@@ -18,6 +18,10 @@ function mapServiceVanFromApi(item) {
     lastService: item.last_service_date || '',
     status: item.status || 'active',
     photo: image,
+    technicianId: item.technician_id || '',
+    technician_id: item.technician_id || '',
+    driverId: item.driver_id || '',
+    driver_id: item.driver_id || '',
   };
 }
 

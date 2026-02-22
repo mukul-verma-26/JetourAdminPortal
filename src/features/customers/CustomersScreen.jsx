@@ -185,7 +185,6 @@ function CustomersScreen() {
           <table className={styles.table}>
             <thead className={styles.thead}>
               <tr>
-                <th className={styles.th}>Customer ID</th>
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Contact</th>
                 <th className={styles.th}>Joined</th>
@@ -197,7 +196,7 @@ function CustomersScreen() {
               {displayedCustomers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className={`${styles.td} ${styles.emptyCell}`}
                   >
                     <p className={styles.empty}>
@@ -211,9 +210,6 @@ function CustomersScreen() {
               ) : (
                 displayedCustomers.map((customer) => (
                   <tr key={customer.id} className={styles.tr}>
-                    <td className={styles.td} data-label="Customer ID">
-                      {customer.customerId}
-                    </td>
                     <td className={styles.td} data-label="Name">
                       <div className={styles.nameCell}>
                         <span

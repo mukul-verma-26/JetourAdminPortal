@@ -19,6 +19,7 @@ function mapPackageFromApi(item) {
     status: item.status || 'active',
     details,
     pricingMatrix: item.pricingMatrix || [],
+    work_time_minutes: item.work_time_minutes ?? item.workTimeMinutes ?? '',
   };
 }
 
@@ -65,6 +66,7 @@ export function useSettings() {
         name: payload.name,
         status: payload.status,
         details: Array.isArray(payload.details) ? payload.details : [],
+        work_time_minutes: payload.work_time_minutes ?? 0,
       };
 
       try {

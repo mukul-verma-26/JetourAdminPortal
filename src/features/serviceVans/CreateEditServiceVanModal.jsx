@@ -24,6 +24,8 @@ function CreateEditServiceVanModal({
     validationRules,
     isEdit,
     setError,
+    technicians,
+    drivers,
   } = useServiceVanForm(initialData, open);
 
   const onFormSubmit = (data) => {
@@ -145,6 +147,48 @@ function CreateEditServiceVanModal({
               {errors.status && (
                 <div className={styles.errorMessage}>{errors.status.message}</div>
               )}
+            </div>
+          </div>
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label htmlFor="technician_id" className={styles.label}>
+                Technician
+              </label>
+              <select
+                id="technician_id"
+                className={styles.select}
+                {...register('technician_id')}
+              >
+                <option value="">Select technician</option>
+                {technicians.map((t) => (
+                  <option
+                    key={t.technician_id || t._id || t.id}
+                    value={t.technician_id || t._id || t.id}
+                  >
+                    {t.name || `Technician ${t.technician_id || t._id || t.id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="driver_id" className={styles.label}>
+                Driver
+              </label>
+              <select
+                id="driver_id"
+                className={styles.select}
+                {...register('driver_id')}
+              >
+                <option value="">Select driver</option>
+                {drivers.map((d) => (
+                  <option
+                    key={d.driver_id || d._id || d.id}
+                    value={d.driver_id || d._id || d.id}
+                  >
+                    {d.name || `Driver ${d.driver_id || d._id || d.id}`}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div className={styles.actions}>

@@ -1,16 +1,46 @@
 import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getTechnicians } from '../../api/technicians';
+import { getDrivers } from '../../api/drivers';
 
 const DEFAULT_VALUES = {
   vehicle_model: '',
   mileage: '',
   last_service_date: '',
   status: 'active',
+  technician_id: '',
+  driver_id: '',
   image: null,
 };
 
 export function useServiceVanForm(initialData, open) {
   const isEdit = Boolean(initialData?.id);
+  const [technicians, setTechnicians] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    async function fetchOptions() {
+      try {
+        const [techRes, driverRes] = await Promise.all([
+          getTechnicians(),
+          getDrivers(),
+        ]);
+        if (cancelled) return;
+        const techList = techRes?.data || techRes || [];
+        const driverList = driverRes?.data || driverRes || [];
+        setTechnicians(Array.isArray(techList) ? techList : []);
+        setDrivers(Array.isArray(driverList) ? driverList : []);
+      } catch (error) {
+        if (!cancelled) {
+          console.log('useServiceVanForm', 'Failed to fetch technicians/drivers', error);
+        }
+      }
+    }
+    fetchOptions();
+    return () => { cancelled = true; };
+  }, [open]);
 
   const {
     register,
@@ -50,6 +80,8 @@ export function useServiceVanForm(initialData, open) {
         mileage: String(initialData.mileage ?? ''),
         last_service_date: initialData.lastService || '',
         status: initialData.status || 'active',
+        technician_id: initialData.technicianId || initialData.technician_id || '',
+        driver_id: initialData.driverId || initialData.driver_id || '',
         image: initialData.photo || initialData.image || null,
       });
     } else {
@@ -72,6 +104,8 @@ export function useServiceVanForm(initialData, open) {
       mileage: Number.isNaN(mileageNum) ? 0 : Math.max(0, mileageNum),
       last_service_date: (data.last_service_date || '').trim(),
       status: data.status || 'active',
+      technician_id: (data.technician_id || '').trim() || null,
+      driver_id: (data.driver_id || '').trim() || null,
     };
     if (data.image instanceof File) {
       payload.image = data.image;
@@ -115,5 +149,7 @@ export function useServiceVanForm(initialData, open) {
     buildPayload,
     validationRules,
     isEdit,
+    technicians,
+    drivers,
   };
 }

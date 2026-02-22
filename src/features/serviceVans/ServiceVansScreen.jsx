@@ -130,8 +130,7 @@ function ServiceVansScreen() {
                   )}
                 </div>
                 <div className={styles.vanInfo}>
-                  <h3 className={styles.vanId}>{van.id}</h3>
-                  <p className={styles.vanModel}>{van.vehicleModel}</p>
+                  <h3 className={styles.vanId}>{van.vehicleModel}</h3>
                 </div>
                 <span
                   className={`${styles.statusBadge} ${styles[STATUS_CLASS_MAP[van.status]] || styles.statusInactive}`}
