@@ -8,6 +8,7 @@ import styles from './SettingsScreen.module.scss';
 function SettingsScreen() {
   const {
     packages,
+    isLoading,
     packageModalOpen,
     packageToEdit,
     managePackageModalOpen,
@@ -40,7 +41,12 @@ function SettingsScreen() {
           </button>
         </div>
         <div className={styles.cardsList}>
-          {packages.map((pkg) => (
+          {isLoading ? (
+            <div className={styles.emptyState}>
+              <p>Loading packages...</p>
+            </div>
+          ) : (
+          packages.map((pkg) => (
             <ServicePackageCard
               key={pkg.id}
               name={pkg.name}
@@ -48,7 +54,8 @@ function SettingsScreen() {
               onConfigure={() => handleConfigurePackage(pkg.id)}
               onManage={() => handleManagePackage(pkg.id)}
             />
-          ))}
+          ))
+          )}
         </div>
       </section>
 

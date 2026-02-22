@@ -31,11 +31,14 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
     setRows((prev) => [...prev, newRow]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = { pricingMatrix: rows };
-    onSubmit(pkg.id, payload);
-    onClose();
+    try {
+      await onSubmit(pkg.id, payload);
+    } catch {
+      // Error handled in parent; keep modal open
+    }
   };
 
   if (!open || !pkg) return null;

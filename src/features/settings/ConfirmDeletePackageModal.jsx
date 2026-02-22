@@ -3,9 +3,12 @@ import styles from './ConfirmDeletePackageModal.module.scss';
 function ConfirmDeletePackageModal({ open, onClose, onConfirm, package: pkg }) {
   if (!open || !pkg) return null;
 
-  const handleConfirm = () => {
-    onConfirm(pkg.id);
-    onClose();
+  const handleConfirm = async () => {
+    try {
+      await onConfirm(pkg.id);
+    } catch {
+      // Error handled in parent
+    }
   };
 
   return (

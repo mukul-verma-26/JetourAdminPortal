@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
-import { STATUS_OPTIONS, PACKAGE_DETAIL_OPTIONS } from './constants';
+import { STATUS_OPTIONS } from './constants';
 import { normalizeDetailsToItems } from './helpers';
 import PackageDetailsList from './components/PackageDetailsList';
 import styles from './CreateEditPackageModal.module.scss';
-
-const DETAIL_OPTION_LOOKUP = Object.fromEntries(
-  PACKAGE_DETAIL_OPTIONS.map((o) => [o.id, o.label])
-);
 
 function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -22,7 +18,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
   useEffect(() => {
     if (initialData) {
       const rawDetails = initialData.details ?? [];
-      const details = normalizeDetailsToItems(rawDetails, DETAIL_OPTION_LOOKUP);
+      const details = normalizeDetailsToItems(rawDetails, {});
       setFormData({
         name: initialData.name || '',
         status: initialData.status || 'active',
@@ -52,23 +48,26 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     const details = formData.details
       .filter((d) => d.checked && (d.label || '').trim())
-      .map((d) => ({ id: d.id, label: d.label.trim() }));
+      .map((d) => d.label.trim());
     const payload = {
       name: formData.name.trim(),
       status: formData.status,
       details,
     };
-    if (isEdit) {
-      onSubmit(initialData.id, payload);
-    } else {
-      onSubmit(payload);
+    try {
+      if (isEdit) {
+        await onSubmit(initialData.id, payload);
+      } else {
+        await onSubmit(payload);
+      }
+    } catch {
+      // Error handled in parent; keep modal open
     }
-    onClose();
   };
 
   if (!open) return null;

@@ -63,3 +63,14 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+}

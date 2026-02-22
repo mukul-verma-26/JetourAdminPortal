@@ -1,9 +1,29 @@
 import { useState, useCallback } from 'react';
-import { createEmptyPricingRow } from './constants';
 import { usePackagesContext } from './PackagesContext';
+import {
+  createPackage as createPackageApi,
+  updatePackage as updatePackageApi,
+  deletePackage as deletePackageApi,
+} from '../../api/packages';
+
+function mapPackageFromApi(item) {
+  if (!item) return null;
+  const id = item._id || item.id;
+  if (!id) return null;
+  const details = Array.isArray(item.details) ? item.details : [];
+  return {
+    id,
+    _id: item._id,
+    name: item.name || '',
+    description: item.description || 'Customize features and pricing',
+    status: item.status || 'active',
+    details,
+    pricingMatrix: item.pricingMatrix || [],
+  };
+}
 
 export function useSettings() {
-  const { packages, setPackages } = usePackagesContext();
+  const { packages, setPackages, fetchPackages, isLoading } = usePackagesContext();
   const [packageModalOpen, setPackageModalOpen] = useState(false);
   const [packageToEdit, setPackageToEdit] = useState(null);
   const [managePackageModalOpen, setManagePackageModalOpen] = useState(false);
@@ -37,45 +57,117 @@ export function useSettings() {
     setPackageToManage(null);
   }, []);
 
-  const handlePackageSubmit = useCallback((idOrPayload, maybePayload) => {
-    const isEdit = typeof idOrPayload === 'string';
-    if (isEdit) {
-      setPackages((prev) =>
-        prev.map((p) =>
-          p.id === idOrPayload ? { ...p, ...maybePayload, description: p.description } : p
-        )
-      );
-    } else {
-      const newId = `pkg-${Date.now()}`;
-      const payload = { ...idOrPayload };
-      if (!payload.pricingMatrix) {
-        payload.pricingMatrix = [createEmptyPricingRow()];
+  const handlePackageSubmit = useCallback(
+    async (idOrPayload, maybePayload) => {
+      const isEdit = typeof idOrPayload === 'string';
+      const payload = isEdit ? maybePayload : idOrPayload;
+      const apiPayload = {
+        name: payload.name,
+        status: payload.status,
+        details: Array.isArray(payload.details) ? payload.details : [],
+      };
+
+      try {
+        if (isEdit) {
+          const pkg = packages.find((p) => p.id === idOrPayload);
+          const apiId = pkg?._id || pkg?.id || idOrPayload;
+          await updatePackageApi(apiId, apiPayload);
+          if (typeof window?.showToast === 'function') {
+            window.showToast('Package updated successfully', 'success');
+          }
+        } else {
+          const created = await createPackageApi(apiPayload);
+          const newPkg = created?.data || created?.package || created;
+          if (newPkg) {
+            const mapped = mapPackageFromApi(newPkg);
+            if (mapped) {
+              setPackages((prev) => [...prev, mapped]);
+            } else {
+              await fetchPackages();
+            }
+          } else {
+            await fetchPackages();
+          }
+          if (typeof window?.showToast === 'function') {
+            window.showToast('Package created successfully', 'success');
+          }
+        }
+      } catch (error) {
+        console.log('handlePackageSubmit', 'API failed', error);
+        if (typeof window?.showToast === 'function') {
+          window.showToast(
+            error?.response?.data?.message || (isEdit ? 'Failed to update package' : 'Failed to create package'),
+            'error'
+          );
+        }
+        throw error;
       }
-      setPackages((prev) => [
-        ...prev,
-        { id: newId, description: 'Customize features and pricing', ...payload },
-      ]);
-    }
-    setPackageModalOpen(false);
-    setPackageToEdit(null);
-  }, []);
+      setPackageModalOpen(false);
+      setPackageToEdit(null);
+    },
+    [packages, setPackages, fetchPackages]
+  );
 
-  const handleManagePackageSubmit = useCallback((id, payload) => {
-    setPackages((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, ...payload } : p
-      )
-    );
-    setManagePackageModalOpen(false);
-    setPackageToManage(null);
-  }, []);
+  const handleManagePackageSubmit = useCallback(
+    async (id, payload) => {
+      const pkg = packages.find((p) => p.id === id);
+      const apiId = pkg?._id || pkg?.id || id;
+      const apiPayload = {
+        name: pkg?.name,
+        status: pkg?.status,
+        details: Array.isArray(pkg?.details) ? pkg.details : [],
+        ...payload,
+      };
+      try {
+        await updatePackageApi(apiId, apiPayload);
+        setPackages((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, ...payload } : p))
+        );
+        if (typeof window?.showToast === 'function') {
+          window.showToast('Package updated successfully', 'success');
+        }
+      } catch (error) {
+        console.log('handleManagePackageSubmit', 'API failed', error);
+        if (typeof window?.showToast === 'function') {
+          window.showToast(
+            error?.response?.data?.message || 'Failed to update package',
+            'error'
+          );
+        }
+        throw error;
+      }
+      setManagePackageModalOpen(false);
+      setPackageToManage(null);
+    },
+    [packages, setPackages]
+  );
 
-  const handleDeletePackage = useCallback((id) => {
-    setPackages((prev) => prev.filter((p) => p.id !== id));
-    setDeleteConfirmPackage(null);
-    setManagePackageModalOpen(false);
-    setPackageToManage(null);
-  }, []);
+  const handleDeletePackage = useCallback(
+    async (id) => {
+      const pkg = packages.find((p) => p.id === id);
+      const apiId = pkg?._id || pkg?.id || id;
+      try {
+        await deletePackageApi(apiId);
+        setPackages((prev) => prev.filter((p) => p.id !== id));
+        if (typeof window?.showToast === 'function') {
+          window.showToast('Package deleted successfully', 'success');
+        }
+      } catch (error) {
+        console.log('handleDeletePackage', 'API failed', error);
+        if (typeof window?.showToast === 'function') {
+          window.showToast(
+            error?.response?.data?.message || 'Failed to delete package',
+            'error'
+          );
+        }
+        throw error;
+      }
+      setDeleteConfirmPackage(null);
+      setManagePackageModalOpen(false);
+      setPackageToManage(null);
+    },
+    [packages, setPackages]
+  );
 
   const handleOpenDeleteConfirm = useCallback((pkg) => {
     setDeleteConfirmPackage(pkg);
@@ -87,6 +179,7 @@ export function useSettings() {
 
   return {
     packages,
+    isLoading,
     packageModalOpen,
     packageToEdit,
     managePackageModalOpen,
