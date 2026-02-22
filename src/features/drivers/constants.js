@@ -8,3 +8,5 @@ export const GENDER_OPTIONS = [
   { value: 'female', label: 'Female' },
   { value: 'others', label: 'Others' },
 ];
+
+export const DEFAULT_COUNTRY_CODE = '965';

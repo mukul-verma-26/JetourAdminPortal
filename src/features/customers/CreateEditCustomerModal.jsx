@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import {
   CUSTOMER_STATUS_OPTIONS,
+  DEFAULT_COUNTRY_CODE,
   GENDER_OPTIONS,
   PREFERRED_LANGUAGE_OPTIONS,
 } from './constants';
@@ -23,6 +24,7 @@ function CreateEditCustomerModal({
 }) {
   const [formData, setFormData] = useState({
     name: '',
+    country_code: DEFAULT_COUNTRY_CODE,
     phone: '',
     dob: '',
     email: '',
@@ -48,9 +50,26 @@ function CreateEditCustomerModal({
 
   useEffect(() => {
     if (initialData) {
-      const phoneDigits = (initialData.phone || initialData.contact_number || '').replace(/\D/g, '').slice(0, 15);
+      const fullPhone = (initialData.phone || initialData.contact_number || '').trim();
+      const digitsOnly = fullPhone.replace(/\D/g, '');
+      let countryCode = DEFAULT_COUNTRY_CODE;
+      let phoneDigits = digitsOnly.slice(0, 15);
+      if (fullPhone.startsWith('+')) {
+        const match = fullPhone.match(/^\+(\d{1,4})(\d*)$/);
+        if (match) {
+          countryCode = match[1];
+          phoneDigits = match[2].replace(/\D/g, '').slice(0, 15);
+        }
+      } else if (digitsOnly.startsWith('965') && digitsOnly.length > 8) {
+        countryCode = '965';
+        phoneDigits = digitsOnly.slice(3).slice(0, 15);
+      } else if (digitsOnly.startsWith('91') && digitsOnly.length > 10) {
+        countryCode = '91';
+        phoneDigits = digitsOnly.slice(2).slice(0, 15);
+      }
       setFormData({
         name: initialData.name || '',
+        country_code: countryCode,
         phone: phoneDigits,
         dob: initialData.dob || '',
         email: initialData.email || '',
@@ -73,6 +92,7 @@ function CreateEditCustomerModal({
     } else {
       setFormData({
         name: '',
+        country_code: DEFAULT_COUNTRY_CODE,
         phone: '',
         dob: '',
         email: '',
@@ -117,7 +137,7 @@ function CreateEditCustomerModal({
     if (!formData.phone.trim()) {
       newErrors.phone = 'Contact number is required';
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = 'Contact must be 8-15 digits';
+      newErrors.phone = 'Phone must be 8-15 digits';
     }
 
     if (!formData.dob) {
@@ -154,6 +174,11 @@ function CreateEditCustomerModal({
         return newErrors;
       });
     }
+  };
+
+  const handleCountryCodeChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setFormData((prev) => ({ ...prev, country_code: value }));
   };
 
   const handlePhoneChange = (e) => {
@@ -203,9 +228,14 @@ function CreateEditCustomerModal({
       return;
     }
 
+    const countryCode = formData.country_code?.replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
+    const fullPhone = formData.phone.trim()
+      ? `+${countryCode}${formData.phone.replace(/\D/g, '')}`
+      : '';
     const payload = buildCustomerPayload({
       ...formData,
-      contact_number: formData.phone.trim() ? `+${formData.phone.replace(/\D/g, '')}` : '',
+      country_code: fullPhone ? `+${countryCode}` : '',
+      contact_number: fullPhone,
     });
 
     try {
@@ -267,18 +297,33 @@ function CreateEditCustomerModal({
               <label htmlFor="customer-phone" className={styles.label}>
                 Contact Number <span className={styles.required}>*</span>
               </label>
-              <div className={styles.phoneInputWrapper}>
-                <span className={styles.phonePrefixInline} aria-hidden="true">+</span>
+              <div className={styles.phoneInputRow}>
+                <div className={styles.countryCodeWrapper}>
+                  <span className={styles.phonePrefixFixed} aria-hidden="true">+</span>
+                  <input
+                    id="customer-country-code"
+                    name="country_code"
+                    type="tel"
+                    inputMode="numeric"
+                    className={`${styles.input} ${styles.countryCodeInput}`}
+                    placeholder="965"
+                    value={formData.country_code}
+                    onChange={handleCountryCodeChange}
+                    maxLength={4}
+                    aria-label="Country code"
+                  />
+                </div>
                 <input
                   id="customer-phone"
                   name="phone"
                   type="tel"
                   inputMode="numeric"
                   className={`${styles.input} ${styles.phoneInput} ${errors.phone ? styles.inputError : ''}`}
-                  placeholder="965 12345678"
+                  placeholder="12345678"
                   value={formData.phone}
                   onChange={handlePhoneChange}
                   maxLength={15}
+                  aria-label="Phone number"
                 />
               </div>
               {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}

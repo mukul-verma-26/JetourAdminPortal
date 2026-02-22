@@ -9,4 +9,6 @@ export const GENDER_OPTIONS = [
   { value: 'others', label: 'Others' },
 ];
 
+export const DEFAULT_COUNTRY_CODE = '965';
+
 export const INITIAL_TECHNICIANS = [];

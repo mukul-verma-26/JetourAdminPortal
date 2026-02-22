@@ -1,3 +1,4 @@
+import PasswordInput from '../../components/shared/PasswordInput';
 import styles from './CreateEditTechnicianModal.module.scss';
 
 function TechnicianRatingField({ register, errors, validationRules }) {
@@ -28,6 +29,19 @@ function TechnicianRatingField({ register, errors, validationRules }) {
         {errors.rating && (
           <div className={styles.errorMessage}>{errors.rating.message}</div>
         )}
+      </div>
+      <div className={styles.field}>
+        <PasswordInput
+          id="technician-password"
+          label="Password"
+          placeholder="Enter password"
+          error={!!errors.password}
+          errorMessage={errors.password?.message}
+          required
+          register={register}
+          name="password"
+          registerOptions={validationRules.password}
+        />
       </div>
     </div>
   );

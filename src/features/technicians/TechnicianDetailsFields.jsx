@@ -1,4 +1,3 @@
-import { GENDER_OPTIONS, STATUS_OPTIONS } from './constants';
 import TechnicianNameContactFields from './TechnicianNameContactFields';
 import TechnicianCivilIdNationalityFields from './TechnicianCivilIdNationalityFields';
 import TechnicianGenderStatusFields from './TechnicianGenderStatusFields';

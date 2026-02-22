@@ -10,14 +10,20 @@ const LANGUAGE_TO_API = {
 };
 
 export function buildCustomerPayload(formData) {
+  const countryCode = formData.country_code || '';
   const contactNumber = formData.contact_number || formData.phone;
   const phone = typeof contactNumber === 'string'
     ? contactNumber.trim()
     : '';
-  const fullPhone = phone.startsWith('+') ? phone : `+965${phone.replace(/\D/g, '').slice(-8)}`;
+  const fullPhone = phone.startsWith('+')
+    ? phone
+    : countryCode
+      ? `${countryCode.startsWith('+') ? countryCode : `+${countryCode}`}${phone.replace(/\D/g, '')}`
+      : `+965${phone.replace(/\D/g, '').slice(-8)}`;
 
   return {
     name: String(formData.name || '').trim(),
+    country_code: countryCode ? (countryCode.startsWith('+') ? countryCode : `+${countryCode}`) : '',
     contact_number: fullPhone,
     email: String(formData.email || '').trim(),
     civil_id: String(formData.civil_id || formData.civilId || '').trim(),

@@ -143,13 +143,20 @@
   appearance: auto;
 }
 
-.phoneInputWrapper {
+.phoneInputRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.countryCodeWrapper {
   position: relative;
   display: flex;
   align-items: stretch;
+  flex-shrink: 0;
 }
 
-.phonePrefixInline {
+.phonePrefixFixed {
   position: absolute;
   left: 0;
   top: 0;
@@ -164,9 +171,14 @@
   user-select: none;
 }
 
+.countryCodeInput {
+  width: 5rem;
+  padding-left: 1.75rem;
+}
+
 .phoneInput {
   flex: 1;
-  padding-left: 1.5rem;
+  min-width: 0;
 }
 
 .photoSection {

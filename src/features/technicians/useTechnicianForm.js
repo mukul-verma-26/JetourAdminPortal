@@ -1,10 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo } from 'react';
-import { parseContactToDigits, validateCivilId, getRatingVal } from './helpers';
+import { DEFAULT_COUNTRY_CODE } from './constants';
+import { parseContactToCountryCodeAndPhone, validateCivilId, getRatingVal } from './helpers';
 
 const DEFAULT_VALUES = {
   name: '',
+  country_code: DEFAULT_COUNTRY_CODE,
   contact: '',
+  password: '',
   civil_id: '',
   nationality: '',
   gender: 'male',
@@ -49,9 +52,15 @@ export function useTechnicianForm(initialData, open) {
   useEffect(() => {
     if (!open) return;
     if (initialData) {
+      const { country_code, phone } = parseContactToCountryCodeAndPhone(
+        initialData.contact,
+        DEFAULT_COUNTRY_CODE
+      );
       reset({
         name: initialData.name || '',
-        contact: parseContactToDigits(initialData.contact),
+        country_code,
+        contact: phone,
+        password: '',
         civil_id: initialData.civilId || initialData.civil_id || '',
         nationality: initialData.nationality || '',
         gender: initialData.gender || 'male',
@@ -74,9 +83,14 @@ export function useTechnicianForm(initialData, open) {
 
   const buildPayload = useCallback((data) => {
     const ratingVal = getRatingVal(data.rating);
+    const countryCode = (data.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
+    const phoneDigits = (data.contact || '').trim().replace(/\D/g, '');
+    const fullContact = phoneDigits ? `+${countryCode}${phoneDigits}` : '';
     const payload = {
       name: (data.name || '').trim(),
-      contact: `+${(data.contact || '').trim().replace(/\D/g, '')}`,
+      country_code: fullContact ? `+${countryCode}` : '',
+      contact: fullContact,
+      password: (data.password || '').trim(),
       civil_id: (data.civil_id || '').trim(),
       gender: data.gender || 'male',
       status: data.status || 'active',
@@ -94,10 +108,15 @@ export function useTechnicianForm(initialData, open) {
     name: {
       required: 'Name is required',
     },
+    country_code: {},
     contact: {
       required: 'Contact is required',
       minLength: { value: 8, message: 'Contact must be 8-15 digits' },
       maxLength: { value: 15, message: 'Contact must be 8-15 digits' },
+    },
+    password: {
+      required: 'Password is required',
+      minLength: { value: 6, message: 'Password must be at least 6 characters' },
     },
     civil_id: {
       required: 'Civil ID is required',

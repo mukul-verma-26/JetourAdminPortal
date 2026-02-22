@@ -14,3 +14,5 @@ export const PREFERRED_LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
   { value: 'ar', label: 'Arabic' },
 ];
+
+export const DEFAULT_COUNTRY_CODE = '965';

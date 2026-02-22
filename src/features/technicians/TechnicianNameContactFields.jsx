@@ -22,15 +22,34 @@ function TechnicianNameContactFields({ register, errors, validationRules }) {
         <label htmlFor="contact" className={styles.label}>
           Contact <span className={styles.required}>*</span>
         </label>
-        <div className={styles.phoneInputWrapper}>
-          <span className={styles.phonePrefixInline} aria-hidden="true">+</span>
+        <div className={styles.phoneInputRow}>
+          <div className={styles.countryCodeWrapper}>
+            <span className={styles.phonePrefixFixed} aria-hidden="true">+</span>
+            <input
+              id="country_code"
+              type="tel"
+              inputMode="numeric"
+              className={`${styles.input} ${styles.countryCodeInput}`}
+              placeholder="965"
+              maxLength={4}
+              aria-label="Country code"
+              {...register('country_code', {
+                ...validationRules.country_code,
+                onChange: (e) => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  e.target.value = v;
+                },
+              })}
+            />
+          </div>
           <input
             id="contact"
             type="tel"
             inputMode="numeric"
             className={`${styles.input} ${styles.phoneInput} ${errors.contact ? styles.inputError : ''}`}
-            placeholder="965 12345678"
+            placeholder="12345678"
             maxLength={15}
+            aria-label="Phone number"
             {...register('contact', {
               ...validationRules.contact,
               onChange: (e) => {
