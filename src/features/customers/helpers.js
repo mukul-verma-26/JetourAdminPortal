@@ -21,7 +21,11 @@ export function buildCustomerPayload(formData) {
       ? `${countryCode.startsWith('+') ? countryCode : `+${countryCode}`}${phone.replace(/\D/g, '')}`
       : `+965${phone.replace(/\D/g, '').slice(-8)}`;
 
-  return {
+  const locationData = formData.locationData || {};
+  const lat = locationData.lat != null ? Number(locationData.lat) : undefined;
+  const lng = locationData.lng != null ? Number(locationData.lng) : undefined;
+
+  const payload = {
     name: String(formData.name || '').trim(),
     country_code: countryCode ? (countryCode.startsWith('+') ? countryCode : `+${countryCode}`) : '',
     contact_number: fullPhone,
@@ -46,6 +50,13 @@ export function buildCustomerPayload(formData) {
       google_location: String(formData.google_location || '').trim(),
     },
   };
+
+  if (lat != null && lng != null) {
+    payload.lat = lat;
+    payload.lng = lng;
+  }
+
+  return payload;
 }
 
 export function mapCustomerFromApi(item) {
@@ -55,8 +66,10 @@ export function mapCustomerFromApi(item) {
   const id = item.customer_id || item._id || item.id;
   const phone = item.contact_number || item.phone;
   const dob = item.date_of_birth || item.dob;
+  const lat = item.lat != null ? item.lat : addr.lat;
+  const lng = item.lng != null ? item.lng : addr.lng;
 
-  return {
+  const mapped = {
     id,
     _id: item._id || id,
     customerId: item.customer_id || item.customerId || id,
@@ -85,6 +98,12 @@ export function mapCustomerFromApi(item) {
     google_location: addr.google_location || '',
     address: formatAddressForDisplay(addr),
   };
+
+  if (lat != null && lng != null) {
+    mapped.locationData = { lat, lng };
+  }
+
+  return mapped;
 }
 
 function formatAddressForDisplay(addr) {

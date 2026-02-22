@@ -45,7 +45,6 @@ function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) 
 
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ['address'],
-      componentRestrictions: { country: 'kw' }, // Restrict to Kuwait
       fields: ['formatted_address', 'geometry', 'address_components'],
     });
 

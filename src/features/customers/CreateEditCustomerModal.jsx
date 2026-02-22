@@ -43,6 +43,7 @@ function CreateEditCustomerModal({
     flat_no: '',
     paci_details: '',
     google_location: '',
+    locationData: null,
   });
   const [errors, setErrors] = useState({});
 
@@ -88,6 +89,7 @@ function CreateEditCustomerModal({
         flat_no: initialData.flat_no || '',
         paci_details: initialData.paci_details || '',
         google_location: initialData.google_location || '',
+        locationData: initialData.locationData || null,
       });
     } else {
       setFormData({
@@ -111,6 +113,7 @@ function CreateEditCustomerModal({
         flat_no: '',
         paci_details: '',
         google_location: '',
+        locationData: null,
       });
     }
     setErrors({});
