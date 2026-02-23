@@ -13,6 +13,7 @@ function getStatusLabel(value) {
 }
 
 function getGenderLabel(value) {
+  if (value === 'others' || value === 'other') return 'Others';
   return GENDER_OPTIONS.find((o) => o.value === value)?.label || value;
 }
 

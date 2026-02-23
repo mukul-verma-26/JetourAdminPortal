@@ -85,6 +85,21 @@ function CreateEditServiceVanModal({
           <h3 className={styles.sectionTitle}>Vehicle Details</h3>
           <div className={styles.fieldRow}>
             <div className={styles.field}>
+              <label htmlFor="registration_number" className={styles.label}>
+                Registration Number <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="registration_number"
+                type="text"
+                className={`${styles.input} ${errors.registration_number ? styles.inputError : ''}`}
+                placeholder="e.g. ABC-1234"
+                {...register('registration_number', validationRules.registration_number)}
+              />
+              {errors.registration_number && (
+                <div className={styles.errorMessage}>{errors.registration_number.message}</div>
+              )}
+            </div>
+            <div className={styles.field}>
               <label htmlFor="vehicle_model" className={styles.label}>
                 Vehicle Model <span className={styles.required}>*</span>
               </label>

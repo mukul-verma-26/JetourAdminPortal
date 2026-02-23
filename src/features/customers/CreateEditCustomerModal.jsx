@@ -75,7 +75,7 @@ function CreateEditCustomerModal({
         dob: initialData.dob || '',
         email: initialData.email || '',
         civilId: initialData.civilId || '',
-        gender: (initialData.gender === 'other' ? 'others' : initialData.gender) || 'male',
+        gender: (initialData.gender === 'other' || initialData.gender === 'others' ? 'male' : initialData.gender) || 'male',
         passportNumber: initialData.passportNumber || '',
         nationality: initialData.nationality || '',
         preferredLanguage: initialData.preferredLanguage || 'en',

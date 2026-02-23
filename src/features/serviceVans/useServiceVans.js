@@ -13,6 +13,8 @@ function mapServiceVanFromApi(item) {
   return {
     id: item.service_van_id || item._id,
     _id: item._id,
+    registrationNumber: item.registration_number || '',
+    registration_number: item.registration_number || '',
     vehicleModel: item.vehicle_model || '',
     mileage: item.mileage ?? 0,
     lastService: item.last_service_date || '',
@@ -73,6 +75,7 @@ export function useServiceVans() {
           })
         : {
             id: `KWT-${String(Date.now()).slice(-3).padStart(3, '0')}`,
+            registrationNumber: van.registration_number || '',
             vehicleModel: van.vehicle_model || '',
             mileage: van.mileage || 0,
             lastService: van.last_service_date || '',

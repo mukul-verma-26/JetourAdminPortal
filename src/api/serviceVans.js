@@ -29,18 +29,22 @@ function toImageString(image) {
 
 export async function createServiceVan(payload) {
   try {
+    const imageInput = payload.image ?? payload.vehicle_image;
     let imageStr = '';
-    if (payload.vehicle_image instanceof File) {
-      const dataUrl = await fileToBase64(payload.vehicle_image);
+    if (imageInput instanceof File) {
+      const dataUrl = await fileToBase64(imageInput);
       if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
         imageStr = dataUrl.split(',')[1] || '';
       }
     } else {
-      imageStr = toImageString(payload.vehicle_image);
+      imageStr = toImageString(imageInput);
     }
     const body = {
-      vehicle_category: String(payload.vehicle_category || ''),
+      registration_number: String(payload.registration_number || '').trim(),
       vehicle_model: String(payload.vehicle_model || ''),
+      mileage: Number(payload.mileage) || 0,
+      last_service_date: String(payload.last_service_date || '').trim(),
+      status: String(payload.status || 'active'),
       vehicle_image: String(imageStr),
     };
     if (typeof body.vehicle_image !== 'string') {
@@ -64,21 +68,25 @@ export async function createServiceVan(payload) {
 
 export async function updateServiceVan(id, payload) {
   try {
+    const imageInput = payload.image ?? payload.vehicle_image;
     let imageStr = '';
-    if (payload.vehicle_image instanceof File) {
-      const dataUrl = await fileToBase64(payload.vehicle_image);
+    if (imageInput instanceof File) {
+      const dataUrl = await fileToBase64(imageInput);
       if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
         imageStr = dataUrl.split(',')[1] || '';
       }
     } else {
-      imageStr = toImageString(payload.vehicle_image);
+      imageStr = toImageString(imageInput);
       if (imageStr && imageStr.startsWith('data:')) {
         imageStr = imageStr.includes(',') ? imageStr.split(',')[1] || '' : '';
       }
     }
     const body = {
-      vehicle_category: String(payload.vehicle_category || ''),
+      registration_number: String(payload.registration_number || '').trim(),
       vehicle_model: String(payload.vehicle_model || ''),
+      mileage: Number(payload.mileage) || 0,
+      last_service_date: String(payload.last_service_date || '').trim(),
+      status: String(payload.status || 'active'),
       vehicle_image: String(imageStr),
     };
     if (typeof body.vehicle_image !== 'string') {

@@ -72,6 +72,10 @@ function ViewServiceVanModal({ open, onClose, van }) {
             <p className={styles.value}>{van.id}</p>
           </div>
           <div className={styles.row}>
+            <span className={styles.label}>Registration Number</span>
+            <p className={styles.value}>{van.registrationNumber || van.registration_number || '—'}</p>
+          </div>
+          <div className={styles.row}>
             <span className={styles.label}>Vehicle Model</span>
             <p className={styles.value}>{van.vehicleModel}</p>
           </div>

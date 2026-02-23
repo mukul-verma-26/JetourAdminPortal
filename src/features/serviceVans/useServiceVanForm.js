@@ -4,6 +4,7 @@ import { getTechnicians } from '../../api/technicians';
 import { getDrivers } from '../../api/drivers';
 
 const DEFAULT_VALUES = {
+  registration_number: '',
   vehicle_model: '',
   mileage: '',
   last_service_date: '',
@@ -76,6 +77,7 @@ export function useServiceVanForm(initialData, open) {
     if (!open) return;
     if (initialData) {
       reset({
+        registration_number: initialData.registrationNumber || initialData.registration_number || '',
         vehicle_model: initialData.vehicleModel || '',
         mileage: String(initialData.mileage ?? ''),
         last_service_date: initialData.lastService || '',
@@ -100,6 +102,7 @@ export function useServiceVanForm(initialData, open) {
   const buildPayload = useCallback((data) => {
     const mileageNum = parseInt(String(data.mileage || '0'), 10);
     const payload = {
+      registration_number: (data.registration_number || '').trim(),
       vehicle_model: (data.vehicle_model || '').trim(),
       mileage: Number.isNaN(mileageNum) ? 0 : Math.max(0, mileageNum),
       last_service_date: (data.last_service_date || '').trim(),
@@ -116,6 +119,9 @@ export function useServiceVanForm(initialData, open) {
   }, []);
 
   const validationRules = {
+    registration_number: {
+      required: 'Registration number is required',
+    },
     vehicle_model: {
       required: 'Vehicle model is required',
     },
