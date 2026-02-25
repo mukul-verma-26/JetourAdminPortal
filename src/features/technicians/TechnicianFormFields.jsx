@@ -9,6 +9,7 @@ function TechnicianFormFields({
   onImageClick,
   onFileChange,
   fileInputRef,
+  isEdit,
 }) {
   return (
     <>
@@ -18,11 +19,13 @@ function TechnicianFormFields({
         onFileChange={onFileChange}
         fileInputRef={fileInputRef}
         error={errors.image?.message}
+        isEdit={isEdit}
       />
       <TechnicianDetailsFields
         register={register}
         errors={errors}
         validationRules={validationRules}
+        isEdit={isEdit}
       />
     </>
   );

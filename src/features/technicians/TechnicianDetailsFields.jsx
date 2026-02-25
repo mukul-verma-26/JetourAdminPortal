@@ -8,6 +8,7 @@ function TechnicianDetailsFields({
   register,
   errors,
   validationRules,
+  isEdit,
 }) {
   return (
     <>
@@ -31,6 +32,7 @@ function TechnicianDetailsFields({
         register={register}
         errors={errors}
         validationRules={validationRules}
+        isEdit={isEdit}
       />
     </>
   );

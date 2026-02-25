@@ -42,6 +42,8 @@ export async function createTechnician(payload) {
       name: String(payload.name || ''),
       contact: String(payload.contact || ''),
       civil_id: String(payload.civil_id || ''),
+      nationality: String(payload.nationality || ''),
+      password: String(payload.password || ''),
       gender: String(payload.gender || 'male'),
       status: String(payload.status || 'active'),
       rating: Number(payload.rating) || 0,
@@ -78,11 +80,15 @@ export async function updateTechnician(id, payload) {
       name: String(payload.name || ''),
       contact: String(payload.contact || ''),
       civil_id: String(payload.civil_id || ''),
+      nationality: String(payload.nationality || ''),
       gender: String(payload.gender || 'male'),
       status: String(payload.status || 'active'),
       rating: Number(payload.rating) || 0,
       image: String(imageStr),
     };
+    if (payload.password) {
+      body.password = String(payload.password);
+    }
     if (typeof body.image !== 'string') {
       body.image = '';
     }

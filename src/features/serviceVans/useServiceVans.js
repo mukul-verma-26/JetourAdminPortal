@@ -7,9 +7,18 @@ import {
 } from '../../api/serviceVans';
 
 function mapServiceVanFromApi(item) {
-  const image = item.image
-    ? (item.image.startsWith('data:') ? item.image : `data:image/png;base64,${item.image}`)
-    : '';
+  let photo = '';
+  const imageValue = item.image ?? item.vehicle_image;
+  if (imageValue) {
+    const img = String(imageValue).trim();
+    if (img.startsWith('data:')) {
+      photo = img;
+    } else if (img.startsWith('http://') || img.startsWith('https://')) {
+      photo = img;
+    } else {
+      photo = `data:image/png;base64,${img}`;
+    }
+  }
   return {
     id: item.service_van_id || item._id,
     _id: item._id,
@@ -19,7 +28,7 @@ function mapServiceVanFromApi(item) {
     mileage: item.mileage ?? 0,
     lastService: item.last_service_date || '',
     status: item.status || 'active',
-    photo: image,
+    photo,
     technicianId: item.technician_id || '',
     technician_id: item.technician_id || '',
     driverId: item.driver_id || '',

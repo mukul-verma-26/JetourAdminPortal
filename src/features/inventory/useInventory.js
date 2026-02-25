@@ -29,16 +29,21 @@ export function useInventory() {
       const nextId = String(Date.now());
       const nextItemId = getNextItemId(prev);
       const addedDate = new Date().toISOString().slice(0, 10);
-      const qtyInStock = parseInt(item.qtyInStock, 10) || 0;
+      const qtyInStock =
+        parseInt(item.quantity != null ? item.quantity : item.qtyInStock, 10) || 0;
+      const unitPrice =
+        parseFloat(item.unit_price != null ? item.unit_price : item.unitPrice) || 0;
+      const partStatus =
+        item.part_status != null ? item.part_status : (item.partStatus || 'usable');
       const newItem = {
-        ...item,
+        name: item.name,
         id: nextId,
         itemId: nextItemId,
         addedDate,
         qtyInStock,
-        unitPrice: parseFloat(item.unitPrice) || 0,
+        unitPrice,
         stockStatus: determineStockStatus(qtyInStock),
-        partStatus: item.partStatus || 'usable',
+        partStatus,
       };
       return sortByAddedDate([newItem, ...prev]);
     });
@@ -50,19 +55,34 @@ export function useInventory() {
         prev.map((item) => {
           if (item.id !== id) return item;
           const qtyInStock =
-            updated.qtyInStock !== undefined
-              ? parseInt(updated.qtyInStock, 10) || 0
+            updated.quantity !== undefined || updated.qtyInStock !== undefined
+              ? parseInt(
+                  updated.quantity != null ? updated.quantity : updated.qtyInStock,
+                  10
+                ) || 0
               : item.qtyInStock;
+          const unitPrice =
+            updated.unit_price !== undefined || updated.unitPrice !== undefined
+              ? parseFloat(
+                  updated.unit_price != null
+                    ? updated.unit_price
+                    : updated.unitPrice
+                ) || 0
+              : item.unitPrice;
+          const partStatus =
+            updated.part_status != null
+              ? updated.part_status
+              : updated.partStatus != null
+                ? updated.partStatus
+                : item.partStatus;
           return {
             ...item,
-            ...updated,
+            name: updated.name != null ? updated.name : item.name,
             id,
             qtyInStock,
-            unitPrice:
-              updated.unitPrice !== undefined
-                ? parseFloat(updated.unitPrice) || 0
-                : item.unitPrice,
+            unitPrice,
             stockStatus: determineStockStatus(qtyInStock),
+            partStatus,
           };
         })
       )

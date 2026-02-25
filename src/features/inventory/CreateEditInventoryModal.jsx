@@ -13,9 +13,9 @@ function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
     const form = e.target;
     const payload = {
       name: form.name.value.trim(),
-      qtyInStock: parseInt(form.qtyInStock.value, 10) || 0,
-      unitPrice: parseFloat(form.unitPrice.value) || 0,
-      partStatus: form.partStatus.value,
+      quantity: parseInt(form.quantity.value, 10) || 0,
+      unit_price: parseFloat(form.unit_price.value) || 0,
+      part_status: form.part_status.value,
     };
     if (isEdit) {
       onSubmit(initialData.id, payload);
@@ -25,12 +25,19 @@ function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
     onClose();
   };
 
-  const defaultValues = initialData || {
-    name: '',
-    qtyInStock: 0,
-    unitPrice: 0,
-    partStatus: 'usable',
-  };
+  const defaultValues = initialData
+    ? {
+        name: initialData.name || '',
+        quantity: initialData.qtyInStock ?? initialData.quantity ?? 0,
+        unit_price: initialData.unitPrice ?? initialData.unit_price ?? 0,
+        part_status: initialData.partStatus ?? initialData.part_status ?? 'usable',
+      }
+    : {
+        name: '',
+        quantity: 0,
+        unit_price: 0,
+        part_status: 'usable',
+      };
 
   return (
     <div
@@ -70,45 +77,45 @@ function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="inventory-qtyInStock" className={styles.label}>
+            <label htmlFor="inventory-quantity" className={styles.label}>
               Quantity in Stock
             </label>
             <input
-              id="inventory-qtyInStock"
-              name="qtyInStock"
+              id="inventory-quantity"
+              name="quantity"
               type="number"
               min="0"
               className={styles.input}
               placeholder="0"
-              defaultValue={defaultValues.qtyInStock}
+              defaultValue={defaultValues.quantity}
               required
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="inventory-unitPrice" className={styles.label}>
+            <label htmlFor="inventory-unit_price" className={styles.label}>
               Unit Price (KWD)
             </label>
             <input
-              id="inventory-unitPrice"
-              name="unitPrice"
+              id="inventory-unit_price"
+              name="unit_price"
               type="number"
               min="0"
               step="0.001"
               className={styles.input}
               placeholder="0.000"
-              defaultValue={defaultValues.unitPrice}
+              defaultValue={defaultValues.unit_price}
               required
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="inventory-partStatus" className={styles.label}>
+            <label htmlFor="inventory-part_status" className={styles.label}>
               Part Status
             </label>
             <select
-              id="inventory-partStatus"
-              name="partStatus"
+              id="inventory-part_status"
+              name="part_status"
               className={styles.select}
-              defaultValue={defaultValues.partStatus || 'usable'}
+              defaultValue={defaultValues.part_status || 'usable'}
               required
             >
               {PART_STATUS_OPTIONS.map((opt) => (

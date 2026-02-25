@@ -89,19 +89,19 @@ function ViewTechnicianModal({ open, onClose, technician }) {
               <p className={styles.value}>{getGenderLabel(technician.gender)}</p>
             </div>
             <div className={styles.attrItem}>
+              <span className={styles.label}>Status</span>
+              <p className={styles.value}>
+                <span className={`${styles.statusBadge} ${statusClass}`}>
+                  {getStatusLabel(technician.status)}
+                </span>
+              </p>
+            </div>
+            <div className={styles.attrItem}>
               <span className={styles.label}>Rating</span>
               <p className={styles.value}>
                 <span className={styles.ratingValue}>
                   {Math.round(technician.rating)}
                   <FiStar className={styles.starIcon} size={14} />
-                </span>
-              </p>
-            </div>
-            <div className={styles.attrItem}>
-              <span className={styles.label}>Status</span>
-              <p className={styles.value}>
-                <span className={`${styles.statusBadge} ${statusClass}`}>
-                  {getStatusLabel(technician.status)}
                 </span>
               </p>
             </div>

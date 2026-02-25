@@ -14,6 +14,7 @@ function mapTechnicianFromApi(item) {
     nationality: item.nationality || '',
     gender: item.gender || 'male',
     photo: image,
+    password: item.password || '',
     rating: item.rating ?? 0,
     status: item.status || 'active',
   };

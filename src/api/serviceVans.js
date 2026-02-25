@@ -1,4 +1,21 @@
+import imageCompression from 'browser-image-compression';
 import { apiClient } from './client.js';
+
+const IMAGE_COMPRESSION_OPTIONS = {
+  maxSizeMB: 0.5,
+  maxWidthOrHeight: 1200,
+  useWebWorker: true,
+};
+
+async function compressImageIfNeeded(file) {
+  if (!(file instanceof File)) return file;
+  try {
+    return await imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
+  } catch (err) {
+    console.log('compressImageIfNeeded', 'Compression failed, using original', err);
+    return file;
+  }
+}
 
 export async function getServiceVans() {
   try {
@@ -29,10 +46,11 @@ function toImageString(image) {
 
 export async function createServiceVan(payload) {
   try {
-    const imageInput = payload.image ?? payload.vehicle_image;
+    const imageInput = payload.image;
     let imageStr = '';
     if (imageInput instanceof File) {
-      const dataUrl = await fileToBase64(imageInput);
+      const compressed = await compressImageIfNeeded(imageInput);
+      const dataUrl = await fileToBase64(compressed);
       if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
         imageStr = dataUrl.split(',')[1] || '';
       }
@@ -45,10 +63,10 @@ export async function createServiceVan(payload) {
       mileage: Number(payload.mileage) || 0,
       last_service_date: String(payload.last_service_date || '').trim(),
       status: String(payload.status || 'active'),
-      vehicle_image: String(imageStr),
+      image: String(imageStr),
     };
-    if (typeof body.vehicle_image !== 'string') {
-      body.vehicle_image = '';
+    if (typeof body.image !== 'string') {
+      body.image = '';
     }
     if (payload.technician_id) {
       body.technician_id = payload.technician_id;
@@ -68,10 +86,11 @@ export async function createServiceVan(payload) {
 
 export async function updateServiceVan(id, payload) {
   try {
-    const imageInput = payload.image ?? payload.vehicle_image;
+    const imageInput = payload.image;
     let imageStr = '';
     if (imageInput instanceof File) {
-      const dataUrl = await fileToBase64(imageInput);
+      const compressed = await compressImageIfNeeded(imageInput);
+      const dataUrl = await fileToBase64(compressed);
       if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
         imageStr = dataUrl.split(',')[1] || '';
       }
@@ -87,10 +106,10 @@ export async function updateServiceVan(id, payload) {
       mileage: Number(payload.mileage) || 0,
       last_service_date: String(payload.last_service_date || '').trim(),
       status: String(payload.status || 'active'),
-      vehicle_image: String(imageStr),
+      image: String(imageStr),
     };
-    if (typeof body.vehicle_image !== 'string') {
-      body.vehicle_image = '';
+    if (typeof body.image !== 'string') {
+      body.image = '';
     }
     if (payload.technician_id) {
       body.technician_id = payload.technician_id;

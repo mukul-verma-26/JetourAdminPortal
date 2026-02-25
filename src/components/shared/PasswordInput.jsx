@@ -12,6 +12,7 @@ function PasswordInput({
   register,
   name,
   registerOptions = {},
+  onFocus,
   className = '',
 }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,11 +32,16 @@ function PasswordInput({
           placeholder={placeholder}
           autoComplete="new-password"
           {...register(name, registerOptions)}
+          onFocus={onFocus}
         />
         <button
           type="button"
           className={styles.eyeBtn}
-          onClick={() => setShowPassword((prev) => !prev)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowPassword((prev) => !prev);
+          }}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
           tabIndex={-1}
         >

@@ -27,6 +27,7 @@ export function useTechnicianForm(initialData, open) {
     watch,
     setValue,
     setError,
+    clearErrors,
     reset,
   } = useForm({
     defaultValues: DEFAULT_VALUES,
@@ -60,7 +61,7 @@ export function useTechnicianForm(initialData, open) {
         name: initialData.name || '',
         country_code,
         contact: phone,
-        password: '',
+        password: initialData.password || '',
         civil_id: initialData.civilId || initialData.civil_id || '',
         nationality: initialData.nationality || '',
         gender: initialData.gender || 'male',
@@ -77,8 +78,9 @@ export function useTechnicianForm(initialData, open) {
     (file) => {
       if (!file) return;
       setValue('image', file, { shouldValidate: true });
+      clearErrors('image');
     },
-    [setValue]
+    [setValue, clearErrors]
   );
 
   const buildPayload = useCallback((data) => {
@@ -90,12 +92,16 @@ export function useTechnicianForm(initialData, open) {
       name: (data.name || '').trim(),
       country_code: fullContact ? `+${countryCode}` : '',
       contact: fullContact,
-      password: (data.password || '').trim(),
       civil_id: (data.civil_id || '').trim(),
+      nationality: (data.nationality || '').trim(),
       gender: data.gender || 'male',
       status: data.status || 'active',
       rating: ratingVal,
     };
+    const passwordVal = (data.password || '').trim();
+    if (passwordVal) {
+      payload.password = passwordVal;
+    }
     if (data.image instanceof File) {
       payload.image = data.image;
     } else if (data.image && typeof data.image === 'string') {
@@ -114,10 +120,12 @@ export function useTechnicianForm(initialData, open) {
       minLength: { value: 8, message: 'Contact must be 8-15 digits' },
       maxLength: { value: 15, message: 'Contact must be 8-15 digits' },
     },
-    password: {
-      required: 'Password is required',
-      minLength: { value: 6, message: 'Password must be at least 6 characters' },
-    },
+    password: (isEdit
+      ? { minLength: { value: 6, message: 'Password must be at least 6 characters' } }
+      : {
+          required: 'Password is required',
+          minLength: { value: 6, message: 'Password must be at least 6 characters' },
+        }),
     civil_id: {
       required: 'Civil ID is required',
     },
@@ -127,11 +135,13 @@ export function useTechnicianForm(initialData, open) {
     status: {
       required: 'Status is required',
     },
-    image: {
-      required: 'Image is required',
-      validate: (v) =>
-        (v instanceof File || (v && String(v).trim())) ? true : 'Image is required',
-    },
+    image: isEdit
+      ? {}
+      : {
+          required: 'Image is required',
+          validate: (v) =>
+            (v instanceof File || (v && String(v).trim())) ? true : 'Image is required',
+        },
     rating: {
       validate: (v) => {
         const num = getRatingVal(v);
@@ -149,6 +159,7 @@ export function useTechnicianForm(initialData, open) {
     imagePreview,
     setValue,
     setError,
+    clearErrors,
     setImageFromFile,
     buildPayload,
     validationRules,
