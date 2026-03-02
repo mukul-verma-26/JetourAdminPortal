@@ -1,5 +1,11 @@
-import { useState, useCallback, useMemo } from 'react';
-import { INITIAL_INVENTORY } from './constants';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  getInventoryItems,
+  createInventoryItem,
+  updateInventoryItem as updateInventoryItemApi,
+  deleteInventoryItem as deleteInventoryItemApi,
+} from '../../api/inventory';
+import { mapApiItemToUi } from './helpers';
 
 function sortByAddedDate(items) {
   return [...items].sort(
@@ -7,91 +13,121 @@ function sortByAddedDate(items) {
   );
 }
 
-function getNextItemId(items) {
-  const max = items.reduce((acc, item) => {
-    const num = parseInt(item.itemId.replace('INV-', ''), 10);
-    return isNaN(num) ? acc : Math.max(acc, num);
-  }, 0);
-  return `INV-${String(max + 1).padStart(3, '0')}`;
-}
-
-function determineStockStatus(qty) {
-  if (qty === 0) return 'out_of_stock';
-  if (qty <= 10) return 'low_stock';
-  return 'in_stock';
-}
-
 export function useInventory() {
-  const [inventory, setInventory] = useState(INITIAL_INVENTORY);
+  const [inventory, setInventory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const addItem = useCallback((item) => {
-    setInventory((prev) => {
-      const nextId = String(Date.now());
-      const nextItemId = getNextItemId(prev);
-      const addedDate = new Date().toISOString().slice(0, 10);
-      const qtyInStock =
-        parseInt(item.quantity != null ? item.quantity : item.qtyInStock, 10) || 0;
-      const unitPrice =
-        parseFloat(item.unit_price != null ? item.unit_price : item.unitPrice) || 0;
-      const partStatus =
-        item.part_status != null ? item.part_status : (item.partStatus || 'usable');
-      const newItem = {
-        name: item.name,
-        id: nextId,
-        itemId: nextItemId,
-        addedDate,
-        qtyInStock,
-        unitPrice,
-        stockStatus: determineStockStatus(qtyInStock),
-        partStatus,
-      };
-      return sortByAddedDate([newItem, ...prev]);
-    });
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchInventory() {
+      setIsLoading(true);
+      try {
+        const res = await getInventoryItems();
+        const list = res?.data || res || [];
+        if (!cancelled) {
+          const mapped = Array.isArray(list)
+            ? list.map(mapApiItemToUi)
+            : [];
+          setInventory(sortByAddedDate(mapped));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.log('useInventory', 'Failed to fetch inventory', error);
+          if (typeof window?.showToast === 'function') {
+            window.showToast('Failed to load inventory', 'error');
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchInventory();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const updateItem = useCallback((id, updated) => {
-    setInventory((prev) =>
-      sortByAddedDate(
-        prev.map((item) => {
-          if (item.id !== id) return item;
-          const qtyInStock =
-            updated.quantity !== undefined || updated.qtyInStock !== undefined
-              ? parseInt(
-                  updated.quantity != null ? updated.quantity : updated.qtyInStock,
-                  10
-                ) || 0
-              : item.qtyInStock;
-          const unitPrice =
-            updated.unit_price !== undefined || updated.unitPrice !== undefined
-              ? parseFloat(
-                  updated.unit_price != null
-                    ? updated.unit_price
-                    : updated.unitPrice
-                ) || 0
-              : item.unitPrice;
-          const partStatus =
-            updated.part_status != null
-              ? updated.part_status
-              : updated.partStatus != null
-                ? updated.partStatus
-                : item.partStatus;
-          return {
-            ...item,
-            name: updated.name != null ? updated.name : item.name,
-            id,
-            qtyInStock,
-            unitPrice,
-            stockStatus: determineStockStatus(qtyInStock),
-            partStatus,
-          };
-        })
-      )
-    );
+  const addItem = useCallback(async (payload) => {
+    setIsCreating(true);
+    try {
+      const data = await createInventoryItem(payload);
+      const created = data?.data || data;
+      const newItem = created ? mapApiItemToUi(created) : null;
+      if (newItem) {
+        setInventory((prev) => sortByAddedDate([newItem, ...prev]));
+      }
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Item added successfully', 'success');
+      }
+    } catch (error) {
+      console.log('addItem', 'Failed to add inventory item', error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast(
+          error?.response?.data?.message || 'Failed to add item',
+          'error'
+        );
+      }
+      throw error;
+    } finally {
+      setIsCreating(false);
+    }
   }, []);
 
-  const deleteItem = useCallback((id) => {
-    setInventory((prev) => prev.filter((item) => item.id !== id));
-  }, []);
+  const updateItem = useCallback(async (id, payload) => {
+    setIsUpdating(true);
+    try {
+      const item = inventory.find((i) => i.id === id);
+      const apiId = item?.id || id;
+      await updateInventoryItemApi(apiId, payload);
+      const res = await getInventoryItems();
+      const list = res?.data || res || [];
+      const mapped = Array.isArray(list) ? list.map(mapApiItemToUi) : [];
+      setInventory(sortByAddedDate(mapped));
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Item updated successfully', 'success');
+      }
+    } catch (error) {
+      console.log('updateItem', 'Failed to update inventory item', error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast(
+          error?.response?.data?.message || 'Failed to update item',
+          'error'
+        );
+      }
+      throw error;
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [inventory]);
+
+  const deleteItem = useCallback(async (id) => {
+    setIsDeleting(true);
+    try {
+      const item = inventory.find((i) => i.id === id);
+      const apiId = item?.id || id;
+      await deleteInventoryItemApi(apiId);
+      setInventory((prev) => prev.filter((i) => i.id !== id));
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Item deleted successfully', 'success');
+      }
+    } catch (error) {
+      console.log('deleteItem', 'Failed to delete inventory item', error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast(
+          error?.response?.data?.message || 'Failed to delete item',
+          'error'
+        );
+      }
+      throw error;
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [inventory]);
 
   const filteredInventory = useMemo(
     () => ({
@@ -122,5 +158,9 @@ export function useInventory() {
     updateItem,
     deleteItem,
     filteredInventory,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
   };
 }

@@ -62,8 +62,19 @@
 
 .photoSection {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.photoLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: theme.$TEXT_TERTIARY;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  align-self: flex-start;
 }
 
 .photoImage {
@@ -80,8 +91,15 @@
   background: theme.$PRIMARY_LIGHT;
   color: theme.$PRIMARY;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+}
+
+.placeholderText {
+  font-size: 0.8125rem;
+  color: theme.$TEXT_TERTIARY;
 }
 
 .row {

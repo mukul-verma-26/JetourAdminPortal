@@ -84,3 +84,10 @@
   border: 1px solid theme.$BORDER;
   padding: 1.5rem;
 }
+
+.loadingText {
+  font-size: 0.9375rem;
+  color: theme.$TEXT_SECONDARY;
+  text-align: center;
+  padding: 3rem 1rem;
+}

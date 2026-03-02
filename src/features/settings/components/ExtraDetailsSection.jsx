@@ -2,9 +2,9 @@ import styles from './ExtraDetailsSection.module.scss';
 
 function ExtraDetailsSection({
   bufferTimeMinutes,
-  convenienceFee,
+  serviceFee,
   onBufferTimeChange,
-  onConvenienceFeeChange,
+  onServiceFeeChange,
   onUpdate,
 }) {
   return (
@@ -28,20 +28,20 @@ function ExtraDetailsSection({
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="convenience-fee" className={styles.label}>
-              Convenience fee
+            <label htmlFor="service-fee" className={styles.label}>
+              Service fee
             </label>
             <div className={styles.inputWithPrefix}>
               <span className={styles.prefix}>KWD</span>
               <input
-                id="convenience-fee"
+                id="service-fee"
                 type="number"
                 min="0"
                 inputMode="numeric"
                 className={styles.input}
-                placeholder="e.g. 50"
-                value={convenienceFee}
-                onChange={(e) => onConvenienceFeeChange(e.target.value)}
+                placeholder="e.g. 7"
+                value={serviceFee}
+                onChange={(e) => onServiceFeeChange(e.target.value)}
               />
             </div>
           </div>

@@ -1,10 +1,16 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { createDriver, getDrivers, updateDriver as updateDriverApi, deleteDriver as deleteDriverApi } from '../../api/drivers';
 
+function resolveImageUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw;
+  }
+  return `data:image/png;base64,${raw}`;
+}
+
 function mapDriverFromApi(item) {
-  const image = item.image
-    ? (item.image.startsWith('data:') ? item.image : `data:image/png;base64,${item.image}`)
-    : '';
+  const image = resolveImageUrl(item.image);
   return {
     id: item.driver_id || item._id,
     _id: item._id,

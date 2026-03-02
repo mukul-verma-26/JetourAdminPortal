@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { getActiveSchedule, createSchedule, updateSchedule } from '../../api/schedule';
 import {
   DAYS_OF_WEEK,
   DEFAULT_START_TIME,
@@ -10,22 +11,78 @@ import {
 } from './constants';
 import {
   formatDateKey,
-  isPastDate,
   isValidTimeRange,
   hasOverlappingRanges,
 } from './helpers';
 
-function createDefaultOperatingDay(day) {
+function mapApiToSchedule(apiData) {
+  const operatingDays = DAYS_OF_WEEK.map((d) => {
+    const match = apiData.operating_days?.find((od) => od.day === d.key);
+    return {
+      day: d.key,
+      enabled: match?.enabled ?? false,
+      timeRanges: [{ id: crypto.randomUUID(), startTime: DEFAULT_START_TIME, endTime: DEFAULT_END_TIME }],
+    };
+  });
+
+  const publicHolidays = (apiData.public_holidays || []).map((h) => ({
+    id: crypto.randomUUID(),
+    date: h.date,
+    name: h.reason || '',
+  }));
+
+  const availableBookingTimeRanges = (apiData.available_booking_time_ranges || []).map((r) => ({
+    id: crypto.randomUUID(),
+    startTime: r.start_time,
+    endTime: r.end_time,
+  }));
+
+  if (availableBookingTimeRanges.length === 0) {
+    availableBookingTimeRanges.push({ id: crypto.randomUUID(), startTime: '09:00', endTime: '18:00' });
+  }
+
   return {
-    day: day.key,
-    enabled: day.key !== 'friday',
-    timeRanges: [{ id: crypto.randomUUID(), startTime: DEFAULT_START_TIME, endTime: DEFAULT_END_TIME }],
+    _id: apiData._id || null,
+    operatingDays,
+    publicHolidays,
+    availableBookingTimeRanges,
+    applyBookingHoursTo: 'all',
+    specificDays: [],
+    slotDuration: apiData.slot_interval_minutes || 30,
+    startTime: DEFAULT_START_TIME,
+    endTime: DEFAULT_END_TIME,
+    bufferTime: apiData.buffer_between_bookings_minutes || DEFAULT_BUFFER_MINUTES,
+    maxBookingsPerSlot: DEFAULT_MAX_BOOKINGS_PER_SLOT,
+    maxAdvanceBookingDays: apiData.max_advance_booking_days || 30,
+  };
+}
+
+function mapScheduleToApi(schedule) {
+  return {
+    operating_days: schedule.operatingDays.map((d) => ({
+      day: d.day,
+      enabled: d.enabled,
+    })),
+    public_holidays: schedule.publicHolidays.map((h) => ({
+      date: h.date,
+      ...(h.name ? { reason: h.name } : {}),
+    })),
+    available_booking_time_ranges: schedule.availableBookingTimeRanges.map((r) => ({
+      start_time: r.startTime,
+      end_time: r.endTime,
+    })),
+    is_active: true,
   };
 }
 
 function createDefaultSchedule() {
   return {
-    operatingDays: DAYS_OF_WEEK.map((d) => createDefaultOperatingDay(d)),
+    _id: null,
+    operatingDays: DAYS_OF_WEEK.map((d) => ({
+      day: d.key,
+      enabled: d.key !== 'friday',
+      timeRanges: [{ id: crypto.randomUUID(), startTime: DEFAULT_START_TIME, endTime: DEFAULT_END_TIME }],
+    })),
     publicHolidays: [],
     availableBookingTimeRanges: [{ id: crypto.randomUUID(), startTime: '09:00', endTime: '18:00' }],
     applyBookingHoursTo: 'all',
@@ -35,21 +92,45 @@ function createDefaultSchedule() {
     endTime: DEFAULT_END_TIME,
     bufferTime: DEFAULT_BUFFER_MINUTES,
     maxBookingsPerSlot: DEFAULT_MAX_BOOKINGS_PER_SLOT,
+    maxAdvanceBookingDays: 30,
   };
 }
 
 export function useSchedule() {
   const [schedule, setSchedule] = useState(createDefaultSchedule);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const updateOperatingDay = useCallback((dayKey, updates) => {
-    setSchedule((prev) => ({
-      ...prev,
-      operatingDays: prev.operatingDays.map((d) =>
-        d.day === dayKey ? { ...d, ...updates } : d
-      ),
-    }));
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchSchedule() {
+      setIsLoading(true);
+      try {
+        const data = await getActiveSchedule();
+        if (!cancelled && data) {
+          setSchedule(mapApiToSchedule(data));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const status = error?.response?.status;
+          if (status === 404) {
+            console.log('useSchedule', 'No active schedule found, using defaults for creation');
+          } else {
+            console.log('useSchedule', 'Failed to fetch active schedule', error);
+            if (window.showToast) {
+              window.showToast('Failed to load schedule', 'error');
+            }
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchSchedule();
+    return () => { cancelled = true; };
   }, []);
 
   const toggleDay = useCallback((dayKey) => {
@@ -145,7 +226,11 @@ export function useSchedule() {
     }));
   }, []);
 
-  const updateBookingTimeRange = useCallback((id, updates) => {
+  const updateBookingTimeRange = useCallback((id, fieldOrUpdates, value) => {
+    const updates =
+      typeof fieldOrUpdates === 'string' && value !== undefined
+        ? { [fieldOrUpdates]: value }
+        : fieldOrUpdates;
     setSchedule((prev) => ({
       ...prev,
       availableBookingTimeRanges: prev.availableBookingTimeRanges.map((r) =>
@@ -164,14 +249,14 @@ export function useSchedule() {
     if (enabledDays.length === 0) {
       newErrors.operatingDays = 'Select at least one operating day';
     }
-    if (hasOverlappingRanges(schedule.availableBookingTimeRanges)) {
-      newErrors.bookingTimeRanges = 'Time ranges cannot overlap';
-    }
     for (const range of schedule.availableBookingTimeRanges) {
       if (!isValidTimeRange(range.startTime, range.endTime)) {
         newErrors.bookingTimeRanges = 'End time must be after start time';
         break;
       }
+    }
+    if (!newErrors.bookingTimeRanges && hasOverlappingRanges(schedule.availableBookingTimeRanges)) {
+      newErrors.bookingTimeRanges = 'Time ranges cannot overlap';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -182,19 +267,31 @@ export function useSchedule() {
     setIsSaving(true);
     setErrors({});
     try {
-      await new Promise((r) => setTimeout(r, 800));
+      const payload = mapScheduleToApi(schedule);
+      let result;
+      if (schedule._id) {
+        result = await updateSchedule(schedule._id, payload);
+      } else {
+        result = await createSchedule(payload);
+      }
+      if (result) {
+        setSchedule(mapApiToSchedule(result));
+      }
       if (window.showToast) {
-        window.showToast('Schedule saved successfully', 'success');
+        window.showToast(
+          schedule._id ? 'Schedule updated successfully' : 'Schedule created successfully',
+          'success',
+        );
       }
     } catch (err) {
       console.log('useSchedule.save', 'Failed to save schedule', err);
       if (window.showToast) {
-        window.showToast('Failed to save schedule', 'error');
+        window.showToast(err?.response?.data?.message || 'Failed to save schedule', 'error');
       }
     } finally {
       setIsSaving(false);
     }
-  }, [validate]);
+  }, [validate, schedule]);
 
   const today = new Date();
   const todayKey = formatDateKey(today);
@@ -217,9 +314,9 @@ export function useSchedule() {
 
   return {
     schedule,
+    isLoading,
     isSaving,
     errors,
-    updateOperatingDay,
     toggleDay,
     setDayEnabled,
     setDayTimeRanges,

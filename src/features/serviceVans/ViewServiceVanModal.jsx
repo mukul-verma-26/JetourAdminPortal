@@ -26,10 +26,17 @@ const STATUS_CLASS_MAP = {
   inactive: 'statusInactive',
 };
 
+function getImageUrl(van) {
+  return van?.photo || van?.image || van?.vehicle_image || '';
+}
+
 function ViewServiceVanModal({ open, onClose, van }) {
   if (!open || !van) return null;
 
   const statusClass = styles[STATUS_CLASS_MAP[van.status]] || styles.statusInactive;
+  const imageUrl = getImageUrl(van);
+  const needsBase64 = imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http');
+  const displayUrl = needsBase64 ? `data:image/png;base64,${imageUrl}` : imageUrl;
 
   return (
     <div
@@ -55,15 +62,17 @@ function ViewServiceVanModal({ open, onClose, van }) {
         </div>
         <div className={styles.body}>
           <div className={styles.photoSection}>
-            {van.photo ? (
+            <span className={styles.photoLabel}>Image</span>
+            {displayUrl ? (
               <img
-                src={van.photo}
-                alt={van.vehicleModel}
+                src={displayUrl}
+                alt={van.vehicleModel || 'Service van'}
                 className={styles.photoImage}
               />
             ) : (
               <div className={styles.photoPlaceholder}>
                 <FiTruck size={48} />
+                <span className={styles.placeholderText}>No image</span>
               </div>
             )}
           </div>

@@ -7,6 +7,8 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
 });
 
 apiClient.interceptors.response.use(

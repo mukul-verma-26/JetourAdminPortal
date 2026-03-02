@@ -10,8 +10,8 @@ export const GENDER_OPTIONS = [
 ];
 
 export const PREFERRED_LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'ar', label: 'Arabic' },
+  { value: 'english', label: 'English' },
+  { value: 'arabic', label: 'Arabic' },
 ];
 
 export const DEFAULT_COUNTRY_CODE = '965';

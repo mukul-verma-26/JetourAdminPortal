@@ -6,19 +6,17 @@ import {
   deleteServiceVan as deleteServiceVanApi,
 } from '../../api/serviceVans';
 
-function mapServiceVanFromApi(item) {
-  let photo = '';
-  const imageValue = item.image ?? item.vehicle_image;
-  if (imageValue) {
-    const img = String(imageValue).trim();
-    if (img.startsWith('data:')) {
-      photo = img;
-    } else if (img.startsWith('http://') || img.startsWith('https://')) {
-      photo = img;
-    } else {
-      photo = `data:image/png;base64,${img}`;
-    }
+function resolveImageUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw;
   }
+  return `data:image/png;base64,${raw}`;
+}
+
+function mapServiceVanFromApi(item) {
+  const imageValue = item.image ?? item.vehicle_image;
+  const photo = resolveImageUrl(imageValue ? String(imageValue).trim() : '');
   return {
     id: item.service_van_id || item._id,
     _id: item._id,

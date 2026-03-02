@@ -2,7 +2,13 @@ import { FiX } from 'react-icons/fi';
 import { PART_STATUS_OPTIONS } from './constants';
 import styles from './CreateEditInventoryModal.module.scss';
 
-function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
+function CreateEditInventoryModal({
+  open,
+  onClose,
+  initialData,
+  onSubmit,
+  isSubmitting = false,
+}) {
   if (!open) return null;
 
   const isEdit = Boolean(initialData?.id);
@@ -22,7 +28,6 @@ function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
     } else {
       onSubmit(payload);
     }
-    onClose();
   };
 
   const defaultValues = initialData
@@ -129,8 +134,18 @@ function CreateEditInventoryModal({ open, onClose, initialData, onSubmit }) {
             <button type="button" className={styles.cancelBtn} onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.submitBtn}>
-              {isEdit ? 'Update' : 'Add'}
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? isEdit
+                  ? 'Updating...'
+                  : 'Adding...'
+                : isEdit
+                  ? 'Update'
+                  : 'Add'}
             </button>
           </div>
         </form>

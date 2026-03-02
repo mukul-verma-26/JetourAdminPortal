@@ -83,22 +83,22 @@ function CreateEditServiceVanModal({
             error={errors.image?.message}
           />
           <h3 className={styles.sectionTitle}>Vehicle Details</h3>
+          <div className={styles.field}>
+            <label htmlFor="registration_number" className={styles.label}>
+              Registration Number <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="registration_number"
+              type="text"
+              className={`${styles.input} ${errors.registration_number ? styles.inputError : ''}`}
+              placeholder="e.g. KWT-12345"
+              {...register('registration_number', validationRules.registration_number)}
+            />
+            {errors.registration_number && (
+              <div className={styles.errorMessage}>{errors.registration_number.message}</div>
+            )}
+          </div>
           <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="registration_number" className={styles.label}>
-                Registration Number <span className={styles.required}>*</span>
-              </label>
-              <input
-                id="registration_number"
-                type="text"
-                className={`${styles.input} ${errors.registration_number ? styles.inputError : ''}`}
-                placeholder="e.g. ABC-1234"
-                {...register('registration_number', validationRules.registration_number)}
-              />
-              {errors.registration_number && (
-                <div className={styles.errorMessage}>{errors.registration_number.message}</div>
-              )}
-            </div>
             <div className={styles.field}>
               <label htmlFor="vehicle_model" className={styles.label}>
                 Vehicle Model <span className={styles.required}>*</span>
@@ -176,11 +176,8 @@ function CreateEditServiceVanModal({
               >
                 <option value="">Select technician</option>
                 {technicians.map((t) => (
-                  <option
-                    key={t.technician_id || t._id || t.id}
-                    value={t.technician_id || t._id || t.id}
-                  >
-                    {t.name || `Technician ${t.technician_id || t._id || t.id}`}
+                  <option key={t.id} value={t.id}>
+                    {t.name}
                   </option>
                 ))}
               </select>
@@ -196,11 +193,8 @@ function CreateEditServiceVanModal({
               >
                 <option value="">Select driver</option>
                 {drivers.map((d) => (
-                  <option
-                    key={d.driver_id || d._id || d.id}
-                    value={d.driver_id || d._id || d.id}
-                  >
-                    {d.name || `Driver ${d.driver_id || d._id || d.id}`}
+                  <option key={d.id} value={d.id}>
+                    {d.name}
                   </option>
                 ))}
               </select>

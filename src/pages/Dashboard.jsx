@@ -3,20 +3,35 @@ import BookingTrendsChart from '../features/dashboard/BookingTrendsChart';
 import ServiceDistributionChart from '../features/dashboard/ServiceDistributionChart';
 import RecentBookings from '../features/dashboard/RecentBookings';
 import ActiveAlerts from '../features/dashboard/ActiveAlerts';
-import { DASHBOARD_METRICS } from '../features/dashboard/constants';
+import { useDashboard } from '../features/dashboard/useDashboard';
 import styles from './Dashboard.module.scss';
 
 function Dashboard() {
+  const {
+    metrics,
+    bookingTrendData,
+    serviceDistributionData,
+    isLoading,
+  } = useDashboard();
+
+  if (isLoading) {
+    return (
+      <div className={styles.dashboard}>
+        <p className={styles.loading}>Loading dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboard}>
       <section className={styles.metrics}>
-        {DASHBOARD_METRICS.map((metric) => (
+        {metrics.map((metric) => (
           <MetricCard key={metric.id} {...metric} />
         ))}
       </section>
       <section className={styles.charts}>
-        <BookingTrendsChart />
-        <ServiceDistributionChart />
+        <BookingTrendsChart data={bookingTrendData} />
+        <ServiceDistributionChart data={serviceDistributionData} />
       </section>
       <section className={styles.sections}>
         <RecentBookings />

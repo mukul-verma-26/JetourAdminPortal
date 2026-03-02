@@ -31,8 +31,18 @@ export function useServiceVanForm(initialData, open) {
         if (cancelled) return;
         const techList = techRes?.data || techRes || [];
         const driverList = driverRes?.data || driverRes || [];
-        setTechnicians(Array.isArray(techList) ? techList : []);
-        setDrivers(Array.isArray(driverList) ? driverList : []);
+        const mapTech = (t) => ({
+          ...t,
+          id: t._id || t.technician_id || t.id,
+          name: t.name || '',
+        });
+        const mapDriver = (d) => ({
+          ...d,
+          id: d._id || d.driver_id || d.id,
+          name: d.name || '',
+        });
+        setTechnicians(Array.isArray(techList) ? techList.map(mapTech) : []);
+        setDrivers(Array.isArray(driverList) ? driverList.map(mapDriver) : []);
       } catch (error) {
         if (!cancelled) {
           console.log('useServiceVanForm', 'Failed to fetch technicians/drivers', error);

@@ -1,4 +1,23 @@
+import imageCompression from 'browser-image-compression';
 import { apiClient } from './client.js';
+
+const IMAGE_COMPRESSION_OPTIONS = {
+  maxSizeMB: 0.5,
+  maxWidthOrHeight: 1200,
+  useWebWorker: true,
+};
+
+async function compressImageIfNeeded(file) {
+  if (!(file instanceof File)) return file;
+  try {
+    return await imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
+  } catch (err) {
+    console.log('compressImageIfNeeded', 'Compression failed, using original', err);
+    return file;
+  }
+}
+
+const MULTIPART_CONFIG = { headers: { 'Content-Type': 'multipart/form-data' } };
 
 export async function getTechnicians() {
   try {
@@ -12,47 +31,25 @@ export async function getTechnicians() {
   }
 }
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function toImageString(image) {
-  if (image == null) return '';
-  if (typeof image === 'string') return image.trim();
-  return '';
-}
-
 export async function createTechnician(payload) {
   try {
-    let imageStr = '';
+    const formData = new FormData();
+    formData.append('name', String(payload.name || ''));
+    formData.append('contact', String(payload.contact || ''));
+    formData.append('civil_id', String(payload.civil_id || ''));
+    formData.append('gender', String(payload.gender || 'male'));
+    formData.append('status', String(payload.status || 'active'));
+    formData.append('rating', String(Number(payload.rating) || 0));
+    if (payload.password) {
+      formData.append('password', String(payload.password));
+    }
     if (payload.image instanceof File) {
-      const dataUrl = await fileToBase64(payload.image);
-      if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
-        imageStr = dataUrl.split(',')[1] || '';
-      }
-    } else {
-      imageStr = toImageString(payload.image);
+      const compressed = await compressImageIfNeeded(payload.image);
+      formData.append('image', compressed);
+    } else if (payload.image && typeof payload.image === 'string') {
+      formData.append('image', payload.image.trim());
     }
-    const body = {
-      name: String(payload.name || ''),
-      contact: String(payload.contact || ''),
-      civil_id: String(payload.civil_id || ''),
-      nationality: String(payload.nationality || ''),
-      password: String(payload.password || ''),
-      gender: String(payload.gender || 'male'),
-      status: String(payload.status || 'active'),
-      rating: Number(payload.rating) || 0,
-      image: String(imageStr),
-    };
-    if (typeof body.image !== 'string') {
-      body.image = '';
-    }
-    const { data } = await apiClient.post('/technicians', body);
+    const { data } = await apiClient.post('/technicians', formData, MULTIPART_CONFIG);
     return data;
   } catch (error) {
     console.log('createTechnician', 'POST /technicians', 'Error:', error);
@@ -64,35 +61,23 @@ export async function createTechnician(payload) {
 
 export async function updateTechnician(id, payload) {
   try {
-    let imageStr = '';
-    if (payload.image instanceof File) {
-      const dataUrl = await fileToBase64(payload.image);
-      if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
-        imageStr = dataUrl.split(',')[1] || '';
-      }
-    } else {
-      imageStr = toImageString(payload.image);
-      if (imageStr && imageStr.startsWith('data:')) {
-        imageStr = imageStr.includes(',') ? imageStr.split(',')[1] || '' : '';
-      }
-    }
-    const body = {
-      name: String(payload.name || ''),
-      contact: String(payload.contact || ''),
-      civil_id: String(payload.civil_id || ''),
-      nationality: String(payload.nationality || ''),
-      gender: String(payload.gender || 'male'),
-      status: String(payload.status || 'active'),
-      rating: Number(payload.rating) || 0,
-      image: String(imageStr),
-    };
+    const formData = new FormData();
+    formData.append('name', String(payload.name || ''));
+    formData.append('contact', String(payload.contact || ''));
+    formData.append('civil_id', String(payload.civil_id || ''));
+    formData.append('gender', String(payload.gender || 'male'));
+    formData.append('status', String(payload.status || 'active'));
+    formData.append('rating', String(Number(payload.rating) || 0));
     if (payload.password) {
-      body.password = String(payload.password);
+      formData.append('password', String(payload.password));
     }
-    if (typeof body.image !== 'string') {
-      body.image = '';
+    if (payload.image instanceof File) {
+      const compressed = await compressImageIfNeeded(payload.image);
+      formData.append('image', compressed);
+    } else if (payload.image && typeof payload.image === 'string') {
+      formData.append('image', payload.image.trim());
     }
-    const { data } = await apiClient.put(`/technicians/${id}`, body);
+    const { data } = await apiClient.put(`/technicians/${id}`, formData, MULTIPART_CONFIG);
     return data;
   } catch (error) {
     console.log('updateTechnician', `PUT /technicians/${id}`, 'Error:', error);

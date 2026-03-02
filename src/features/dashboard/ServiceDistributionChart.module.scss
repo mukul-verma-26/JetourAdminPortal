@@ -23,6 +23,12 @@
   justify-content: center;
 }
 
+.empty {
+  margin: 0;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.875rem;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

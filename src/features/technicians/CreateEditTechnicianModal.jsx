@@ -26,12 +26,10 @@ function CreateEditTechnicianModal({
   } = useTechnicianForm(initialData, open);
 
   const onFormSubmit = (data) => {
-    if (!isEdit) {
-      const hasImage = image instanceof File || (image && String(image).trim());
-      if (!hasImage) {
-        setError('image', { type: 'manual', message: 'Image is required' });
-        return;
-      }
+    const hasImage = image instanceof File || (image && String(image).trim());
+    if (!hasImage) {
+      setError('image', { type: 'manual', message: 'Image is required' });
+      return;
     }
     const payload = buildPayload({ ...data, image });
     if (isEdit) {
@@ -82,7 +80,6 @@ function CreateEditTechnicianModal({
             onImageClick={() => fileInputRef.current?.click()}
             onFileChange={handleFileChange}
             fileInputRef={fileInputRef}
-            isEdit={isEdit}
           />
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>

@@ -19,11 +19,14 @@ function normalizePricingMatrix(pricingMatrix, vehicleNames) {
 
 function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
   const [rows, setRows] = useState([]);
+  const [workTimeMinutes, setWorkTimeMinutes] = useState('');
 
   useEffect(() => {
     if (open && pkg) {
       const vehicleNames = VEHICLE_MODELS.map((v) => v.name);
       setRows(normalizePricingMatrix(pkg.pricingMatrix, vehicleNames));
+      const wt = pkg.work_time_minutes ?? pkg.workTimeMinutes ?? '';
+      setWorkTimeMinutes(wt !== '' && wt != null ? String(wt) : '');
     }
   }, [open, pkg]);
 
@@ -33,7 +36,11 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { pricingMatrix: rows };
+    const workTimeNum = parseInt(String(workTimeMinutes || '0'), 10);
+    const payload = {
+      pricingMatrix: rows,
+      work_time_minutes: Number.isNaN(workTimeNum) ? 0 : Math.max(0, workTimeNum),
+    };
     try {
       await onSubmit(pkg.id, payload);
     } catch {
@@ -61,6 +68,21 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
           </button>
         </div>
         <form className={styles.body} onSubmit={handleSubmit}>
+          <div className={styles.field}>
+            <label htmlFor="manage-work-time" className={styles.label}>
+              Worktime
+            </label>
+            <input
+              id="manage-work-time"
+              type="number"
+              min="1"
+              inputMode="numeric"
+              className={styles.input}
+              placeholder="e.g. 60"
+              value={workTimeMinutes}
+              onChange={(e) => setWorkTimeMinutes(e.target.value)}
+            />
+          </div>
           <ManagePackageTable
             rows={rows}
             onRowsChange={setRows}

@@ -9,6 +9,7 @@ import styles from './ScheduleScreen.module.scss';
 function ScheduleScreen() {
   const {
     schedule,
+    isLoading,
     isSaving,
     errors,
     toggleDay,
@@ -24,6 +25,14 @@ function ScheduleScreen() {
   } = useSchedule();
 
   const isClosedToday = isHolidayToday || !todayOperatingDay?.enabled;
+
+  if (isLoading) {
+    return (
+      <div className={styles.screen}>
+        <p className={styles.loadingText}>Loading schedule...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.screen}>

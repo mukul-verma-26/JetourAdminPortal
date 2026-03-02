@@ -48,11 +48,11 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     if (!formData.status) newErrors.status = 'Status is required';
     const workTime = formData.work_time_minutes;
     if (workTime === '' || workTime == null) {
-      newErrors.work_time_minutes = 'Work time (In Minutes) is required';
+      newErrors.work_time_minutes = 'Worktime is required';
     } else {
       const num = parseInt(String(workTime), 10);
       if (Number.isNaN(num) || num < 1) {
-        newErrors.work_time_minutes = 'Work time must be at least 1 minute';
+        newErrors.work_time_minutes = 'Worktime must be at least 1 minute';
       }
     }
     setErrors(newErrors);
@@ -137,7 +137,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
           </div>
           <div className={styles.field}>
             <label htmlFor="pkg-work-time" className={styles.label}>
-              Work time (In Minutes) <span className={styles.required}>*</span>
+              Worktime <span className={styles.required}>*</span>
             </label>
             <input
               id="pkg-work-time"

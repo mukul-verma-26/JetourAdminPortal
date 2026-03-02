@@ -1,10 +1,16 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { createTechnician, getTechnicians, updateTechnician as updateTechnicianApi, deleteTechnician as deleteTechnicianApi } from '../../api/technicians';
 
+function resolveImageUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw;
+  }
+  return `data:image/png;base64,${raw}`;
+}
+
 function mapTechnicianFromApi(item) {
-  const image = item.image
-    ? (item.image.startsWith('data:') ? item.image : `data:image/png;base64,${item.image}`)
-    : '';
+  const image = resolveImageUrl(item.image);
   return {
     id: item.technician_id || item._id,
     _id: item._id,

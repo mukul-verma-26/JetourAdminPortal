@@ -7,12 +7,11 @@ function TechnicianPhotoSection({
   onFileChange,
   fileInputRef,
   error,
-  isEdit = false,
 }) {
   return (
     <div className={styles.photoSection}>
       <label className={styles.label}>
-        Image {!isEdit && <span className={styles.required}>*</span>}
+        Image <span className={styles.required}>*</span>
       </label>
       <div className={styles.avatarWrapper}>
         {image ? (

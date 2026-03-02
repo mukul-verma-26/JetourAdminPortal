@@ -7,19 +7,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { BOOKING_TRENDS_DATA } from './constants';
 import styles from './BookingTrendsChart.module.scss';
 
 const CHART_COLOR = '#1ba9a5';
 
-function BookingTrendsChart() {
+function BookingTrendsChart({ data = [] }) {
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>Booking Trends</h3>
       <div className={styles.chartWrap}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={BOOKING_TRENDS_DATA}
+            data={data}
             margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" vertical={false} />

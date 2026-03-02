@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { usePackagesContext } from './PackagesContext';
 import {
   createPackage as createPackageApi,
   updatePackage as updatePackageApi,
   deletePackage as deletePackageApi,
 } from '../../api/packages';
+import { getAdminSettings } from '../../api/settings';
 
 function mapPackageFromApi(item) {
   if (!item) return null;
@@ -31,7 +32,40 @@ export function useSettings() {
   const [packageToManage, setPackageToManage] = useState(null);
   const [deleteConfirmPackage, setDeleteConfirmPackage] = useState(null);
   const [bufferTimeMinutes, setBufferTimeMinutes] = useState('');
-  const [convenienceFee, setConvenienceFee] = useState('');
+  const [serviceFee, setServiceFee] = useState('');
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchSettings() {
+      setIsSettingsLoading(true);
+      try {
+        const res = await getAdminSettings();
+        const data = res?.data || res || {};
+        if (!cancelled) {
+          const buffer = data.buffer_between_bookings_minutes;
+          const fee = data.service_fee;
+          setBufferTimeMinutes(buffer !== undefined && buffer !== null ? String(buffer) : '');
+          setServiceFee(fee !== undefined && fee !== null ? String(fee) : '');
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.log('useSettings', 'Failed to fetch admin settings', error);
+          if (typeof window?.showToast === 'function') {
+            window.showToast('Failed to load settings', 'error');
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setIsSettingsLoading(false);
+        }
+      }
+    }
+    fetchSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleOpenAddPackage = useCallback(() => {
     setPackageToEdit(null);
@@ -185,12 +219,12 @@ export function useSettings() {
     setBufferTimeMinutes(value);
   }, []);
 
-  const handleConvenienceFeeChange = useCallback((value) => {
-    setConvenienceFee(value);
+  const handleServiceFeeChange = useCallback((value) => {
+    setServiceFee(value);
   }, []);
 
   const handleExtraDetailsUpdate = useCallback(() => {
-    // TODO: persist bufferTimeMinutes and convenienceFee via API
+    // TODO: persist bufferTimeMinutes and serviceFee via API
     if (typeof window?.showToast === 'function') {
       window.showToast('Extra details updated', 'success');
     }
@@ -215,9 +249,10 @@ export function useSettings() {
     handleOpenDeleteConfirm,
     handleCloseDeleteConfirm,
     bufferTimeMinutes,
-    convenienceFee,
+    serviceFee,
     handleBufferTimeChange,
-    handleConvenienceFeeChange,
+    handleServiceFeeChange,
+    isSettingsLoading,
     handleExtraDetailsUpdate,
   };
 }

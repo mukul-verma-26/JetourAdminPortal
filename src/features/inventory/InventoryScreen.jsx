@@ -42,8 +42,17 @@ const PART_STATUS_CLASS_MAP = {
 };
 
 function InventoryScreen() {
-  const { inventory, addItem, updateItem, deleteItem, filteredInventory } =
-    useInventory();
+  const {
+    inventory,
+    addItem,
+    updateItem,
+    deleteItem,
+    filteredInventory,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useInventory();
   const [searchQuery, setSearchQuery] = useState('');
   const [stockStatusFilter, setStockStatusFilter] = useState('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -56,19 +65,31 @@ function InventoryScreen() {
     return filteredInventory.byStockStatus(bySearch, stockStatusFilter);
   }, [inventory, searchQuery, stockStatusFilter, filteredInventory]);
 
-  const handleCreateSubmit = (payload) => {
-    addItem(payload);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    try {
+      await addItem(payload);
+      setCreateModalOpen(false);
+    } catch {
+      // Error handled in addItem
+    }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateItem(id, payload);
-    setEditItem(null);
+  const handleEditSubmit = async (id, payload) => {
+    try {
+      await updateItem(id, payload);
+      setEditItem(null);
+    } catch {
+      // Error handled in updateItem
+    }
   };
 
-  const handleDeleteConfirm = (id) => {
-    deleteItem(id);
-    setDeleteConfirmItem(null);
+  const handleDeleteConfirm = async (id) => {
+    try {
+      await deleteItem(id);
+      setDeleteConfirmItem(null);
+    } catch {
+      // Error handled in deleteItem
+    }
   };
 
   return (
@@ -120,6 +141,11 @@ function InventoryScreen() {
 
       <div className={styles.card}>
         <div className={styles.tableWrap}>
+          {isLoading ? (
+            <div className={styles.emptyState}>
+              <p>Loading inventory...</p>
+            </div>
+          ) : (
           <table className={styles.table}>
             <thead className={styles.thead}>
               <tr>
@@ -213,6 +239,7 @@ function InventoryScreen() {
               )}
             </tbody>
           </table>
+          )}
         </div>
       </div>
 
@@ -220,6 +247,7 @@ function InventoryScreen() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
+        isSubmitting={isCreating}
       />
 
       <CreateEditInventoryModal
@@ -227,6 +255,7 @@ function InventoryScreen() {
         onClose={() => setEditItem(null)}
         initialData={editItem || undefined}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <ViewInventoryModal
@@ -240,6 +269,7 @@ function InventoryScreen() {
         onClose={() => setDeleteConfirmItem(null)}
         onConfirm={handleDeleteConfirm}
         item={deleteConfirmItem}
+        isDeleting={isDeleting}
       />
     </div>
   );

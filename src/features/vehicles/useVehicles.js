@@ -6,12 +6,16 @@ import {
   deleteVehicle as deleteVehicleApi,
 } from '../../api/vehicles';
 
+function resolveImageUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw;
+  }
+  return `data:image/png;base64,${raw}`;
+}
+
 function mapVehicleFromApi(item) {
-  const image = item.vehicle_image
-    ? (item.vehicle_image.startsWith('data:')
-        ? item.vehicle_image
-        : `data:image/png;base64,${item.vehicle_image}`)
-    : '';
+  const image = resolveImageUrl(item.vehicle_image);
   const categoryRaw = item.vehicle_category || '';
   const category = categoryRaw.toLowerCase();
   return {

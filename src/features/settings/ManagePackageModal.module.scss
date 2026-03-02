@@ -66,6 +66,40 @@
   flex: 1;
 }
 
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
+}
+
 .actions {
   display: flex;
   align-items: center;

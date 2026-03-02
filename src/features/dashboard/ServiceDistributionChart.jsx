@@ -1,16 +1,20 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { SERVICE_DISTRIBUTION_DATA } from './constants';
 import styles from './ServiceDistributionChart.module.scss';
 
-function ServiceDistributionChart() {
+function ServiceDistributionChart({ data = [] }) {
+  const hasData = data.length > 0;
+
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>Service Distribution</h3>
       <div className={styles.chartWrap}>
+        {!hasData ? (
+          <p className={styles.empty}>No service distribution data.</p>
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={SERVICE_DISTRIBUTION_DATA}
+              data={data}
               cx="50%"
               cy="50%"
               innerRadius={60}
@@ -19,7 +23,7 @@ function ServiceDistributionChart() {
               dataKey="value"
               nameKey="name"
             >
-              {SERVICE_DISTRIBUTION_DATA.map((entry, index) => (
+              {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -32,10 +36,11 @@ function ServiceDistributionChart() {
             />
           </PieChart>
         </ResponsiveContainer>
+        )}
       </div>
       <div className={styles.legend}>
-        {SERVICE_DISTRIBUTION_DATA.map((item) => (
-          <div key={item.name} className={styles.legendItem}>
+        {data.map((item) => (
+          <div key={`${item.name}-${item.value}`} className={styles.legendItem}>
             <span
               className={styles.legendDot}
               style={{ background: item.color }}

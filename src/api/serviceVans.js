@@ -17,6 +17,8 @@ async function compressImageIfNeeded(file) {
   }
 }
 
+const MULTIPART_CONFIG = { headers: { 'Content-Type': 'multipart/form-data' } };
+
 export async function getServiceVans() {
   try {
     const { data } = await apiClient.get('/service-vans');
@@ -29,52 +31,27 @@ export async function getServiceVans() {
   }
 }
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function toImageString(image) {
-  if (image == null) return '';
-  if (typeof image === 'string') return image.trim();
-  return '';
-}
-
 export async function createServiceVan(payload) {
   try {
-    const imageInput = payload.image;
-    let imageStr = '';
-    if (imageInput instanceof File) {
-      const compressed = await compressImageIfNeeded(imageInput);
-      const dataUrl = await fileToBase64(compressed);
-      if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
-        imageStr = dataUrl.split(',')[1] || '';
-      }
-    } else {
-      imageStr = toImageString(imageInput);
-    }
-    const body = {
-      registration_number: String(payload.registration_number || '').trim(),
-      vehicle_model: String(payload.vehicle_model || ''),
-      mileage: Number(payload.mileage) || 0,
-      last_service_date: String(payload.last_service_date || '').trim(),
-      status: String(payload.status || 'active'),
-      image: String(imageStr),
-    };
-    if (typeof body.image !== 'string') {
-      body.image = '';
-    }
+    const formData = new FormData();
+    formData.append('registration_number', String(payload.registration_number || '').trim());
+    formData.append('vehicle_model', String(payload.vehicle_model || ''));
+    formData.append('mileage', String(Number(payload.mileage) || 0));
+    formData.append('last_service_date', String(payload.last_service_date || '').trim());
+    formData.append('status', String(payload.status || 'active'));
     if (payload.technician_id) {
-      body.technician_id = payload.technician_id;
+      formData.append('technician_id', String(payload.technician_id));
     }
     if (payload.driver_id) {
-      body.driver_id = payload.driver_id;
+      formData.append('driver_id', String(payload.driver_id));
     }
-    const { data } = await apiClient.post('/service-vans', body);
+    if (payload.image instanceof File) {
+      const compressed = await compressImageIfNeeded(payload.image);
+      formData.append('image', compressed);
+    } else if (payload.image && typeof payload.image === 'string') {
+      formData.append('image', payload.image.trim());
+    }
+    const { data } = await apiClient.post('/service-vans', formData, MULTIPART_CONFIG);
     return data;
   } catch (error) {
     console.log('createServiceVan', 'POST /service-vans', 'Error:', error);
@@ -86,38 +63,25 @@ export async function createServiceVan(payload) {
 
 export async function updateServiceVan(id, payload) {
   try {
-    const imageInput = payload.image;
-    let imageStr = '';
-    if (imageInput instanceof File) {
-      const compressed = await compressImageIfNeeded(imageInput);
-      const dataUrl = await fileToBase64(compressed);
-      if (typeof dataUrl === 'string' && dataUrl.includes(',')) {
-        imageStr = dataUrl.split(',')[1] || '';
-      }
-    } else {
-      imageStr = toImageString(imageInput);
-      if (imageStr && imageStr.startsWith('data:')) {
-        imageStr = imageStr.includes(',') ? imageStr.split(',')[1] || '' : '';
-      }
-    }
-    const body = {
-      registration_number: String(payload.registration_number || '').trim(),
-      vehicle_model: String(payload.vehicle_model || ''),
-      mileage: Number(payload.mileage) || 0,
-      last_service_date: String(payload.last_service_date || '').trim(),
-      status: String(payload.status || 'active'),
-      image: String(imageStr),
-    };
-    if (typeof body.image !== 'string') {
-      body.image = '';
-    }
+    const formData = new FormData();
+    formData.append('registration_number', String(payload.registration_number || '').trim());
+    formData.append('vehicle_model', String(payload.vehicle_model || ''));
+    formData.append('mileage', String(Number(payload.mileage) || 0));
+    formData.append('last_service_date', String(payload.last_service_date || '').trim());
+    formData.append('status', String(payload.status || 'active'));
     if (payload.technician_id) {
-      body.technician_id = payload.technician_id;
+      formData.append('technician_id', String(payload.technician_id));
     }
     if (payload.driver_id) {
-      body.driver_id = payload.driver_id;
+      formData.append('driver_id', String(payload.driver_id));
     }
-    const { data } = await apiClient.put(`/service-vans/${id}`, body);
+    if (payload.image instanceof File) {
+      const compressed = await compressImageIfNeeded(payload.image);
+      formData.append('image', compressed);
+    } else if (payload.image && typeof payload.image === 'string') {
+      formData.append('image', payload.image.trim());
+    }
+    const { data } = await apiClient.put(`/service-vans/${id}`, formData, MULTIPART_CONFIG);
     return data;
   } catch (error) {
     console.log('updateServiceVan', `PUT /service-vans/${id}`, 'Error:', error);

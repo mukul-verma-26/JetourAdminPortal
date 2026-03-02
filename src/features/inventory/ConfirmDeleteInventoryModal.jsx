@@ -1,11 +1,16 @@
 import styles from './ConfirmDeleteInventoryModal.module.scss';
 
-function ConfirmDeleteInventoryModal({ open, onClose, onConfirm, item }) {
+function ConfirmDeleteInventoryModal({
+  open,
+  onClose,
+  onConfirm,
+  item,
+  isDeleting = false,
+}) {
   if (!open || !item) return null;
 
   const handleConfirm = () => {
     onConfirm(item.id);
-    onClose();
   };
 
   return (
@@ -33,8 +38,9 @@ function ConfirmDeleteInventoryModal({ open, onClose, onConfirm, item }) {
               type="button"
               className={styles.deleteBtn}
               onClick={handleConfirm}
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>

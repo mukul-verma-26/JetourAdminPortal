@@ -5,8 +5,8 @@ const GENDER_TO_API = {
 };
 
 const LANGUAGE_TO_API = {
-  en: 'English',
-  ar: 'Arabic',
+  english: 'english',
+  arabic: 'arabic',
 };
 
 export function buildCustomerPayload(formData) {
@@ -29,25 +29,22 @@ export function buildCustomerPayload(formData) {
     name: String(formData.name || '').trim(),
     country_code: countryCode ? (countryCode.startsWith('+') ? countryCode : `+${countryCode}`) : '',
     contact_number: fullPhone,
+    date_of_birth: formData.date_of_birth || formData.dob || '',
     email: String(formData.email || '').trim(),
     civil_id: String(formData.civil_id || formData.civilId || '').trim(),
     gender: GENDER_TO_API[formData.gender] || formData.gender || 'Male',
     passport_number: String(formData.passport_number || formData.passportNumber || '').trim(),
     nationality: String(formData.nationality || '').trim(),
-    preferred_language: LANGUAGE_TO_API[formData.preferredLanguage] || formData.preferred_language || 'English',
-    date_of_birth: formData.date_of_birth || formData.dob || '',
-    address: {
-      full_address: {
-        governorate: String(formData.governorate || '').trim(),
-        area: String(formData.area || '').trim(),
-        block: String(formData.block || '').trim(),
-        street: String(formData.street || '').trim(),
-        building_number: String(formData.building_no || formData.building_number || '').trim(),
-        floor_number: String(formData.floor_no || formData.floor_number || '').trim(),
-        flat_number: String(formData.flat_no || formData.flat_number || '').trim(),
-        paci_details: String(formData.paci_details || '').trim(),
-      },
-      google_location: String(formData.google_location || '').trim(),
+    preferred_language: LANGUAGE_TO_API[formData.preferredLanguage] || (formData.preferred_language || 'english').toLowerCase(),
+    full_address: {
+      governorate: String(formData.governorate || '').trim(),
+      area: String(formData.area || '').trim(),
+      block: String(formData.block || '').trim(),
+      street: String(formData.street || '').trim(),
+      building_number: String(formData.building_no || formData.building_number || '').trim(),
+      floor_number: String(formData.floor_no || formData.floor_number || '').trim(),
+      flat_number: String(formData.flat_no || formData.flat_number || '').trim(),
+      paci_details: String(formData.paci_details || '').trim(),
     },
   };
 
@@ -61,8 +58,8 @@ export function buildCustomerPayload(formData) {
 
 export function mapCustomerFromApi(item) {
   if (!item) return null;
+  const fullAddr = item.full_address || item.address?.full_address || {};
   const addr = item.address || {};
-  const fullAddr = addr.full_address || {};
   const id = item.customer_id || item._id || item.id;
   const phone = item.contact_number || item.phone;
   const dob = item.date_of_birth || item.dob;
@@ -82,7 +79,12 @@ export function mapCustomerFromApi(item) {
     gender: (item.gender || '').toLowerCase(),
     passportNumber: item.passport_number || item.passportNumber || '',
     nationality: item.nationality || '',
-    preferredLanguage: (item.preferred_language || item.preferredLanguage || 'en').toLowerCase().slice(0, 2),
+    preferredLanguage: (() => {
+      const lang = (item.preferred_language || item.preferredLanguage || 'english').toLowerCase();
+      if (lang === 'en') return 'english';
+      if (lang === 'ar') return 'arabic';
+      return lang;
+    })(),
     dob,
     date_of_birth: dob,
     status: item.status || 'active',
@@ -95,8 +97,8 @@ export function mapCustomerFromApi(item) {
     floor_no: fullAddr.floor_number || fullAddr.floor_no || '',
     flat_no: fullAddr.flat_number || fullAddr.flat_no || '',
     paci_details: fullAddr.paci_details || '',
-    google_location: addr.google_location || '',
-    address: formatAddressForDisplay(addr),
+    google_location: addr.google_location || item.google_location || '',
+    address: formatAddressForDisplay({ ...addr, full_address: fullAddr }),
   };
 
   if (lat != null && lng != null) {

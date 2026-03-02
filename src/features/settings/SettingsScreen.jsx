@@ -26,9 +26,9 @@ function SettingsScreen() {
     handleOpenDeleteConfirm,
     handleCloseDeleteConfirm,
     bufferTimeMinutes,
-    convenienceFee,
+    serviceFee,
     handleBufferTimeChange,
-    handleConvenienceFeeChange,
+    handleServiceFeeChange,
     handleExtraDetailsUpdate,
   } = useSettings();
 
@@ -49,9 +49,9 @@ function SettingsScreen() {
 
       <ExtraDetailsSection
         bufferTimeMinutes={bufferTimeMinutes}
-        convenienceFee={convenienceFee}
+        serviceFee={serviceFee}
         onBufferTimeChange={handleBufferTimeChange}
-        onConvenienceFeeChange={handleConvenienceFeeChange}
+        onServiceFeeChange={handleServiceFeeChange}
         onUpdate={handleExtraDetailsUpdate}
       />
 
