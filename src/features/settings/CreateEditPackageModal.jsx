@@ -9,7 +9,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
   const [formData, setFormData] = useState({
     name: '',
     status: 'active',
-    work_time_minutes: '',
+    worktime: '',
     details: [],
   });
   const [errors, setErrors] = useState({});
@@ -23,11 +23,11 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
       setFormData({
         name: initialData.name || '',
         status: initialData.status || 'active',
-        work_time_minutes: String(initialData.work_time_minutes ?? initialData.workTimeMinutes ?? ''),
+        worktime: String(initialData.worktime ?? initialData.work_time_minutes ?? initialData.workTimeMinutes ?? ''),
         details: details.length > 0 ? details : [],
       });
     } else {
-      setFormData({ name: '', status: 'active', work_time_minutes: '', details: [] });
+      setFormData({ name: '', status: 'active', worktime: '', details: [] });
     }
     setErrors({});
   }, [initialData, open]);
@@ -46,15 +46,17 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Package name is required';
     if (!formData.status) newErrors.status = 'Status is required';
-    const workTime = formData.work_time_minutes;
+    const workTime = formData.worktime;
     if (workTime === '' || workTime == null) {
-      newErrors.work_time_minutes = 'Worktime is required';
+      newErrors.worktime = 'Work time is required';
     } else {
       const num = parseInt(String(workTime), 10);
       if (Number.isNaN(num) || num < 1) {
-        newErrors.work_time_minutes = 'Worktime must be at least 1 minute';
+        newErrors.worktime = 'Work time must be at least 1 minute';
       }
     }
+    const checkedDetails = formData.details.filter((d) => d.checked && (d.label || '').trim());
+    if (checkedDetails.length === 0) newErrors.details = 'At least one package detail is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,11 +67,11 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     const details = formData.details
       .filter((d) => d.checked && (d.label || '').trim())
       .map((d) => d.label.trim());
-    const workTimeNum = parseInt(String(formData.work_time_minutes || '0'), 10);
+    const workTimeNum = parseInt(String(formData.worktime), 10);
     const payload = {
       name: formData.name.trim(),
       status: formData.status,
-      work_time_minutes: Number.isNaN(workTimeNum) ? 0 : Math.max(0, workTimeNum),
+      worktime: workTimeNum,
       details,
     };
     try {
@@ -137,29 +139,30 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
           </div>
           <div className={styles.field}>
             <label htmlFor="pkg-work-time" className={styles.label}>
-              Worktime <span className={styles.required}>*</span>
+              Work Time (In Minutes) <span className={styles.required}>*</span>
             </label>
             <input
               id="pkg-work-time"
-              name="work_time_minutes"
+              name="worktime"
               type="number"
               min="1"
               inputMode="numeric"
-              className={`${styles.input} ${errors.work_time_minutes ? styles.inputError : ''}`}
+              className={`${styles.input} ${errors.worktime ? styles.inputError : ''}`}
               placeholder="e.g. 60"
-              value={formData.work_time_minutes}
+              value={formData.worktime}
               onChange={handleChange}
             />
-            {errors.work_time_minutes && (
-              <div className={styles.errorMessage}>{errors.work_time_minutes}</div>
+            {errors.worktime && (
+              <div className={styles.errorMessage}>{errors.worktime}</div>
             )}
           </div>
           <div className={styles.field}>
-            <span className={styles.label}>Package details</span>
+            <span className={styles.label}>Package details <span className={styles.required}>*</span></span>
             <PackageDetailsList
               items={formData.details}
               onChange={handleDetailsChange}
             />
+            {errors.details && <div className={styles.errorMessage}>{errors.details}</div>}
           </div>
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>

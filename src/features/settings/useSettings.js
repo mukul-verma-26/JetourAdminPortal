@@ -20,7 +20,7 @@ function mapPackageFromApi(item) {
     status: item.status || 'active',
     details,
     pricingMatrix: item.pricingMatrix || [],
-    work_time_minutes: item.work_time_minutes ?? item.workTimeMinutes ?? '',
+    worktime: item.worktime ?? item.work_time_minutes ?? item.workTimeMinutes ?? '',
   };
 }
 
@@ -103,14 +103,25 @@ export function useSettings() {
         name: payload.name,
         status: payload.status,
         details: Array.isArray(payload.details) ? payload.details : [],
-        work_time_minutes: payload.work_time_minutes ?? 0,
+        worktime: payload.worktime ?? 0,
       };
 
       try {
         if (isEdit) {
           const pkg = packages.find((p) => p.id === idOrPayload);
           const apiId = pkg?._id || pkg?.id || idOrPayload;
-          await updatePackageApi(apiId, apiPayload);
+          const updated = await updatePackageApi(apiId, apiPayload);
+          const updatedPkg = updated?.data || updated?.package || updated;
+          const mapped = updatedPkg ? mapPackageFromApi(updatedPkg) : null;
+          if (mapped) {
+            setPackages((prev) => prev.map((p) => (p.id === idOrPayload ? mapped : p)));
+          } else {
+            setPackages((prev) =>
+              prev.map((p) =>
+                p.id === idOrPayload ? { ...p, ...apiPayload, worktime: apiPayload.worktime } : p
+              )
+            );
+          }
           if (typeof window?.showToast === 'function') {
             window.showToast('Package updated successfully', 'success');
           }
