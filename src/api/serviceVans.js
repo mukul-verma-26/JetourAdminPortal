@@ -31,20 +31,30 @@ export async function getServiceVans() {
   }
 }
 
+export async function getServiceVanById(id) {
+  try {
+    const { data } = await apiClient.get(`/service-vans/${id}`);
+    return data;
+  } catch (error) {
+    console.log('getServiceVanById', `GET /service-vans/${id}`, 'Error:', error);
+    console.log('getServiceVanById', 'Error response:', error?.response?.data);
+    console.log('getServiceVanById', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
 export async function createServiceVan(payload) {
   try {
     const formData = new FormData();
+    console.log(payload, 'payload');
+    
     formData.append('registration_number', String(payload.registration_number || '').trim());
     formData.append('vehicle_model', String(payload.vehicle_model || ''));
     formData.append('mileage', String(Number(payload.mileage) || 0));
     formData.append('last_service_date', String(payload.last_service_date || '').trim());
     formData.append('status', String(payload.status || 'active'));
-    if (payload.technician_id) {
-      formData.append('technician_id', String(payload.technician_id));
-    }
-    if (payload.driver_id) {
-      formData.append('driver_id', String(payload.driver_id));
-    }
+    formData.append('technician_id', String(payload.technician_id || '').trim());
+    formData.append('driver_id', String(payload.driver_id || '').trim());
     if (payload.image instanceof File) {
       const compressed = await compressImageIfNeeded(payload.image);
       formData.append('image', compressed);
@@ -69,12 +79,8 @@ export async function updateServiceVan(id, payload) {
     formData.append('mileage', String(Number(payload.mileage) || 0));
     formData.append('last_service_date', String(payload.last_service_date || '').trim());
     formData.append('status', String(payload.status || 'active'));
-    if (payload.technician_id) {
-      formData.append('technician_id', String(payload.technician_id));
-    }
-    if (payload.driver_id) {
-      formData.append('driver_id', String(payload.driver_id));
-    }
+    formData.append('technician_id', String(payload.technician_id || '').trim());
+    formData.append('driver_id', String(payload.driver_id || '').trim());
     if (payload.image instanceof File) {
       const compressed = await compressImageIfNeeded(payload.image);
       formData.append('image', compressed);

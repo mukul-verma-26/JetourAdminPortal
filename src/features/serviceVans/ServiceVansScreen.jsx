@@ -38,6 +38,10 @@ function ServiceVansScreen() {
     addServiceVan,
     updateServiceVan,
     deleteServiceVan,
+    openView,
+    closeView,
+    viewVan,
+    isViewLoading,
     isLoading,
     isCreating,
     isUpdating,
@@ -45,7 +49,6 @@ function ServiceVansScreen() {
   } = useServiceVans();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editVan, setEditVan] = useState(null);
-  const [viewVan, setViewVan] = useState(null);
   const [deleteConfirmVan, setDeleteConfirmVan] = useState(null);
 
   const handleCreateSubmit = async (payload) => {
@@ -72,7 +75,6 @@ function ServiceVansScreen() {
   };
 
   const openEdit = (van) => setEditVan(van);
-  const openView = (van) => setViewVan(van);
   const openDeleteConfirm = (van) => setDeleteConfirmVan(van);
 
   return (
@@ -197,8 +199,9 @@ function ServiceVansScreen() {
 
       <ViewServiceVanModal
         open={Boolean(viewVan)}
-        onClose={() => setViewVan(null)}
+        onClose={closeView}
         van={viewVan}
+        isLoading={isViewLoading}
       />
 
       <ConfirmDeleteServiceVanModal

@@ -6,6 +6,7 @@ function ExtraDetailsSection({
   onBufferTimeChange,
   onServiceFeeChange,
   onUpdate,
+  isUpdating = false,
 }) {
   return (
     <section className={styles.section}>
@@ -46,8 +47,13 @@ function ExtraDetailsSection({
             </div>
           </div>
         </div>
-        <button type="button" className={styles.updateBtn} onClick={onUpdate}>
-          Update
+        <button
+          type="button"
+          className={styles.updateBtn}
+          onClick={onUpdate}
+          disabled={isUpdating}
+        >
+          {isUpdating ? 'Updating...' : 'Update'}
         </button>
       </div>
     </section>

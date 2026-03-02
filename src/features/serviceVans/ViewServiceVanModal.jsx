@@ -30,13 +30,21 @@ function getImageUrl(van) {
   return van?.photo || van?.image || van?.vehicle_image || '';
 }
 
-function ViewServiceVanModal({ open, onClose, van }) {
-  if (!open || !van) return null;
+function ViewServiceVanModal({ open, onClose, van, isLoading = false }) {
+  if (!open) return null;
 
-  const statusClass = styles[STATUS_CLASS_MAP[van.status]] || styles.statusInactive;
+  const statusClass = styles[STATUS_CLASS_MAP[van?.status]] || styles.statusInactive;
   const imageUrl = getImageUrl(van);
   const needsBase64 = imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http');
   const displayUrl = needsBase64 ? `data:image/png;base64,${imageUrl}` : imageUrl;
+  const technicianName = isLoading
+    ? 'Loading...'
+    : van?.technicianDetails?.name || van?.technician_details?.name || '—';
+  const driverName = isLoading
+    ? 'Loading...'
+    : van?.driverDetails?.name || van?.driver_details?.name || '—';
+
+  if (!van) return null;
 
   return (
     <div
@@ -103,6 +111,14 @@ function ViewServiceVanModal({ open, onClose, van }) {
                 {getStatusLabel(van.status)}
               </span>
             </p>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Technician</span>
+            <p className={styles.value}>{technicianName}</p>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Driver</span>
+            <p className={styles.value}>{driverName}</p>
           </div>
         </div>
       </div>

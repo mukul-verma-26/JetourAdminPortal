@@ -29,6 +29,7 @@ function SettingsScreen() {
     serviceFee,
     handleBufferTimeChange,
     handleServiceFeeChange,
+    isExtraDetailsUpdating,
     handleExtraDetailsUpdate,
   } = useSettings();
 
@@ -53,6 +54,7 @@ function SettingsScreen() {
         onBufferTimeChange={handleBufferTimeChange}
         onServiceFeeChange={handleServiceFeeChange}
         onUpdate={handleExtraDetailsUpdate}
+        isUpdating={isExtraDetailsUpdating}
       />
 
       <CreateEditPackageModal

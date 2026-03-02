@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   createServiceVan,
   getServiceVans,
+  getServiceVanById,
   updateServiceVan as updateServiceVanApi,
   deleteServiceVan as deleteServiceVanApi,
 } from '../../api/serviceVans';
@@ -17,9 +18,11 @@ function resolveImageUrl(raw) {
 function mapServiceVanFromApi(item) {
   const imageValue = item.image ?? item.vehicle_image;
   const photo = resolveImageUrl(imageValue ? String(imageValue).trim() : '');
+  const techDetails = item.technician_details;
+  const driverDetails = item.driver_details;
   return {
-    id: item.service_van_id || item._id,
-    _id: item._id,
+    id: item.id || item.service_van_id || item._id,
+    _id: item._id || item.id,
     registrationNumber: item.registration_number || '',
     registration_number: item.registration_number || '',
     vehicleModel: item.vehicle_model || '',
@@ -27,10 +30,12 @@ function mapServiceVanFromApi(item) {
     lastService: item.last_service_date || '',
     status: item.status || 'active',
     photo,
-    technicianId: item.technician_id || '',
-    technician_id: item.technician_id || '',
-    driverId: item.driver_id || '',
-    driver_id: item.driver_id || '',
+    technicianId: item.technician_id || techDetails?.technician_id || techDetails?.id || '',
+    technician_id: item.technician_id || techDetails?.technician_id || techDetails?.id || '',
+    technicianDetails: techDetails,
+    driverId: item.driver_id || driverDetails?.driver_id || driverDetails?.id || '',
+    driver_id: item.driver_id || driverDetails?.driver_id || driverDetails?.id || '',
+    driverDetails: driverDetails,
   };
 }
 
@@ -40,6 +45,8 @@ export function useServiceVans() {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewVan, setViewVan] = useState(null);
+  const [isViewLoading, setIsViewLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -161,12 +168,37 @@ export function useServiceVans() {
     return { total, active, inMaintenance };
   }, [serviceVans]);
 
+  const openView = useCallback(async (van) => {
+    const apiId = van?._id || van?.id;
+    setViewVan(mapServiceVanFromApi(van));
+    if (!apiId) return;
+    setIsViewLoading(true);
+    try {
+      const res = await getServiceVanById(apiId);
+      const data = res?.data || res || {};
+      setViewVan(mapServiceVanFromApi(data));
+    } catch (err) {
+      console.log('openView', 'Failed to fetch van details', err);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to load van details', 'error');
+      }
+    } finally {
+      setIsViewLoading(false);
+    }
+  }, []);
+
+  const closeView = useCallback(() => setViewVan(null), []);
+
   return {
     serviceVans,
     stats,
     addServiceVan,
     updateServiceVan,
     deleteServiceVan,
+    openView,
+    closeView,
+    viewVan,
+    isViewLoading,
     isLoading,
     isCreating,
     isUpdating,

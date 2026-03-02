@@ -11,3 +11,15 @@ export async function getAdminSettings() {
     throw error;
   }
 }
+
+export async function updateAdminSettings(payload) {
+  try {
+    const { data } = await apiClient.put('/admin/settings', payload);
+    return data;
+  } catch (error) {
+    console.log('updateAdminSettings', 'PUT /admin/settings', 'Error:', error);
+    console.log('updateAdminSettings', 'Error response:', error?.response?.data);
+    console.log('updateAdminSettings', 'Error message:', error?.message);
+    throw error;
+  }
+}

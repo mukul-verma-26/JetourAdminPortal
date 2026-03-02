@@ -5,7 +5,7 @@ import {
   updatePackage as updatePackageApi,
   deletePackage as deletePackageApi,
 } from '../../api/packages';
-import { getAdminSettings } from '../../api/settings';
+import { getAdminSettings, updateAdminSettings } from '../../api/settings';
 
 function mapPackageFromApi(item) {
   if (!item) return null;
@@ -34,6 +34,7 @@ export function useSettings() {
   const [bufferTimeMinutes, setBufferTimeMinutes] = useState('');
   const [serviceFee, setServiceFee] = useState('');
   const [isSettingsLoading, setIsSettingsLoading] = useState(true);
+  const [isExtraDetailsUpdating, setIsExtraDetailsUpdating] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,12 +224,31 @@ export function useSettings() {
     setServiceFee(value);
   }, []);
 
-  const handleExtraDetailsUpdate = useCallback(() => {
-    // TODO: persist bufferTimeMinutes and serviceFee via API
-    if (typeof window?.showToast === 'function') {
-      window.showToast('Extra details updated', 'success');
+  const handleExtraDetailsUpdate = useCallback(async () => {
+    const bufferNum = parseInt(String(bufferTimeMinutes || '0'), 10);
+    const feeNum = parseFloat(String(serviceFee || '0'));
+    const payload = {
+      buffer_between_bookings_minutes: Number.isNaN(bufferNum) ? 0 : Math.max(0, bufferNum),
+      service_fee: Number.isNaN(feeNum) ? 0 : Math.max(0, feeNum),
+    };
+    setIsExtraDetailsUpdating(true);
+    try {
+      await updateAdminSettings(payload);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Extra details updated', 'success');
+      }
+    } catch (error) {
+      if (typeof window?.showToast === 'function') {
+        window.showToast(
+          error?.response?.data?.message || 'Failed to update settings',
+          'error'
+        );
+      }
+      throw error;
+    } finally {
+      setIsExtraDetailsUpdating(false);
     }
-  }, []);
+  }, [bufferTimeMinutes, serviceFee]);
 
   return {
     packages,
@@ -253,6 +273,7 @@ export function useSettings() {
     handleBufferTimeChange,
     handleServiceFeeChange,
     isSettingsLoading,
+    isExtraDetailsUpdating,
     handleExtraDetailsUpdate,
   };
 }

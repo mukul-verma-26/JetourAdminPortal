@@ -33,12 +33,12 @@ export function useServiceVanForm(initialData, open) {
         const driverList = driverRes?.data || driverRes || [];
         const mapTech = (t) => ({
           ...t,
-          id: t._id || t.technician_id || t.id,
+          id: t.technician_id || t._id || t.id,
           name: t.name || '',
         });
         const mapDriver = (d) => ({
           ...d,
-          id: d._id || d.driver_id || d.id,
+          id: d.driver_id || d._id || d.id,
           name: d.name || '',
         });
         setTechnicians(Array.isArray(techList) ? techList.map(mapTech) : []);

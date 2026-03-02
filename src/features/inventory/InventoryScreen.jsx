@@ -149,7 +149,6 @@ function InventoryScreen() {
           <table className={styles.table}>
             <thead className={styles.thead}>
               <tr>
-                <th className={styles.th}>Item ID</th>
                 <th className={styles.th}>Name</th>
                 <th className={styles.th}>Qty in Stock</th>
                 <th className={styles.th}>Unit Price</th>
@@ -163,7 +162,7 @@ function InventoryScreen() {
               {displayedInventory.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={7}
                     className={`${styles.td} ${styles.emptyCell}`}
                   >
                     <p className={styles.empty}>
@@ -177,9 +176,6 @@ function InventoryScreen() {
               ) : (
                 displayedInventory.map((item) => (
                   <tr key={item.id} className={styles.tr}>
-                    <td className={styles.td} data-label="Item ID">
-                      {item.itemId}
-                    </td>
                     <td className={styles.td} data-label="Name">
                       <span className={styles.itemName}>{item.name}</span>
                     </td>
