@@ -1,22 +1,19 @@
-import { VEHICLE_MODELS, createEmptyPricingRow } from '../constants';
+import { VEHICLE_MODELS } from '../constants';
 import styles from './ManagePackageTable.module.scss';
+
+function normalizeVehicleColumns(vehicleColumnsProp) {
+  if (!vehicleColumnsProp?.length) {
+    return VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
+  }
+  return vehicleColumnsProp.map((col) =>
+    typeof col === 'string' ? { id: col, name: col } : { id: col.id || col.name, name: col.name || col.id || '' }
+  ).filter((c) => c.id);
+}
 
 function createEmptyRowForVehicles(vehicleColumns) {
   const prices = {};
-  vehicleColumns.forEach((col) => {
-    const id = typeof col === 'object' ? col.id : col;
-    prices[id] = '';
-  });
+  vehicleColumns.forEach((col) => { prices[col.id] = ''; });
   return { mileage: '', prices };
-}
-
-function normalizeVehicleColumns(vehicleColumnsProp) {
-  if (vehicleColumnsProp?.length) {
-    return vehicleColumnsProp.map((col) =>
-      typeof col === 'object' ? col : { id: col, name: col }
-    );
-  }
-  return VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
 }
 
 function ManagePackageTable({ rows, onRowsChange, onAddRow, vehicleColumns: vehicleColumnsProp }) {
@@ -109,7 +106,7 @@ function ManagePackageTable({ rows, onRowsChange, onAddRow, vehicleColumns: vehi
       <button
         type="button"
         className={styles.addRowBtn}
-        onClick={() => onAddRow(vehicleColumns.length ? createEmptyRowForVehicles(vehicleColumns) : createEmptyPricingRow())}
+        onClick={() => onAddRow(createEmptyRowForVehicles(vehicleColumns))}
       >
         Add new row
       </button>

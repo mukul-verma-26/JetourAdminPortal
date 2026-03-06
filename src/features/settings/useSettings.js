@@ -160,13 +160,17 @@ export function useSettings() {
 
   const handleManagePackageSubmit = useCallback(
     async (id, payload) => {
-      const pkg = packages.find((p) => p.id === id);
-      const apiId = pkg?.package_id || pkg?._id || pkg?.id || id;
+      const pkg = packages.find((p) => p.id === id || p.package_id === id || p._id === id);
+      const apiId = pkg?._id || pkg?.id || id;
       const apiPayload = payload?.pricing != null ? { pricing: payload.pricing } : payload;
       try {
         await updatePackageApi(apiId, apiPayload);
         setPackages((prev) =>
-          prev.map((p) => (p.id === id ? { ...p, ...payload } : p))
+          prev.map((p) =>
+            p.id === id || p.package_id === id || p._id === id
+              ? { ...p, pricing: payload?.pricing ?? p.pricing }
+              : p
+          )
         );
         if (typeof window?.showToast === 'function') {
           window.showToast('Package updated successfully', 'success');

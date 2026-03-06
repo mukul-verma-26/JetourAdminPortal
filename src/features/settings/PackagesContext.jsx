@@ -14,6 +14,7 @@ function mapPackageFromApi(item) {
     description: item.description || 'Customize features and pricing',
     status: item.status || 'active',
     details,
+    pricing: item.pricing || item.pricingMatrix || [],
     pricingMatrix: item.pricingMatrix || item.pricing || [],
     worktime: item.worktime ?? item.work_time_minutes ?? item.workTimeMinutes ?? '',
   };

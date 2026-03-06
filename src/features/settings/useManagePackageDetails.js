@@ -1,35 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getPackageById } from '../../api/packages';
 import { getVehicles } from '../../api/vehicles';
-
-/**
- * Transforms API data to table format.
- * vehicleColumns: [{ id: vehicle_Id, name: vehicle_model }] from vehicles API
- * pricing: [{ mileage, vehicles: [{ vehicle_Id, vehicle_model, price }] }] from package API
- * Table rows: [{ mileage, prices: { [vehicle_Id]: price } }]
- */
-function transformToTableFormat(pricing, vehicleColumns) {
-  if (!Array.isArray(vehicleColumns) || vehicleColumns.length === 0) {
-    return [];
-  }
-
-  const vehicleIds = vehicleColumns.map((v) => v.id);
-
-  if (!Array.isArray(pricing) || pricing.length === 0) {
-    return [{ mileage: '', prices: Object.fromEntries(vehicleIds.map((id) => [id, ''])) }];
-  }
-
-  return pricing.map((item) => {
-    const prices = {};
-    vehicleIds.forEach((id) => { prices[id] = ''; });
-    const vehicles = item.vehicles || [];
-    vehicles.forEach((v) => {
-      const vid = v.vehicle_Id || v.vehicle_id || v.id || v._id;
-      if (vid != null) prices[vid] = v.price ?? '';
-    });
-    return { mileage: item.mileage ?? '', prices };
-  });
-}
+import { transformToTableFormat } from './helpers/managePackageHelpers';
 
 export function useManagePackageDetails(packageId, open) {
   const [packageDetails, setPackageDetails] = useState(null);
@@ -48,35 +20,29 @@ export function useManagePackageDetails(packageId, open) {
 
       const vehiclesList = vehiclesRes?.data || vehiclesRes || [];
       const vehicles = Array.isArray(vehiclesList) ? vehiclesList : [];
-      const vehicleColumns = vehicles.map((v) => ({
-        id: v.vehicle_id || v._id || v.id,
-        name: v.vehicle_model || v.modelName || v.name || '',
-      })).filter((v) => v.id);
 
       let pkgData = packageRes?.data || packageRes;
-      if (Array.isArray(pkgData) && pkgData.length > 0) {
-        pkgData = pkgData[0];
+      if (Array.isArray(pkgData)) {
+        pkgData = pkgData.find((p) => (p._id || p.id || p.package_id) === packageId) || pkgData[0];
       }
-      if (!pkgData) pkgData = null;
 
-      if (pkgData && vehicleColumns.length > 0) {
-        const tableRows = transformToTableFormat(pkgData.pricing || [], vehicleColumns);
+      if (pkgData) {
+        const pricing = pkgData.pricing || [];
+        const transformed = transformToTableFormat(vehicles, pricing);
         setPackageDetails({
           ...pkgData,
-          tableRows,
-          vehicleColumns,
-        });
-      } else if (pkgData) {
-        setPackageDetails({
-          ...pkgData,
-          tableRows: [{ mileage: '', prices: {} }],
-          vehicleColumns: [],
+          tableRows: transformed.rows,
+          vehicleColumns: transformed.vehicleColumns,
         });
       } else {
-        setPackageDetails(null);
+        const transformed = transformToTableFormat(vehicles, []);
+        setPackageDetails({
+          tableRows: transformed.rows,
+          vehicleColumns: transformed.vehicleColumns,
+        });
       }
     } catch (err) {
-      console.log('useManagePackageDetails', 'Failed to fetch package/vehicles', err);
+      console.log('useManagePackageDetails', 'Failed to fetch package or vehicles', err);
       setError(err);
       setPackageDetails(null);
       if (typeof window?.showToast === 'function') {

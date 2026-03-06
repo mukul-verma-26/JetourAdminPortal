@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import ManagePackageTable from './components/ManagePackageTable';
-import { createEmptyPricingRow, VEHICLE_MODELS } from './constants';
+import { VEHICLE_MODELS } from './constants';
 import { useManagePackageDetails } from './useManagePackageDetails';
+import { buildPricingPayload } from './helpers/managePackageHelpers';
 import styles from './ManagePackageModal.module.scss';
 
 function createEmptyRowForVehicles(vehicleColumns) {
   const prices = {};
-  vehicleColumns.forEach((col) => {
-    const id = typeof col === 'object' ? col.id : col;
-    prices[id] = '';
+  const cols = Array.isArray(vehicleColumns) ? vehicleColumns : [];
+  cols.forEach((col) => {
+    const id = col?.id ?? col;
+    if (id) prices[id] = '';
   });
   return { mileage: '', prices };
 }
@@ -23,38 +25,50 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
   useEffect(() => {
     if (open && packageDetails) {
       const cols = packageDetails.vehicleColumns || [];
-      setRows(packageDetails.tableRows?.length ? packageDetails.tableRows : [createEmptyRowForVehicles(cols)]);
-      setVehicleColumns(cols.length ? cols : VEHICLE_MODELS.map((v) => ({ id: v.name, name: v.name })));
+      setVehicleColumns(cols);
+      setRows(
+        packageDetails.tableRows?.length
+          ? packageDetails.tableRows
+          : [createEmptyRowForVehicles(cols)]
+      );
     } else if (open && pkg && !isLoading && !packageDetails) {
-      const fallbackColumns = VEHICLE_MODELS.map((v) => ({ id: v.name, name: v.name }));
+      const fallbackColumns = VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
       setVehicleColumns(fallbackColumns);
-      setRows(pkg.pricingMatrix?.length ? pkg.pricingMatrix.map((r) => ({
-        mileage: r.mileage ?? '',
-        prices: Object.fromEntries(fallbackColumns.map((c) => [c.id, r.prices?.[c.name] ?? ''])),
-      })) : [createEmptyRowForVehicles(fallbackColumns)]);
+      const pricing = pkg.pricing || pkg.pricingMatrix || [];
+      const fallbackRows =
+        pricing.length > 0
+          ? pricing.map((r) => {
+              const prices = {};
+              fallbackColumns.forEach((c) => {
+                const v = (r.vehicles || []).find(
+                  (x) => (x.vehicle_Id || x.vehicle_id || x._id) === c.id
+                );
+                prices[c.id] = v?.price ?? r.prices?.[c.id] ?? '';
+              });
+              return { mileage: r.mileage ?? '', prices };
+            })
+          : [createEmptyRowForVehicles(fallbackColumns)];
+      setRows(fallbackRows);
     }
   }, [open, packageDetails, isLoading, pkg]);
 
   const handleAddRow = (newRow) => {
-    setRows((prev) => [...prev, newRow || createEmptyPricingRow()]);
+    const effectiveCols =
+      vehicleColumns.length > 0
+        ? vehicleColumns
+        : VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
+    setRows((prev) => [...prev, newRow || createEmptyRowForVehicles(effectiveCols)]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const pricing = rows.map((row) => {
-      const vehicles = [];
-      vehicleColumns.forEach((col) => {
-        const vid = typeof col === 'object' ? col.id : col;
-        const priceVal = row.prices?.[vid];
-        if (vid && (priceVal !== '' && priceVal !== undefined && priceVal !== null)) {
-          vehicles.push({ vehicle_Id: vid, price: Number(priceVal) });
-        }
-      });
-      return { mileage: Number(row.mileage) || 0, vehicles };
-    });
-    const payload = { pricing };
+    const effectiveColumns =
+      vehicleColumns.length > 0
+        ? vehicleColumns
+        : VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
+    const payload = buildPricingPayload(rows, effectiveColumns);
     try {
-      await onSubmit(pkg?.id, payload);
+      await onSubmit(packageId || pkg?.id, payload);
     } catch {
       // Error handled in parent; keep modal open
     }
