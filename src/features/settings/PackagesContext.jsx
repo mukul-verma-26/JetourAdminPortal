@@ -9,11 +9,12 @@ function mapPackageFromApi(item) {
   return {
     id,
     _id: item._id,
+    package_id: item.package_id,
     name: item.name || '',
     description: item.description || 'Customize features and pricing',
     status: item.status || 'active',
     details,
-    pricingMatrix: item.pricingMatrix || [],
+    pricingMatrix: item.pricingMatrix || item.pricing || [],
     worktime: item.worktime ?? item.work_time_minutes ?? item.workTimeMinutes ?? '',
   };
 }

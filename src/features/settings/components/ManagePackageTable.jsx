@@ -1,7 +1,26 @@
 import { VEHICLE_MODELS, createEmptyPricingRow } from '../constants';
 import styles from './ManagePackageTable.module.scss';
 
-function ManagePackageTable({ rows, onRowsChange, onAddRow }) {
+function createEmptyRowForVehicles(vehicleColumns) {
+  const prices = {};
+  vehicleColumns.forEach((col) => {
+    const id = typeof col === 'object' ? col.id : col;
+    prices[id] = '';
+  });
+  return { mileage: '', prices };
+}
+
+function normalizeVehicleColumns(vehicleColumnsProp) {
+  if (vehicleColumnsProp?.length) {
+    return vehicleColumnsProp.map((col) =>
+      typeof col === 'object' ? col : { id: col, name: col }
+    );
+  }
+  return VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
+}
+
+function ManagePackageTable({ rows, onRowsChange, onAddRow, vehicleColumns: vehicleColumnsProp }) {
+  const vehicleColumns = normalizeVehicleColumns(vehicleColumnsProp);
   const handleMileageChange = (rowIndex, value) => {
     const cleaned = value.replace(/[^\d]/g, '');
     onRowsChange(
@@ -11,14 +30,14 @@ function ManagePackageTable({ rows, onRowsChange, onAddRow }) {
     );
   };
 
-  const handlePriceChange = (rowIndex, vehicleName, value) => {
+  const handlePriceChange = (rowIndex, vehicleId, value) => {
     const cleaned = value.replace(/[^\d.]/g, '');
     const parts = cleaned.split('.');
     const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
     onRowsChange(
       rows.map((row, i) =>
         i === rowIndex
-          ? { ...row, prices: { ...row.prices, [vehicleName]: sanitized } }
+          ? { ...row, prices: { ...row.prices, [vehicleId]: sanitized } }
           : row
       )
     );
@@ -35,9 +54,9 @@ function ManagePackageTable({ rows, onRowsChange, onAddRow }) {
         <thead>
           <tr>
             <th className={styles.mileageCol}>Mileage</th>
-            {VEHICLE_MODELS.map((v) => (
-              <th key={v.id} className={styles.priceCol}>
-                {v.name}
+            {vehicleColumns.map((col) => (
+              <th key={col.id} className={styles.priceCol}>
+                {col.name}
               </th>
             ))}
             <th className={styles.actionsCol} />
@@ -57,18 +76,18 @@ function ManagePackageTable({ rows, onRowsChange, onAddRow }) {
                   aria-label={`Mileage row ${rowIndex + 1}`}
                 />
               </td>
-              {VEHICLE_MODELS.map((v) => (
-                <td key={v.id} className={styles.priceCol}>
+              {vehicleColumns.map((col) => (
+                <td key={col.id} className={styles.priceCol}>
                   <input
                     type="text"
                     inputMode="decimal"
                     className={styles.input}
                     placeholder="0.00"
-                    value={row.prices[v.name] ?? ''}
+                    value={row.prices?.[col.id] ?? ''}
                     onChange={(e) =>
-                      handlePriceChange(rowIndex, v.name, e.target.value)
+                      handlePriceChange(rowIndex, col.id, e.target.value)
                     }
-                    aria-label={`Price for ${v.name} row ${rowIndex + 1}`}
+                    aria-label={`Price for ${col.name} row ${rowIndex + 1}`}
                   />
                 </td>
               ))}
@@ -90,7 +109,7 @@ function ManagePackageTable({ rows, onRowsChange, onAddRow }) {
       <button
         type="button"
         className={styles.addRowBtn}
-        onClick={() => onAddRow(createEmptyPricingRow())}
+        onClick={() => onAddRow(vehicleColumns.length ? createEmptyRowForVehicles(vehicleColumns) : createEmptyPricingRow())}
       >
         Add new row
       </button>

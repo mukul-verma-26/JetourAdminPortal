@@ -2,42 +2,59 @@ import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import ManagePackageTable from './components/ManagePackageTable';
 import { createEmptyPricingRow, VEHICLE_MODELS } from './constants';
+import { useManagePackageDetails } from './useManagePackageDetails';
 import styles from './ManagePackageModal.module.scss';
 
-function normalizePricingMatrix(pricingMatrix, vehicleNames) {
-  if (!Array.isArray(pricingMatrix) || pricingMatrix.length === 0) {
-    return [createEmptyPricingRow()];
-  }
-  return pricingMatrix.map((row) => {
-    const prices = {};
-    vehicleNames.forEach((name) => {
-      prices[name] = row.prices?.[name] ?? '';
-    });
-    return { mileage: row.mileage ?? '', prices };
+function createEmptyRowForVehicles(vehicleColumns) {
+  const prices = {};
+  vehicleColumns.forEach((col) => {
+    const id = typeof col === 'object' ? col.id : col;
+    prices[id] = '';
   });
+  return { mileage: '', prices };
 }
 
 function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
   const [rows, setRows] = useState([]);
+  const [vehicleColumns, setVehicleColumns] = useState([]);
+  const packageId = pkg?.package_id || pkg?._id || pkg?.id;
+  const { packageDetails, isLoading } = useManagePackageDetails(packageId, open && !!pkg);
 
   useEffect(() => {
-    if (open && pkg) {
-      const vehicleNames = VEHICLE_MODELS.map((v) => v.name);
-      setRows(normalizePricingMatrix(pkg.pricingMatrix, vehicleNames));
+    if (open && packageDetails) {
+      const cols = packageDetails.vehicleColumns || [];
+      setRows(packageDetails.tableRows?.length ? packageDetails.tableRows : [createEmptyRowForVehicles(cols)]);
+      setVehicleColumns(cols.length ? cols : VEHICLE_MODELS.map((v) => ({ id: v.name, name: v.name })));
+    } else if (open && pkg && !isLoading && !packageDetails) {
+      const fallbackColumns = VEHICLE_MODELS.map((v) => ({ id: v.name, name: v.name }));
+      setVehicleColumns(fallbackColumns);
+      setRows(pkg.pricingMatrix?.length ? pkg.pricingMatrix.map((r) => ({
+        mileage: r.mileage ?? '',
+        prices: Object.fromEntries(fallbackColumns.map((c) => [c.id, r.prices?.[c.name] ?? ''])),
+      })) : [createEmptyRowForVehicles(fallbackColumns)]);
     }
-  }, [open, pkg]);
+  }, [open, packageDetails, isLoading, pkg]);
 
   const handleAddRow = (newRow) => {
-    setRows((prev) => [...prev, newRow]);
+    setRows((prev) => [...prev, newRow || createEmptyPricingRow()]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      pricingMatrix: rows,
-    };
+    const pricing = rows.map((row) => {
+      const vehicles = [];
+      vehicleColumns.forEach((col) => {
+        const vid = typeof col === 'object' ? col.id : col;
+        const priceVal = row.prices?.[vid];
+        if (vid && (priceVal !== '' && priceVal !== undefined && priceVal !== null)) {
+          vehicles.push({ vehicle_Id: vid, price: Number(priceVal) });
+        }
+      });
+      return { mileage: Number(row.mileage) || 0, vehicles };
+    });
+    const payload = { pricing };
     try {
-      await onSubmit(pkg.id, payload);
+      await onSubmit(pkg?.id, payload);
     } catch {
       // Error handled in parent; keep modal open
     }
@@ -63,11 +80,16 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
           </button>
         </div>
         <form className={styles.body} onSubmit={handleSubmit}>
-          <ManagePackageTable
-            rows={rows}
-            onRowsChange={setRows}
-            onAddRow={handleAddRow}
-          />
+          {isLoading ? (
+            <p className={styles.loading}>Loading package details...</p>
+          ) : (
+            <ManagePackageTable
+              rows={rows}
+              onRowsChange={setRows}
+              onAddRow={handleAddRow}
+              vehicleColumns={vehicleColumns}
+            />
+          )}
           <div className={styles.actions}>
             <div className={styles.rightActions}>
               <button type="button" className={styles.cancelBtn} onClick={onClose}>

@@ -66,6 +66,13 @@
   flex: 1;
 }
 
+.loading {
+  margin: 0;
+  padding: 1.5rem;
+  font-size: 0.9375rem;
+  color: theme.$TEXT_SECONDARY;
+}
+
 .field {
   margin-bottom: 1.25rem;
 }

@@ -161,13 +161,8 @@ export function useSettings() {
   const handleManagePackageSubmit = useCallback(
     async (id, payload) => {
       const pkg = packages.find((p) => p.id === id);
-      const apiId = pkg?._id || pkg?.id || id;
-      const apiPayload = {
-        name: pkg?.name,
-        status: pkg?.status,
-        details: Array.isArray(pkg?.details) ? pkg.details : [],
-        ...payload,
-      };
+      const apiId = pkg?.package_id || pkg?._id || pkg?.id || id;
+      const apiPayload = payload?.pricing != null ? { pricing: payload.pricing } : payload;
       try {
         await updatePackageApi(apiId, apiPayload);
         setPackages((prev) =>
