@@ -61,3 +61,15 @@ export async function deletePackage(id) {
     throw error;
   }
 }
+
+export async function calculatePackagePrice(payload) {
+  try {
+    const { data } = await apiClient.post('/packages/calculate-price', payload);
+    return data;
+  } catch (error) {
+    console.log('calculatePackagePrice', 'POST /packages/calculate-price', 'Error:', error);
+    console.log('calculatePackagePrice', 'Error response:', error?.response?.data);
+    console.log('calculatePackagePrice', 'Error message:', error?.message);
+    throw error;
+  }
+}

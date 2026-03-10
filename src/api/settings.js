@@ -12,6 +12,18 @@ export async function getAdminSettings() {
   }
 }
 
+export async function getServiceFee() {
+  try {
+    const { data } = await apiClient.get('/admin/settings/service-fee');
+    return data;
+  } catch (error) {
+    console.log('getServiceFee', 'GET /admin/settings/service-fee', 'Error:', error);
+    console.log('getServiceFee', 'Error response:', error?.response?.data);
+    console.log('getServiceFee', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
 export async function updateAdminSettings(payload) {
   try {
     const { data } = await apiClient.put('/admin/settings', payload);

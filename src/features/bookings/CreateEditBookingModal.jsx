@@ -22,6 +22,7 @@ function getPackagePrice(pkg, vehicleModel) {
 import TimePicker from './components/TimePicker';
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
+import { useCalculateAmount } from './hooks/useCalculateAmount';
 import styles from './CreateEditBookingModal.module.scss';
 
 function CreateEditBookingModal({
@@ -33,6 +34,7 @@ function CreateEditBookingModal({
   vehicleOptions = [],
 }) {
   const activePackages = servicePackages.filter((p) => p.status === 'active');
+  const { calculateAmount, isCalculatingAmount, serviceFee } = useCalculateAmount(open);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -250,13 +252,23 @@ function CreateEditBookingModal({
     return baseValid;
   };
 
-  const handleCalculateAmount = () => {
-    const selectedServicePackage = activePackages.find(
-      (sp) => sp.id === formData.service_package_id
-    );
-    if (!selectedServicePackage) return;
-    const calculatedAmount = getPackagePrice(selectedServicePackage, formData.vehicle_model);
-    setFormData((prev) => ({ ...prev, amount: calculatedAmount }));
+  const handleCalculateAmount = async () => {
+    const selectedVehicle = vehicleOptions.find((vehicle) => vehicle.name === formData.vehicle_model);
+    const mileageValue = Number(formData.mileage.replace(/,/g, ''));
+
+    if (!formData.service_package_id || !selectedVehicle?.id || Number.isNaN(mileageValue)) {
+      return;
+    }
+
+    const totalAmount = await calculateAmount({
+      packageId: formData.service_package_id,
+      vehicleId: selectedVehicle.id,
+      mileage: mileageValue,
+    });
+
+    if (totalAmount != null) {
+      setFormData((prev) => ({ ...prev, amount: String(totalAmount) }));
+    }
   };
 
   const handleChange = (e) => {
@@ -788,7 +800,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="amount" className={styles.label}>
-                Amount
+                Amount{serviceFee != null && serviceFee > 0 ? ` (Including Service Fee : ${serviceFee} KWD)` : ''}
               </label>
               <div className={styles.amountRow}>
                 <input
@@ -804,9 +816,9 @@ function CreateEditBookingModal({
                   type="button"
                   className={styles.calculateBtn}
                   onClick={handleCalculateAmount}
-                  disabled={!formData.service_package_id || !formData.vehicle_model}
+                  disabled={!formData.service_package_id || !formData.vehicle_model || !formData.mileage || isCalculatingAmount}
                 >
-                  Calculate Amount
+                  {isCalculatingAmount ? 'Calculating...' : 'Calculate Amount'}
                 </button>
               </div>
             </div>
