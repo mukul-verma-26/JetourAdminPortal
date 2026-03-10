@@ -1,4 +1,5 @@
 import TechnicianNameContactFields from './TechnicianNameContactFields';
+import TechnicianEmailField from './TechnicianEmailField';
 import TechnicianCivilIdNationalityFields from './TechnicianCivilIdNationalityFields';
 import TechnicianGenderStatusFields from './TechnicianGenderStatusFields';
 import TechnicianRatingField from './TechnicianRatingField';
@@ -14,6 +15,11 @@ function TechnicianDetailsFields({
     <>
       <h3 className={styles.sectionTitle}>Technician Details</h3>
       <TechnicianNameContactFields
+        register={register}
+        errors={errors}
+        validationRules={validationRules}
+      />
+      <TechnicianEmailField
         register={register}
         errors={errors}
         validationRules={validationRules}

@@ -7,6 +7,7 @@ const DEFAULT_VALUES = {
   name: '',
   country_code: DEFAULT_COUNTRY_CODE,
   contact: '',
+  email: '',
   password: '',
   civil_id: '',
   nationality: '',
@@ -53,14 +54,17 @@ export function useTechnicianForm(initialData, open) {
   useEffect(() => {
     if (!open) return;
     if (initialData) {
-      const { country_code, phone } = parseContactToCountryCodeAndPhone(
+      const parsedContact = parseContactToCountryCodeAndPhone(
         initialData.contact,
         DEFAULT_COUNTRY_CODE
       );
+      const country_code = String(initialData.country_code || '').replace(/\D/g, '') || parsedContact.country_code;
+      const phone = (initialData.contact || parsedContact.phone || '').replace(/\D/g, '').slice(0, 15);
       reset({
         name: initialData.name || '',
         country_code,
         contact: phone,
+        email: initialData.email || '',
         password: initialData.password || '',
         civil_id: initialData.civilId || initialData.civil_id || '',
         nationality: initialData.nationality || '',
@@ -87,11 +91,11 @@ export function useTechnicianForm(initialData, open) {
     const ratingVal = getRatingVal(data.rating);
     const countryCode = (data.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
     const phoneDigits = (data.contact || '').trim().replace(/\D/g, '');
-    const fullContact = phoneDigits ? `+${countryCode}${phoneDigits}` : '';
     const payload = {
       name: (data.name || '').trim(),
-      country_code: fullContact ? `+${countryCode}` : '',
-      contact: fullContact,
+      country_code: phoneDigits ? `+${countryCode}` : '',
+      contact: phoneDigits,
+      email: (data.email || '').trim(),
       civil_id: (data.civil_id || '').trim(),
       nationality: (data.nationality || '').trim(),
       gender: data.gender || 'male',
@@ -119,6 +123,13 @@ export function useTechnicianForm(initialData, open) {
       required: 'Contact is required',
       minLength: { value: 8, message: 'Contact must be 8-15 digits' },
       maxLength: { value: 15, message: 'Contact must be 8-15 digits' },
+    },
+    email: {
+      required: 'Email is required',
+      pattern: {
+        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        message: 'Enter a valid email',
+      },
     },
     password: (isEdit
       ? { minLength: { value: 6, message: 'Password must be at least 6 characters' } }

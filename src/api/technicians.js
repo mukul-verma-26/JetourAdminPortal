@@ -36,7 +36,10 @@ export async function createTechnician(payload) {
     const formData = new FormData();
     formData.append('name', String(payload.name || ''));
     formData.append('contact', String(payload.contact || ''));
+    formData.append('country_code', String(payload.country_code || ''));
+    formData.append('email', String(payload.email || ''));
     formData.append('civil_id', String(payload.civil_id || ''));
+    formData.append('nationality', String(payload.nationality || ''));
     formData.append('gender', String(payload.gender || 'male'));
     formData.append('status', String(payload.status || 'active'));
     formData.append('rating', String(Number(payload.rating) || 0));
@@ -64,7 +67,10 @@ export async function updateTechnician(id, payload) {
     const formData = new FormData();
     formData.append('name', String(payload.name || ''));
     formData.append('contact', String(payload.contact || ''));
+    formData.append('country_code', String(payload.country_code || ''));
+    formData.append('email', String(payload.email || ''));
     formData.append('civil_id', String(payload.civil_id || ''));
+    formData.append('nationality', String(payload.nationality || ''));
     formData.append('gender', String(payload.gender || 'male'));
     formData.append('status', String(payload.status || 'active'));
     formData.append('rating', String(Number(payload.rating) || 0));

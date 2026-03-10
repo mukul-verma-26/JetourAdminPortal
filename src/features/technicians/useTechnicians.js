@@ -15,6 +15,8 @@ function mapTechnicianFromApi(item) {
     id: item.technician_id || item._id,
     _id: item._id,
     name: item.name || '',
+    email: item.email || '',
+    country_code: item.country_code || '',
     contact: item.contact || '',
     civilId: item.civil_id || '',
     nationality: item.nationality || '',
@@ -73,6 +75,8 @@ export function useTechnicians() {
         : {
             id: `T-${String(Date.now()).slice(-3).padStart(3, '0')}`,
             name: technician.name,
+            email: technician.email,
+            country_code: technician.country_code,
             contact: technician.contact,
             civilId: technician.civil_id,
             gender: technician.gender,
