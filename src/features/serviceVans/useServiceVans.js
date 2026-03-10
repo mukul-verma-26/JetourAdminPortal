@@ -30,11 +30,14 @@ function mapServiceVanFromApi(item) {
     lastService: item.last_service_date || '',
     status: item.status || 'active',
     photo,
-    technicianId: item.technician_id || techDetails?.technician_id || techDetails?.id || '',
-    technician_id: item.technician_id || techDetails?.technician_id || techDetails?.id || '',
+    technicianId:
+      item.technician_id || techDetails?.technician_id || techDetails?.id || techDetails?._id || '',
+    technician_id:
+      item.technician_id || techDetails?.technician_id || techDetails?.id || techDetails?._id || '',
     technicianDetails: techDetails,
-    driverId: item.driver_id || driverDetails?.driver_id || driverDetails?.id || '',
-    driver_id: item.driver_id || driverDetails?.driver_id || driverDetails?.id || '',
+    driverId: item.driver_id || driverDetails?.driver_id || driverDetails?.id || driverDetails?._id || '',
+    driver_id:
+      item.driver_id || driverDetails?.driver_id || driverDetails?.id || driverDetails?._id || '',
     driverDetails: driverDetails,
   };
 }
@@ -45,6 +48,8 @@ export function useServiceVans() {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editVan, setEditVan] = useState(null);
+  const [isEditLoading, setIsEditLoading] = useState(false);
   const [viewVan, setViewVan] = useState(null);
   const [isViewLoading, setIsViewLoading] = useState(false);
 
@@ -168,6 +173,26 @@ export function useServiceVans() {
     return { total, active, inMaintenance };
   }, [serviceVans]);
 
+  const openEdit = useCallback(async (van) => {
+    const apiId = van?._id || van?.id;
+    if (!apiId) return;
+    setIsEditLoading(true);
+    try {
+      const res = await getServiceVanById(apiId);
+      const data = res?.data || res || {};
+      setEditVan(mapServiceVanFromApi(data));
+    } catch (error) {
+      console.log('openEdit', `GET /service-vans/${apiId}`, error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to load van details', 'error');
+      }
+    } finally {
+      setIsEditLoading(false);
+    }
+  }, []);
+
+  const closeEdit = useCallback(() => setEditVan(null), []);
+
   const openView = useCallback(async (van) => {
     const apiId = van?._id || van?.id;
     setViewVan(mapServiceVanFromApi(van));
@@ -195,6 +220,10 @@ export function useServiceVans() {
     addServiceVan,
     updateServiceVan,
     deleteServiceVan,
+    openEdit,
+    closeEdit,
+    editVan,
+    isEditLoading,
     openView,
     closeView,
     viewVan,

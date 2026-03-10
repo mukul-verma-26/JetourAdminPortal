@@ -19,8 +19,33 @@ export function useServiceVanForm(initialData, open) {
   const [technicians, setTechnicians] = useState([]);
   const [drivers, setDrivers] = useState([]);
 
+  const mapTechnician = useCallback(
+    (t) => ({
+      ...t,
+      id: t?.technician_id || t?._id || t?.id || '',
+      name: t?.name || '',
+    }),
+    []
+  );
+
+  const mapDriver = useCallback(
+    (d) => ({
+      ...d,
+      id: d?.driver_id || d?._id || d?.id || '',
+      name: d?.name || '',
+    }),
+    []
+  );
+
   useEffect(() => {
     if (!open) return;
+    if (isEdit) {
+      const techDetails = initialData?.technicianDetails || initialData?.technician_details;
+      const driverDetails = initialData?.driverDetails || initialData?.driver_details;
+      setTechnicians(techDetails ? [mapTechnician(techDetails)] : []);
+      setDrivers(driverDetails ? [mapDriver(driverDetails)] : []);
+      return;
+    }
     let cancelled = false;
     async function fetchOptions() {
       try {
@@ -31,17 +56,7 @@ export function useServiceVanForm(initialData, open) {
         if (cancelled) return;
         const techList = techRes?.data || techRes || [];
         const driverList = driverRes?.data || driverRes || [];
-        const mapTech = (t) => ({
-          ...t,
-          id: t.technician_id || t._id || t.id,
-          name: t.name || '',
-        });
-        const mapDriver = (d) => ({
-          ...d,
-          id: d.driver_id || d._id || d.id,
-          name: d.name || '',
-        });
-        setTechnicians(Array.isArray(techList) ? techList.map(mapTech) : []);
+        setTechnicians(Array.isArray(techList) ? techList.map(mapTechnician) : []);
         setDrivers(Array.isArray(driverList) ? driverList.map(mapDriver) : []);
       } catch (error) {
         if (!cancelled) {
@@ -51,7 +66,31 @@ export function useServiceVanForm(initialData, open) {
     }
     fetchOptions();
     return () => { cancelled = true; };
-  }, [open]);
+  }, [open, isEdit, initialData, mapTechnician, mapDriver]);
+
+  const selectedTechnicianId = useMemo(
+    () =>
+      initialData?.technicianId ||
+      initialData?.technician_id ||
+      initialData?.technicianDetails?.technician_id ||
+      initialData?.technicianDetails?._id ||
+      initialData?.technician_details?.technician_id ||
+      initialData?.technician_details?._id ||
+      '',
+    [initialData]
+  );
+
+  const selectedDriverId = useMemo(
+    () =>
+      initialData?.driverId ||
+      initialData?.driver_id ||
+      initialData?.driverDetails?.driver_id ||
+      initialData?.driverDetails?._id ||
+      initialData?.driver_details?.driver_id ||
+      initialData?.driver_details?._id ||
+      '',
+    [initialData]
+  );
 
   const {
     register,
@@ -88,18 +127,28 @@ export function useServiceVanForm(initialData, open) {
     if (initialData) {
       reset({
         registration_number: initialData.registrationNumber || initialData.registration_number || '',
-        vehicle_model: initialData.vehicleModel || '',
+        vehicle_model: initialData.vehicleModel || initialData.vehicle_model || '',
         mileage: String(initialData.mileage ?? ''),
-        last_service_date: initialData.lastService || '',
+        last_service_date: initialData.lastService || initialData.last_service_date || '',
         status: initialData.status || 'active',
-        technician_id: initialData.technicianId || initialData.technician_id || '',
-        driver_id: initialData.driverId || initialData.driver_id || '',
+        technician_id: selectedTechnicianId,
+        driver_id: selectedDriverId,
         image: initialData.photo || initialData.image || null,
       });
     } else {
       reset(DEFAULT_VALUES);
     }
-  }, [initialData, open, reset]);
+  }, [initialData, open, reset, selectedTechnicianId, selectedDriverId]);
+
+  useEffect(() => {
+    if (!open || !isEdit) return;
+    if (technicians.length > 0 && selectedTechnicianId) {
+      setValue('technician_id', selectedTechnicianId);
+    }
+    if (drivers.length > 0 && selectedDriverId) {
+      setValue('driver_id', selectedDriverId);
+    }
+  }, [open, isEdit, technicians, drivers, selectedTechnicianId, selectedDriverId, setValue]);
 
   const setImageFromFile = useCallback(
     (file) => {
