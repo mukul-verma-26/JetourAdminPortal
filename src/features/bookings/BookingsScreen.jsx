@@ -28,7 +28,7 @@ const STATUS_CLASS_MAP = {
 };
 
 function BookingsScreen() {
-  const { bookings, addBooking, updateBooking, deleteBooking, filteredBookings } = useBookings();
+  const { bookings, isLoading, error, addBooking, updateBooking, deleteBooking, filteredBookings } = useBookings();
   const { vehicleOptions } = useVehicles();
   const { packages } = usePackagesContext();
   const [filterName, setFilterName] = useState('');
@@ -258,7 +258,19 @@ function BookingsScreen() {
               </tr>
             </thead>
             <tbody>
-              {displayedBookings.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={8} className={`${styles.td} ${styles.emptyCell}`}>
+                    <p className={styles.empty}>Loading bookings...</p>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={8} className={`${styles.td} ${styles.emptyCell}`}>
+                    <p className={styles.empty}>Failed to load bookings. Please try again.</p>
+                  </td>
+                </tr>
+              ) : displayedBookings.length === 0 ? (
                 <tr>
                   <td colSpan={8} className={`${styles.td} ${styles.emptyCell}`}>
                     <p className={styles.empty}>
@@ -275,11 +287,7 @@ function BookingsScreen() {
                       {booking.name}
                     </td>
                     <td className={styles.td} data-label="Phone">
-                      {booking.phone
-                        ? booking.phone.startsWith('+965')
-                          ? booking.phone.replace(/^(\+965)(\d)/, '$1 $2')
-                          : `+965 ${booking.phone}`
-                        : '—'}
+                      {booking.phone || '—'}
                     </td>
                     <td className={styles.td} data-label="Vehicle">
                       {booking.vehicle_model}

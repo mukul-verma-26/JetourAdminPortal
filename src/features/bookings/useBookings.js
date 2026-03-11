@@ -1,16 +1,30 @@
-import { useState, useCallback, useMemo } from 'react';
-import { INITIAL_BOOKINGS } from './constants';
-
-function sortByBookingTime(bookings) {
-  return [...bookings].sort((a, b) => {
-    const timeA = a.booking_time || '00:00';
-    const timeB = b.booking_time || '00:00';
-    return timeB.localeCompare(timeA);
-  });
-}
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { getAllBookings } from '../../api/bookings';
+import { transformBookings } from './helpers/transformBooking';
 
 export function useBookings() {
-  const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
+  const [bookings, setBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchBookings = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await getAllBookings();
+      const transformed = transformBookings(response.bookings);
+      setBookings(transformed);
+    } catch (err) {
+      console.log('useBookings', 'fetchBookings failed', err);
+      setError(err?.message || 'Failed to load bookings');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   const filteredBookings = useMemo(
     () => ({
@@ -50,14 +64,12 @@ export function useBookings() {
       ...booking,
       id: String(Date.now()),
     };
-    setBookings((prev) => sortByBookingTime([newBooking, ...prev]));
+    setBookings((prev) => [newBooking, ...prev]);
   }, []);
 
   const updateBooking = useCallback((id, updatedBooking) => {
     setBookings((prev) =>
-      sortByBookingTime(
-        prev.map((b) => (b.id === id ? { ...b, ...updatedBooking, id } : b))
-      )
+      prev.map((b) => (b.id === id ? { ...b, ...updatedBooking, id } : b))
     );
   }, []);
 
@@ -67,9 +79,12 @@ export function useBookings() {
 
   return {
     bookings,
+    isLoading,
+    error,
     addBooking,
     updateBooking,
     deleteBooking,
     filteredBookings,
+    refetchBookings: fetchBookings,
   };
 }
