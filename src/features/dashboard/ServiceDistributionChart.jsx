@@ -6,7 +6,10 @@ function ServiceDistributionChart({ data = [] }) {
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Service Distribution</h3>
+      <div className={styles.titleRow}>
+        <h3 className={styles.title}>Service Distribution</h3>
+        <span className={styles.badge}>Lifetime</span>
+      </div>
       <div className={styles.chartWrap}>
         {!hasData ? (
           <p className={styles.empty}>No service distribution data.</p>

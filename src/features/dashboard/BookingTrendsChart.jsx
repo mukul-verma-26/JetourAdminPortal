@@ -14,7 +14,10 @@ const CHART_COLOR = '#1ba9a5';
 function BookingTrendsChart({ data = [] }) {
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Booking Trends (Lifetime)</h3>
+      <div className={styles.titleRow}>
+        <h3 className={styles.title}>Booking Trends</h3>
+        <span className={styles.badge}>Lifetime</span>
+      </div>
       <div className={styles.chartWrap}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

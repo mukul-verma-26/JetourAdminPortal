@@ -12,7 +12,25 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: theme.$TEXT_PRIMARY;
-  margin: 0 0 1rem 0;
+  margin: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: theme.$PRIMARY;
+  background: theme.$PRIMARY_LIGHT;
 }
 
 .chartWrap {
