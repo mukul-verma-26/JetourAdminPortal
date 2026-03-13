@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getAllBookings } from '../../api/bookings';
 import { transformBookings } from './helpers/transformBooking';
 
@@ -6,14 +6,30 @@ export function useBookings() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
 
-  const fetchBookings = useCallback(async () => {
+  const fetchBookings = useCallback(async (filters = {}, page = 1, limit = 10) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await getAllBookings();
+      const response = await getAllBookings(filters, page, limit);
       const transformed = transformBookings(response.bookings);
       setBookings(transformed);
+      const responsePage = Number(response.page) || page;
+      const responseLimit = Number(response.limit) || limit;
+      const responseTotal = Number(response.total) || 0;
+      const totalPages = Math.max(1, Math.ceil(responseTotal / responseLimit));
+      setPagination({
+        page: responsePage,
+        limit: responseLimit,
+        total: responseTotal,
+        totalPages,
+      });
     } catch (err) {
       console.log('useBookings', 'fetchBookings failed', err);
       setError(err?.message || 'Failed to load bookings');
@@ -25,39 +41,6 @@ export function useBookings() {
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
-
-  const filteredBookings = useMemo(
-    () => ({
-      byFilters: (list, filters) => {
-        const { name, phone, vin, dateFrom, dateTo } = filters || {};
-        return list.filter((b) => {
-          if (name && name.trim()) {
-            const nameLower = (b.name || '').toLowerCase();
-            if (!nameLower.includes(name.trim().toLowerCase())) return false;
-          }
-          if (phone && phone.trim()) {
-            const phoneNormalized = (b.phone || '').replace(/\D/g, '');
-            const searchDigits = phone.trim().replace(/\D/g, '');
-            if (!phoneNormalized.includes(searchDigits)) return false;
-          }
-          if (vin && vin.trim()) {
-            const vinLower = (b.vehicle_registration || b.vin || '').toLowerCase();
-            if (!vinLower.includes(vin.trim().toLowerCase())) return false;
-          }
-          if (dateFrom && dateFrom.trim()) {
-            const bookingDate = b.booking_date || '';
-            if (!bookingDate || bookingDate < dateFrom.trim()) return false;
-          }
-          if (dateTo && dateTo.trim()) {
-            const bookingDate = b.booking_date || '';
-            if (!bookingDate || bookingDate > dateTo.trim()) return false;
-          }
-          return true;
-        });
-      },
-    }),
-    []
-  );
 
   const addBooking = useCallback((booking) => {
     const newBooking = {
@@ -81,10 +64,11 @@ export function useBookings() {
     bookings,
     isLoading,
     error,
+    pagination,
+    searchBookings: fetchBookings,
     addBooking,
     updateBooking,
     deleteBooking,
-    filteredBookings,
     refetchBookings: fetchBookings,
   };
 }

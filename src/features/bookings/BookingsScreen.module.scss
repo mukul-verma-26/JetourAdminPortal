@@ -343,6 +343,51 @@
   margin: 0;
 }
 
+.paginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid theme.$BORDER;
+  background: theme.$SURFACE;
+}
+
+.paginationInfo {
+  margin: 0;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.875rem;
+}
+
+.paginationActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageBtn {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: theme.$PRIMARY_LIGHT;
+    border-color: theme.$PRIMARY;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 767px) {
   .tableWrap {
     display: block;
@@ -396,5 +441,10 @@
 
   .actions .td::before {
     content: 'Actions';
+  }
+
+  .paginationRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

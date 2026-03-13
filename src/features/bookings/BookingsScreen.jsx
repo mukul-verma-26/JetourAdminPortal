@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useBookings } from './useBookings';
 import { useVehicles } from '../vehicles/useVehicles';
@@ -28,20 +28,18 @@ const STATUS_CLASS_MAP = {
 };
 
 function BookingsScreen() {
-  const { bookings, isLoading, error, addBooking, updateBooking, deleteBooking, filteredBookings } = useBookings();
+  const { bookings, isLoading, error, pagination, searchBookings, addBooking, updateBooking, deleteBooking } = useBookings();
   const { vehicleOptions } = useVehicles();
   const { packages } = usePackagesContext();
-  const [filterName, setFilterName] = useState('');
-  const [filterPhone, setFilterPhone] = useState('');
-  const [filterVin, setFilterVin] = useState('');
-  const [filterDateFrom, setFilterDateFrom] = useState('');
-  const [filterDateTo, setFilterDateTo] = useState('');
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [from_date, setFromDate] = useState('');
+  const [to_date, setToDate] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
     name: '',
-    phone: '',
-    vin: '',
-    dateFrom: '',
-    dateTo: '',
+    contact: '',
+    from_date: '',
+    to_date: '',
   });
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -71,42 +69,43 @@ function BookingsScreen() {
   const openView = (booking) => setViewBooking(booking);
   const openDeleteConfirm = (booking) => setDeleteConfirmBooking(booking);
 
-  const displayedBookings = useMemo(
-    () => filteredBookings.byFilters(bookings, appliedFilters),
-    [bookings, appliedFilters, filteredBookings]
-  );
+  const displayedBookings = bookings;
 
   const handleSearch = () => {
-    setAppliedFilters({
-      name: filterName,
-      phone: filterPhone,
-      vin: filterVin,
-      dateFrom: filterDateFrom,
-      dateTo: filterDateTo,
-    });
+    const nextFilters = { name, contact, from_date, to_date };
+    setAppliedFilters(nextFilters);
+    searchBookings(nextFilters);
   };
 
   const handleClearFilters = () => {
-    setFilterName('');
-    setFilterPhone('');
-    setFilterVin('');
-    setFilterDateFrom('');
-    setFilterDateTo('');
+    setName('');
+    setContact('');
+    setFromDate('');
+    setToDate('');
     setAppliedFilters({
       name: '',
-      phone: '',
-      vin: '',
-      dateFrom: '',
-      dateTo: '',
+      contact: '',
+      from_date: '',
+      to_date: '',
     });
+    searchBookings({});
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.page <= 1 || isLoading) return;
+    searchBookings(appliedFilters, pagination.page - 1, pagination.limit);
+  };
+
+  const handleNextPage = () => {
+    if (pagination.page >= pagination.totalPages || isLoading) return;
+    searchBookings(appliedFilters, pagination.page + 1, pagination.limit);
   };
 
   const hasActiveFilters =
     appliedFilters.name ||
-    appliedFilters.phone ||
-    appliedFilters.vin ||
-    appliedFilters.dateFrom ||
-    appliedFilters.dateTo;
+    appliedFilters.contact ||
+    appliedFilters.from_date ||
+    appliedFilters.to_date;
 
   return (
     <div className={styles.screen}>
@@ -144,7 +143,7 @@ function BookingsScreen() {
           <span className={styles.accordionTitle}>Filters</span>
           {hasActiveFilters && (
             <span className={styles.accordionBadge}>
-              {[appliedFilters.name, appliedFilters.phone, appliedFilters.vin, appliedFilters.dateFrom, appliedFilters.dateTo].filter(Boolean).length} active
+              {[appliedFilters.name, appliedFilters.contact, appliedFilters.from_date, appliedFilters.to_date].filter(Boolean).length} active
             </span>
           )}
         </button>
@@ -161,36 +160,25 @@ function BookingsScreen() {
               <input
                 type="text"
                 id="filter_name"
+                name="name"
                 className={styles.filterInput}
-                value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 aria-label="Filter by name"
               />
             </div>
             <div className={styles.filterField}>
-              <label htmlFor="filter_phone" className={styles.filterLabel}>
-                Mobile number
+              <label htmlFor="filter_contact" className={styles.filterLabel}>
+                Contact
               </label>
               <input
                 type="text"
-                id="filter_phone"
+                id="filter_contact"
+                name="contact"
                 className={styles.filterInput}
-                value={filterPhone}
-                onChange={(e) => setFilterPhone(e.target.value)}
-                aria-label="Filter by mobile number"
-              />
-            </div>
-            <div className={styles.filterField}>
-              <label htmlFor="filter_vin" className={styles.filterLabel}>
-                VIN
-              </label>
-              <input
-                type="text"
-                id="filter_vin"
-                className={styles.filterInput}
-                value={filterVin}
-                onChange={(e) => setFilterVin(e.target.value)}
-                aria-label="Filter by VIN"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                aria-label="Filter by contact"
               />
             </div>
             <div className={styles.filterField}>
@@ -199,9 +187,9 @@ function BookingsScreen() {
               </label>
               <DatePicker
                 id="filter_date_from"
-                name="filter_date_from"
-                value={filterDateFrom}
-                onChange={(e) => setFilterDateFrom(e.target.value)}
+                name="from_date"
+                value={from_date}
+                onChange={(e) => setFromDate(e.target.value)}
                 placeholder="Select from date"
               />
             </div>
@@ -211,9 +199,9 @@ function BookingsScreen() {
               </label>
               <DatePicker
                 id="filter_date_to"
-                name="filter_date_to"
-                value={filterDateTo}
-                onChange={(e) => setFilterDateTo(e.target.value)}
+                name="to_date"
+                value={to_date}
+                onChange={(e) => setToDate(e.target.value)}
                 placeholder="Select to date"
               />
             </div>
@@ -342,6 +330,31 @@ function BookingsScreen() {
             </tbody>
           </table>
         </div>
+        {!error && (
+          <div className={styles.paginationRow}>
+            <p className={styles.paginationInfo}>
+              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total bookings)
+            </p>
+            <div className={styles.paginationActions}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={handlePrevPage}
+                disabled={isLoading || pagination.page <= 1}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={handleNextPage}
+                disabled={isLoading || pagination.page >= pagination.totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <CreateEditBookingModal

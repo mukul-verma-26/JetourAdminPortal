@@ -3,6 +3,8 @@ import { FiX } from 'react-icons/fi';
 import {
   STATUS_OPTIONS,
   GENDER_OPTIONS,
+  PAYMENT_METHOD_OPTIONS,
+  PAYMENT_STATUS_OPTIONS,
   TECHNICIANS,
   DRIVERS,
   SERVICE_VANS,
@@ -57,6 +59,8 @@ function CreateEditBookingModal({
     booking_time: '',
     booking_date: '',
     status: 'pending',
+    payment_method: 'COD',
+    payment_status: 'pending',
     driver_id: '',
     technician_id: '',
     service_van_id: '',
@@ -93,6 +97,8 @@ function CreateEditBookingModal({
         booking_time: initialData.booking_time || '',
         booking_date: initialData.booking_date || '',
         status: initialData.status || 'pending',
+        payment_method: initialData.payment?.method || initialData.payment_method || 'COD',
+        payment_status: initialData.payment?.status || initialData.payment_status || 'pending',
         driver_id: initialData.driver_detail?.id || '',
         technician_id: initialData.technician_detail?.id || '',
         service_van_id: initialData.service_van?.id || '',
@@ -122,6 +128,8 @@ function CreateEditBookingModal({
         booking_time: '',
         booking_date: '',
         status: 'pending',
+        payment_method: 'COD',
+        payment_status: 'pending',
         driver_id: '',
         technician_id: '',
         service_van_id: '',
@@ -412,6 +420,10 @@ function CreateEditBookingModal({
       booking_time: formData.booking_time,
       booking_date: formData.booking_date,
       ...(isEdit ? { status: formData.status } : {}),
+      payment: {
+        method: formData.payment_method,
+        status: formData.payment_status,
+      },
       amount: String(calculatedAmount),
       technician_detail: selectedTechnician
         ? { id: selectedTechnician.id, name: selectedTechnician.name }
@@ -852,6 +864,46 @@ function CreateEditBookingModal({
                 error={errors.booking_time}
               />
               {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
+            </div>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label htmlFor="payment_method" className={styles.label}>
+                Payment Method
+              </label>
+              <select
+                id="payment_method"
+                name="payment_method"
+                className={styles.select}
+                value={formData.payment_method}
+                onChange={handleChange}
+              >
+                {PAYMENT_METHOD_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="payment_status" className={styles.label}>
+                Payment Status
+              </label>
+              <select
+                id="payment_status"
+                name="payment_status"
+                className={styles.select}
+                value={formData.payment_status}
+                onChange={handleChange}
+              >
+                {PAYMENT_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

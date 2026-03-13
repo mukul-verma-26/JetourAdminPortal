@@ -1,9 +1,17 @@
 export const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
   { value: 'confirmed', label: 'Confirmed' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'completed', label: 'Completed' },
   { value: 'cancelled', label: 'Cancelled' },
+];
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { value: 'COD', label: 'COD' },
+  { value: 'Card', label: 'Card' },
+];
+
+export const PAYMENT_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'paid', label: 'Paid' },
 ];
 
 export const GENDER_OPTIONS = [
