@@ -37,3 +37,13 @@ export async function getAllBookings(filters = {}, page = 1, limit = 10) {
     throw error;
   }
 }
+
+export async function createCustomerBooking(payload) {
+  try {
+    const { data } = await apiClient.post('/bookings/admin', payload);
+    return data;
+  } catch (error) {
+    console.log('createCustomerBooking', 'POST /bookings/admin', error);
+    throw error;
+  }
+}

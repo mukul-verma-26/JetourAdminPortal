@@ -8,7 +8,6 @@ import {
 } from './constants';
 import DatePicker from './components/DatePicker';
 import styles from './CreateEditSalesDataModal.module.scss';
-const PHONE_PREFIX = '+965';
 const MODEL_YEAR_OPTIONS = getModelYearOptions();
 
 function CreateEditSalesDataModal({
@@ -20,6 +19,7 @@ function CreateEditSalesDataModal({
 }) {
   const [formData, setFormData] = useState({
     customerName: '',
+    countryCode: '965',
     customerContactNumber: '',
     vehicleId: '',
     registrationNumber: '',
@@ -41,9 +41,23 @@ function CreateEditSalesDataModal({
 
   useEffect(() => {
     if (initialData) {
-      const phoneDigits = (initialData.customerContactNumber || '').replace(/\D/g, '').slice(-8);
+      const fullPhone = String(initialData.customerContactNumber || '').trim();
+      const digitsOnly = fullPhone.replace(/\D/g, '');
+      let countryCode = '965';
+      let phoneDigits = digitsOnly.slice(0, 10);
+      if (fullPhone.startsWith('+')) {
+        const match = fullPhone.match(/^\+(\d{1,4})(\d*)$/);
+        if (match) {
+          countryCode = match[1];
+          phoneDigits = match[2].replace(/\D/g, '').slice(0, 10);
+        }
+      } else if (digitsOnly.startsWith('965') && digitsOnly.length > 8) {
+        countryCode = '965';
+        phoneDigits = digitsOnly.slice(3).slice(0, 10);
+      }
       setFormData({
         customerName: initialData.customerName || '',
+        countryCode,
         customerContactNumber: phoneDigits,
         vehicleId: initialData.vehicleId || '',
         registrationNumber: initialData.registrationNumber || '',
@@ -61,6 +75,7 @@ function CreateEditSalesDataModal({
     } else {
       setFormData({
         customerName: '',
+        countryCode: '965',
         customerContactNumber: '',
         vehicleId: '',
         registrationNumber: '',
@@ -79,8 +94,30 @@ function CreateEditSalesDataModal({
     setErrors({});
   }, [initialData, open]);
 
+  useEffect(() => {
+    if (!open || !initialData || !vehicleOptions.length) return;
+    const hasSelectedVehicle = vehicleOptions.some((vehicle) => vehicle.id === formData.vehicleId);
+    if (hasSelectedVehicle) return;
+
+    const candidateIds = [
+      formData.vehicleId,
+      initialData.vehicleId,
+      initialData.salesDataId,
+    ].filter(Boolean);
+    if (!candidateIds.length) return;
+
+    const matchedVehicle = vehicleOptions.find((vehicle) =>
+      [vehicle.id, vehicle.modelId, vehicle._id]
+        .filter(Boolean)
+        .some((vehicleRef) => candidateIds.includes(vehicleRef))
+    );
+    if (!matchedVehicle) return;
+
+    setFormData((prev) => ({ ...prev, vehicleId: matchedVehicle.id }));
+  }, [open, initialData, vehicleOptions, formData.vehicleId]);
+
   const validatePhone = (phone) => {
-    const phoneRegex = /^\d{7,8}$/;
+    const phoneRegex = /^\d{7,10}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
   };
 
@@ -90,7 +127,7 @@ function CreateEditSalesDataModal({
     if (!formData.customerContactNumber.trim()) {
       newErrors.customerContactNumber = 'Customer contact number is required';
     } else if (!validatePhone(formData.customerContactNumber)) {
-      newErrors.customerContactNumber = 'Please enter a valid phone number (7-8 digits only)';
+      newErrors.customerContactNumber = 'Please enter a valid phone number (7-10 digits only)';
     }
 
     if (!formData.vehicleId) {
@@ -130,7 +167,7 @@ function CreateEditSalesDataModal({
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
     setFormData((prev) => ({ ...prev, customerContactNumber: value }));
     if (errors.customerContactNumber) {
       setErrors((prev) => {
@@ -139,6 +176,11 @@ function CreateEditSalesDataModal({
         return newErrors;
       });
     }
+  };
+
+  const handleCountryCodeChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setFormData((prev) => ({ ...prev, countryCode: value }));
   };
 
   const handleDateChange = (e) => {
@@ -163,7 +205,7 @@ function CreateEditSalesDataModal({
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -173,7 +215,7 @@ function CreateEditSalesDataModal({
     const payload = {
       customerName: formData.customerName.trim(),
       customerContactNumber: formData.customerContactNumber.trim()
-        ? `${PHONE_PREFIX}${formData.customerContactNumber.trim()}`
+        ? `+${formData.countryCode}${formData.customerContactNumber.trim()}`
         : '',
       vehicleId: formData.vehicleId,
       registrationNumber: formData.registrationNumber.trim(),
@@ -189,14 +231,16 @@ function CreateEditSalesDataModal({
       salesLabel: formData.salesLabel || null,
     };
 
-    if (isEdit) {
-      onSubmit(initialData.id, payload);
-    } else {
-      onSubmit(payload);
+    try {
+      const isSuccess = isEdit
+        ? await onSubmit(initialData.id, payload)
+        : await onSubmit(payload);
+      if (isSuccess) {
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    onClose();
   };
 
   if (!open) return null;
@@ -246,8 +290,22 @@ function CreateEditSalesDataModal({
               <label htmlFor="customer-contact" className={styles.label}>
                 Customer Contact Number <span className={styles.required}>*</span>
               </label>
-              <div className={styles.phoneInputWrapper}>
-                <span className={styles.phonePrefix}>{PHONE_PREFIX}</span>
+              <div className={styles.phoneInputRow}>
+                <div className={styles.countryCodeWrapper}>
+                  <span className={styles.phonePrefixFixed} aria-hidden="true">+</span>
+                  <input
+                    id="country-code"
+                    name="countryCode"
+                    type="tel"
+                    inputMode="numeric"
+                    className={`${styles.input} ${styles.countryCodeInput}`}
+                    placeholder="965"
+                    value={formData.countryCode}
+                    onChange={handleCountryCodeChange}
+                    maxLength={4}
+                    aria-label="Country code"
+                  />
+                </div>
                 <input
                   id="customer-contact"
                   name="customerContactNumber"
@@ -257,7 +315,7 @@ function CreateEditSalesDataModal({
                   placeholder="12345678"
                   value={formData.customerContactNumber}
                   onChange={handlePhoneChange}
-                  maxLength={8}
+                  maxLength={10}
                 />
               </div>
               {errors.customerContactNumber && (

@@ -172,16 +172,50 @@
   gap: 0.5rem;
 }
 
-.phonePrefix {
-  padding: 0.625rem 0.75rem;
+.countryCodeField {
+  display: flex;
+  align-items: center;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  background: theme.$SURFACE;
+  width: 5.25rem;
+  flex: 0 0 5.25rem;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.countryCodeFieldError {
+  border-color: #ef4444;
+
+  &:focus-within {
+    border-color: #ef4444;
+  }
+}
+
+.countryCodePrefix {
+  padding-left: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 500;
   color: theme.$TEXT_SECONDARY;
-  background: theme.$BACKGROUND;
-  border: 1px solid theme.$BORDER;
-  border-radius: 8px;
-  white-space: nowrap;
   user-select: none;
+}
+
+.countryCodeInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0.625rem 0.75rem 0.625rem 0.25rem;
+  font-size: 0.9375rem;
+  color: theme.$TEXT_PRIMARY;
+  font-family: inherit;
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
 }
 
 .phoneInput {

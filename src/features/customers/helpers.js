@@ -60,7 +60,7 @@ export function mapCustomerFromApi(item) {
   if (!item) return null;
   const fullAddr = item.full_address || item.address?.full_address || {};
   const addr = item.address || {};
-  const id = item.customer_id || item._id || item.id;
+  const id = item.id || item.customer_id || item._id;
   const phone = item.contact_number || item.phone;
   const dob = item.date_of_birth || item.dob;
   const lat = item.lat != null ? item.lat : addr.lat;
@@ -69,7 +69,7 @@ export function mapCustomerFromApi(item) {
   const mapped = {
     id,
     _id: item._id || id,
-    customerId: item.customer_id || item.customerId || id,
+    customerId: item.id || item.customer_id || item.customerId || id,
     name: item.name || '',
     phone,
     contact_number: phone,
@@ -97,8 +97,12 @@ export function mapCustomerFromApi(item) {
     floor_no: fullAddr.floor_number || fullAddr.floor_no || '',
     flat_no: fullAddr.flat_number || fullAddr.flat_no || '',
     paci_details: fullAddr.paci_details || '',
-    google_location: addr.google_location || item.google_location || '',
+    google_location:
+      addr.google_location ||
+      item.google_location ||
+      '',
     address: formatAddressForDisplay({ ...addr, full_address: fullAddr }),
+    vehicles: Array.isArray(item.vehicles) ? item.vehicles : [],
   };
 
   if (lat != null && lng != null) {

@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useCustomerSalesData } from './useCustomerSalesData';
-import { useVehicles } from '../vehicles/useVehicles';
 import { COLOR_SWATCH_MAP } from './constants';
 import CreateEditSalesDataModal from './CreateEditSalesDataModal';
 import ViewSalesDataModal from './ViewSalesDataModal';
@@ -12,12 +11,17 @@ import styles from './CustomerSalesDataScreen.module.scss';
 function CustomerSalesDataScreen() {
   const {
     salesDataList,
+    vehicleOptions,
     addSalesData,
     updateSalesData,
     deleteSalesData,
     filteredSalesData,
+    isLoading,
+    error,
+    pagination,
+    goToPage,
+    refetchVehicleOptions,
   } = useCustomerSalesData();
-  const { vehicleOptions } = useVehicles();
 
   const [filterCustomerName, setFilterCustomerName] = useState('');
   const [filterContact, setFilterContact] = useState('');
@@ -73,19 +77,38 @@ function CustomerSalesDataScreen() {
     appliedFilters.dateFrom ||
     appliedFilters.dateTo;
 
-  const handleCreateSubmit = (payload) => {
-    addSalesData(payload, vehicleOptions);
-    setCreateModalOpen(false);
+  const handleCreateSubmit = async (payload) => {
+    const isSuccess = await addSalesData(payload);
+    if (isSuccess) {
+      setCreateModalOpen(false);
+    }
+    return isSuccess;
   };
 
   const handleEditSubmit = (id, payload) => {
-    updateSalesData(id, payload, vehicleOptions);
+    updateSalesData(id, payload);
     setEditItem(null);
+    return true;
+  };
+
+  const handleEditClick = async (item) => {
+    await refetchVehicleOptions();
+    setEditItem(item);
   };
 
   const handleDeleteConfirm = (id) => {
     deleteSalesData(id);
     setDeleteConfirmItem(null);
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.page <= 1 || isLoading) return;
+    goToPage(pagination.page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (pagination.page >= pagination.totalPages || isLoading) return;
+    goToPage(pagination.page + 1);
   };
 
   return (
@@ -245,7 +268,25 @@ function CustomerSalesDataScreen() {
               </tr>
             </thead>
             <tbody>
-              {displayedItems.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className={`${styles.td} ${styles.emptyCell}`}
+                  >
+                    <p className={styles.empty}>Loading sales data...</p>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className={`${styles.td} ${styles.emptyCell}`}
+                  >
+                    <p className={styles.empty}>Failed to load sales data. Please try again.</p>
+                  </td>
+                </tr>
+              ) : displayedItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -308,7 +349,7 @@ function CustomerSalesDataScreen() {
                         <button
                           type="button"
                           className={styles.actionBtn}
-                          onClick={() => setEditItem(item)}
+                          onClick={() => handleEditClick(item)}
                           aria-label={`Edit ${item.salesDataId}`}
                         >
                           <FiEdit2 size={18} />
@@ -329,6 +370,31 @@ function CustomerSalesDataScreen() {
             </tbody>
           </table>
         </div>
+        {!error && (
+          <div className={styles.paginationRow}>
+            <p className={styles.paginationInfo}>
+              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total records)
+            </p>
+            <div className={styles.paginationActions}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={handlePrevPage}
+                disabled={isLoading || pagination.page <= 1}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={handleNextPage}
+                disabled={isLoading || pagination.page >= pagination.totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <CreateEditSalesDataModal

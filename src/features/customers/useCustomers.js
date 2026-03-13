@@ -1,11 +1,13 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   getCustomers,
+  getCustomerById,
   createCustomer as createCustomerApi,
   updateCustomer as updateCustomerApi,
   deleteCustomer as deleteCustomerApi,
 } from '../../api/customers';
 import { mapCustomerFromApi } from './helpers';
+import { reverseGeocodeLatLng } from './locationService';
 
 function sortByJoiningDate(customers) {
   return [...customers].sort(
@@ -21,38 +23,69 @@ export function useCustomers() {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    name: '',
+    contact_number: '',
+    email: '',
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    total: 0,
+    limit: 10,
+  });
+
+  const fetchCustomers = useCallback(async ({
+    filters = {},
+    page = 1,
+    limit = 10,
+  } = {}) => {
+    setIsLoading(true);
+    try {
+      const normalizedFilters = {
+        name: String(filters?.name || '').trim(),
+        contact_number: String(filters?.contact_number || '').trim(),
+        email: String(filters?.email || '').trim(),
+      };
+      const res = await getCustomers({
+        ...normalizedFilters,
+        page,
+        limit,
+      });
+      const list = res?.data || res || [];
+      const mapped = Array.isArray(list)
+        ? list.map(mapCustomerFromApi).filter(Boolean)
+        : [];
+      setCustomers(sortByJoiningDate(mapped));
+      setActiveFilters(normalizedFilters);
+      setPagination((prev) => ({
+        ...prev,
+        page: Number(res?.page) || page,
+        totalPages: Number(res?.total_pages || res?.pages) || 1,
+        total: Number(res?.total) || mapped.length,
+        limit: Number(res?.limit) || limit,
+      }));
+    } catch (error) {
+      console.log('fetchCustomers', 'Failed to fetch customers', error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to load customers', 'error');
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    async function fetchCustomers() {
-      setIsLoading(true);
+    async function fetchInitialCustomers() {
       try {
-        const res = await getCustomers();
-        const list = res?.data || res || [];
-        if (!cancelled) {
-          const mapped = Array.isArray(list)
-            ? list.map(mapCustomerFromApi).filter(Boolean)
-            : [];
-          setCustomers(sortByJoiningDate(mapped));
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.log('useCustomers', 'Failed to fetch customers', error);
-          if (typeof window?.showToast === 'function') {
-            window.showToast('Failed to load customers', 'error');
-          }
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        await fetchCustomers({ page: 1, limit: 10 });
+      } catch {
+        // Error is already handled and logged inside fetchCustomers
       }
     }
-    fetchCustomers();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    fetchInitialCustomers();
+  }, [fetchCustomers]);
 
   const addCustomer = useCallback(async (payload) => {
     setIsCreating(true);
@@ -60,13 +93,11 @@ export function useCustomers() {
       const data = await createCustomerApi(payload);
       const created = data?.data || data?.customer || data;
       if (created) {
-        const newCustomer = mapCustomerFromApi({
-          ...created,
-          customer_id: created.customer_id || created._id || created.id,
+        await fetchCustomers({
+          filters: activeFilters,
+          page: pagination.page,
+          limit: pagination.limit,
         });
-        if (newCustomer) {
-          setCustomers((prev) => sortByJoiningDate([newCustomer, ...prev]));
-        }
       }
       if (typeof window?.showToast === 'function') {
         window.showToast('Customer added successfully', 'success');
@@ -84,7 +115,7 @@ export function useCustomers() {
     } finally {
       setIsCreating(false);
     }
-  }, []);
+  }, [activeFilters, fetchCustomers, pagination.limit, pagination.page]);
 
   const updateCustomer = useCallback(async (id, payload) => {
     setIsUpdating(true);
@@ -92,12 +123,11 @@ export function useCustomers() {
       const customer = customers.find((c) => c.id === id);
       const apiId = customer?._id || id;
       await updateCustomerApi(apiId, payload);
-      const res = await getCustomers();
-      const list = res?.data || res || [];
-      const mapped = Array.isArray(list)
-        ? list.map(mapCustomerFromApi).filter(Boolean)
-        : [];
-      setCustomers(sortByJoiningDate(mapped));
+      await fetchCustomers({
+        filters: activeFilters,
+        page: pagination.page,
+        limit: pagination.limit,
+      });
       if (typeof window?.showToast === 'function') {
         window.showToast('Customer updated successfully', 'success');
       }
@@ -114,7 +144,7 @@ export function useCustomers() {
     } finally {
       setIsUpdating(false);
     }
-  }, [customers]);
+  }, [activeFilters, customers, fetchCustomers, pagination.limit, pagination.page]);
 
   const deleteCustomer = useCallback(async (id) => {
     setIsDeleting(true);
@@ -122,7 +152,13 @@ export function useCustomers() {
       const customer = customers.find((c) => c.id === id);
       const apiId = customer?._id || id;
       await deleteCustomerApi(apiId);
-      setCustomers((prev) => prev.filter((c) => c.id !== id));
+      const shouldMoveToPreviousPage = customers.length === 1 && pagination.page > 1;
+      const nextPage = shouldMoveToPreviousPage ? pagination.page - 1 : pagination.page;
+      await fetchCustomers({
+        filters: activeFilters,
+        page: nextPage,
+        limit: pagination.limit,
+      });
       if (typeof window?.showToast === 'function') {
         window.showToast('Customer deleted successfully', 'success');
       }
@@ -139,43 +175,67 @@ export function useCustomers() {
     } finally {
       setIsDeleting(false);
     }
-  }, [customers]);
+  }, [activeFilters, customers, fetchCustomers, pagination.limit, pagination.page]);
 
-  const filteredCustomers = useMemo(
-    () => ({
-      byFilters: (list, filters) => {
-        const { name, email, phone } = filters || {};
-        return list.filter((c) => {
-          if (name && name.trim()) {
-            const nameLower = (c.name || '').toLowerCase();
-            if (!nameLower.includes(name.trim().toLowerCase())) return false;
+  const fetchCustomerDetails = useCallback(async (customerId) => {
+    try {
+      const res = await getCustomerById(customerId);
+      const customer = mapCustomerFromApi(res?.data || res?.customer || res);
+      if (
+        customer &&
+        !customer.google_location &&
+        customer.locationData?.lat != null &&
+        customer.locationData?.lng != null
+      ) {
+        try {
+          const formattedAddress = await reverseGeocodeLatLng(
+            customer.locationData.lat,
+            customer.locationData.lng
+          );
+          if (formattedAddress) {
+            customer.google_location = formattedAddress;
+            customer.locationData = {
+              ...customer.locationData,
+              formatted_address: formattedAddress,
+            };
           }
-          if (email && email.trim()) {
-            const emailLower = (c.email || '').toLowerCase();
-            if (!emailLower.includes(email.trim().toLowerCase())) return false;
-          }
-          if (phone && phone.trim()) {
-            const phoneNormalized = (c.phone || c.contact_number || '').replace(/\D/g, '');
-            const searchDigits = phone.trim().replace(/\D/g, '');
-            if (!phoneNormalized.includes(searchDigits)) return false;
-          }
-          return true;
-        });
-      },
-      byStatus: (list, status) => {
-        if (!status || status === 'all') return list;
-        return list.filter((c) => c.status === status);
-      },
-    }),
-    []
-  );
+        } catch (geocodeError) {
+          console.log(
+            'fetchCustomerDetails',
+            `Failed reverse geocoding for customer ${customerId}`,
+            geocodeError
+          );
+        }
+      }
+      return customer;
+    } catch (error) {
+      console.log('fetchCustomerDetails', `Failed to fetch customer ${customerId}`, error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to fetch customer details', 'error');
+      }
+      throw error;
+    }
+  }, []);
 
   return {
     customers,
     addCustomer,
     updateCustomer,
     deleteCustomer,
-    filteredCustomers,
+    fetchCustomerDetails,
+    searchCustomers: (filters) =>
+      fetchCustomers({
+        filters,
+        page: 1,
+        limit: pagination.limit,
+      }),
+    pagination,
+    goToPage: (page) =>
+      fetchCustomers({
+        filters: activeFilters,
+        page,
+        limit: pagination.limit,
+      }),
     isLoading,
     isCreating,
     isUpdating,

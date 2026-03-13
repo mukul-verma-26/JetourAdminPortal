@@ -21,6 +21,35 @@ function getPackagePrice(pkg, vehicleModel) {
   const prices = pkg.pricingMatrix[0].prices;
   return prices[baseName] ?? Object.values(prices)[0] ?? '';
 }
+
+function getInitialContactData(initialPhone, initialCountryCode) {
+  const normalizedCode = String(initialCountryCode || '').replace(/\D/g, '');
+  const rawPhone = String(initialPhone || '').trim();
+
+  if (!rawPhone) {
+    return { country_code: normalizedCode || '965', phone: '' };
+  }
+
+  if (normalizedCode) {
+    if (rawPhone.startsWith(`+${normalizedCode}`)) {
+      return {
+        country_code: normalizedCode,
+        phone: rawPhone.slice(normalizedCode.length + 1).trim(),
+      };
+    }
+    if (rawPhone.startsWith(normalizedCode)) {
+      return {
+        country_code: normalizedCode,
+        phone: rawPhone.slice(normalizedCode.length).trim(),
+      };
+    }
+  }
+
+  return {
+    country_code: normalizedCode || '965',
+    phone: rawPhone.replace(/^\+/, ''),
+  };
+}
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
 import AvailableSlotsPicker from './components/AvailableSlotsPicker';
@@ -42,6 +71,7 @@ function CreateEditBookingModal({
     name: '',
     email: '',
     gender: 'M',
+    country_code: '965',
     phone: '',
     governorate: '',
     area: '',
@@ -84,11 +114,16 @@ function CreateEditBookingModal({
 
   useEffect(() => {
     if (initialData) {
+      const initialContactData = getInitialContactData(
+        initialData.phone,
+        initialData.country_code
+      );
       setFormData({
         name: initialData.name || '',
         email: initialData.email || '',
         gender: initialData.gender || 'M',
-        phone: initialData.phone || '',
+        country_code: initialContactData.country_code,
+        phone: initialContactData.phone,
         governorate: initialData.governorate || '',
         area: initialData.area || '',
         block: initialData.block || '',
@@ -119,6 +154,7 @@ function CreateEditBookingModal({
         name: '',
         email: '',
         gender: 'M',
+        country_code: '965',
         phone: '',
         governorate: '',
         area: '',
@@ -155,7 +191,7 @@ function CreateEditBookingModal({
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^\d{7,8}$/;
+    const phoneRegex = /^\d{7,10}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
   };
 
@@ -183,7 +219,11 @@ function CreateEditBookingModal({
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = 'Please enter a valid phone number (7-8 digits)';
+      newErrors.phone = 'Please enter a valid phone number (7-10 digits)';
+    }
+
+    if (!formData.country_code.trim()) {
+      newErrors.country_code = 'Country code is required';
     }
 
     if (!formData.google_location.trim()) {
@@ -214,6 +254,10 @@ function CreateEditBookingModal({
       newErrors.service_package_id = 'Service package is required';
     }
 
+    if (!formData.amount.trim()) {
+      newErrors.amount = 'Amount is required';
+    }
+
     if (!formData.booking_time) {
       newErrors.booking_time = 'Booking time is required';
     }
@@ -222,19 +266,27 @@ function CreateEditBookingModal({
       newErrors.booking_date = 'Booking date is required';
     }
 
+    if (!formData.payment_method) {
+      newErrors.payment_method = 'Payment method is required';
+    }
+
+    if (isEdit && !formData.payment_status) {
+      newErrors.payment_status = 'Payment status is required';
+    }
+
     if (isEdit && !formData.status) {
       newErrors.status = 'Status is required';
     }
 
-    if (!formData.driver_id) {
+    if (isEdit && !formData.driver_id) {
       newErrors.driver_id = 'Driver is required';
     }
 
-    if (!formData.technician_id) {
+    if (isEdit && !formData.technician_id) {
       newErrors.technician_id = 'Technician is required';
     }
 
-    if (!formData.service_van_id) {
+    if (isEdit && !formData.service_van_id) {
       newErrors.service_van_id = 'Service van is required';
     }
 
@@ -247,6 +299,7 @@ function CreateEditBookingModal({
       formData.name.trim() &&
       (!formData.email.trim() || validateEmail(formData.email)) &&
       formData.gender &&
+      formData.country_code.trim() &&
       formData.phone.trim() &&
       validatePhone(formData.phone) &&
       formData.google_location.trim() &&
@@ -257,14 +310,20 @@ function CreateEditBookingModal({
       formData.mileage.trim() &&
       validateMileage(formData.mileage) &&
       formData.service_package_id &&
+      formData.amount.trim() &&
       formData.booking_time &&
       formData.booking_date &&
-      formData.driver_id &&
-      formData.technician_id &&
-      formData.service_van_id;
+      formData.payment_method;
 
     if (isEdit) {
-      return baseValid && formData.status;
+      return (
+        baseValid &&
+        formData.status &&
+        formData.payment_status &&
+        formData.driver_id &&
+        formData.technician_id &&
+        formData.service_van_id
+      );
     }
     return baseValid;
   };
@@ -285,6 +344,13 @@ function CreateEditBookingModal({
 
     if (totalAmount != null) {
       setFormData((prev) => ({ ...prev, amount: String(totalAmount) }));
+      if (errors.amount) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.amount;
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -317,6 +383,19 @@ function CreateEditBookingModal({
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors.phone;
+        return newErrors;
+      });
+    }
+  };
+
+  const handleCountryCodeChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    setFormData((prev) => ({ ...prev, country_code: value }));
+
+    if (errors.country_code) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.country_code;
         return newErrors;
       });
     }
@@ -362,6 +441,15 @@ function CreateEditBookingModal({
     }
   }, [slots, formData.booking_time]);
 
+  useEffect(() => {
+    if (!formData.booking_time || !errors.booking_time) return;
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.booking_time;
+      return newErrors;
+    });
+  }, [formData.booking_time, errors.booking_time]);
+
   const handleDateChange = (e) => {
     setFormData((prev) => ({ ...prev, booking_date: e.target.value }));
     
@@ -392,7 +480,7 @@ function CreateEditBookingModal({
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -424,6 +512,7 @@ function CreateEditBookingModal({
       name: formData.name.trim(),
       email: formData.email.trim(),
       gender: formData.gender,
+      country_code: `+${formData.country_code.trim()}`,
       phone: formData.phone.trim(),
       governorate: formData.governorate.trim(),
       area: formData.area.trim(),
@@ -440,7 +529,12 @@ function CreateEditBookingModal({
       vehicle_year: formData.vehicle_year.trim(),
       mileage: formData.mileage.trim(),
       service_package: selectedServicePackage
-        ? { id: selectedServicePackage.id, name: selectedServicePackage.name, amount: String(calculatedAmount) }
+        ? {
+            id: selectedServicePackage.id,
+            package_id: selectedServicePackage.package_id,
+            name: selectedServicePackage.name,
+            amount: String(calculatedAmount),
+          }
         : null,
       booking_time: formData.booking_time,
       booking_date: formData.booking_date,
@@ -462,14 +556,24 @@ function CreateEditBookingModal({
       additional_notes: formData.additional_notes.trim(),
     };
 
-    if (initialData?.id) {
-      onSubmit(initialData.id, payload);
-    } else {
-      onSubmit(payload);
+    try {
+      if (initialData?.id) {
+        await onSubmit(initialData.id, payload);
+      } else {
+        await onSubmit(payload);
+      }
+      onClose();
+    } catch (error) {
+      console.log('CreateEditBookingModal', 'Submit failed', error);
+      if (window.showToast) {
+        window.showToast(
+          error?.response?.data?.message || error?.message || 'Failed to save booking',
+          'error'
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    onClose();
   };
 
   if (!open) return null;
@@ -561,7 +665,23 @@ function CreateEditBookingModal({
                 Phone Number <span className={styles.required}>*</span>
               </label>
               <div className={styles.phoneInputWrapper}>
-                <span className={styles.phonePrefix}>+965</span>
+                <div
+                  className={`${styles.countryCodeField} ${
+                    errors.country_code ? styles.countryCodeFieldError : ''
+                  }`}
+                >
+                  <span className={styles.countryCodePrefix}>+</span>
+                  <input
+                    id="country_code"
+                    name="country_code"
+                    type="text"
+                    className={styles.countryCodeInput}
+                    placeholder="965"
+                    value={formData.country_code}
+                    onChange={handleCountryCodeChange}
+                    maxLength={4}
+                  />
+                </div>
                 <input
                   id="phone"
                   name="phone"
@@ -570,9 +690,10 @@ function CreateEditBookingModal({
                   placeholder="12345678"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  maxLength={8}
+                  maxLength={10}
                 />
               </div>
+              {errors.country_code && <div className={styles.errorMessage}>{errors.country_code}</div>}
               {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}
             </div>
           </div>
@@ -728,7 +849,6 @@ function CreateEditBookingModal({
               error={errors.google_location}
               placeholder="Search for location on Google Maps..."
             />
-            {errors.google_location && <div className={styles.errorMessage}>{errors.google_location}</div>}
           </div>
 
           {/* Booking Details Section */}
@@ -837,7 +957,7 @@ function CreateEditBookingModal({
 
             <div className={styles.field}>
               <label htmlFor="amount" className={styles.label}>
-                Amount{serviceFee != null && serviceFee > 0 ? ` (Including Service Fee : ${serviceFee} KWD)` : ''}
+                Amount <span className={styles.required}>*</span>{serviceFee != null && serviceFee > 0 ? ` (Including Service Fee : ${serviceFee} KWD)` : ''}
               </label>
               <div className={styles.amountRow}>
                 <input
@@ -900,7 +1020,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="payment_method" className={styles.label}>
-                Payment Method
+                Payment Method <span className={styles.required}>*</span>
               </label>
               <select
                 id="payment_method"
@@ -915,118 +1035,122 @@ function CreateEditBookingModal({
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor="payment_status" className={styles.label}>
-                Payment Status
-              </label>
-              <select
-                id="payment_status"
-                name="payment_status"
-                className={styles.select}
-                value={formData.payment_status}
-                onChange={handleChange}
-              >
-                {PAYMENT_STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="driver_id" className={styles.label}>
-                Driver <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="driver_id"
-                name="driver_id"
-                className={`${styles.select} ${errors.driver_id ? styles.inputError : ''}`}
-                value={formData.driver_id}
-                onChange={handleChange}
-              >
-                <option value="">Select a driver</option>
-                {DRIVERS.map((driver) => (
-                  <option key={driver.id} value={driver.id}>
-                    {driver.name} ({driver.id})
-                  </option>
-                ))}
-              </select>
-              {errors.driver_id && <div className={styles.errorMessage}>{errors.driver_id}</div>}
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor="technician_id" className={styles.label}>
-                Technician <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="technician_id"
-                name="technician_id"
-                className={`${styles.select} ${errors.technician_id ? styles.inputError : ''}`}
-                value={formData.technician_id}
-                onChange={handleChange}
-              >
-                <option value="">Select a technician</option>
-                {TECHNICIANS.map((tech) => (
-                  <option key={tech.id} value={tech.id}>
-                    {tech.name} ({tech.id})
-                  </option>
-                ))}
-              </select>
-              {errors.technician_id && <div className={styles.errorMessage}>{errors.technician_id}</div>}
-            </div>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <div className={styles.field}>
-              <label htmlFor="service_van_id" className={styles.label}>
-                Service Van <span className={styles.required}>*</span>
-              </label>
-              <select
-                id="service_van_id"
-                name="service_van_id"
-                className={`${styles.select} ${errors.service_van_id ? styles.inputError : ''}`}
-                value={formData.service_van_id}
-                onChange={handleChange}
-              >
-                <option value="">Select a service van</option>
-                {SERVICE_VANS.map((van) => (
-                  <option key={van.id} value={van.id}>
-                    {van.name} ({van.id})
-                  </option>
-                ))}
-              </select>
-              {errors.service_van_id && <div className={styles.errorMessage}>{errors.service_van_id}</div>}
+              {errors.payment_method && <div className={styles.errorMessage}>{errors.payment_method}</div>}
             </div>
 
             {isEdit ? (
               <div className={styles.field}>
-                <label htmlFor="status" className={styles.label}>
-                  Status <span className={styles.required}>*</span>
+                <label htmlFor="payment_status" className={styles.label}>
+                  Payment Status <span className={styles.required}>*</span>
                 </label>
                 <select
-                  id="status"
-                  name="status"
-                  className={`${styles.select} ${errors.status ? styles.inputError : ''}`}
-                  value={formData.status}
+                  id="payment_status"
+                  name="payment_status"
+                  className={styles.select}
+                  value={formData.payment_status}
                   onChange={handleChange}
                 >
-                  {STATUS_OPTIONS.map((opt) => (
+                  {PAYMENT_STATUS_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
-                {errors.status && <div className={styles.errorMessage}>{errors.status}</div>}
+                {errors.payment_status && <div className={styles.errorMessage}>{errors.payment_status}</div>}
               </div>
-            ) : (
-              <div className={styles.field} />
-            )}
+            ) : null}
           </div>
+
+          {isEdit ? (
+            <>
+              <div className={styles.fieldRow}>
+                <div className={styles.field}>
+                  <label htmlFor="driver_id" className={styles.label}>
+                    Driver <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    id="driver_id"
+                    name="driver_id"
+                    className={`${styles.select} ${errors.driver_id ? styles.inputError : ''}`}
+                    value={formData.driver_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select a driver</option>
+                    {DRIVERS.map((driver) => (
+                      <option key={driver.id} value={driver.id}>
+                        {driver.name} ({driver.id})
+                      </option>
+                    ))}
+                  </select>
+                  {errors.driver_id && <div className={styles.errorMessage}>{errors.driver_id}</div>}
+                </div>
+
+                <div className={styles.field}>
+                  <label htmlFor="technician_id" className={styles.label}>
+                    Technician <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    id="technician_id"
+                    name="technician_id"
+                    className={`${styles.select} ${errors.technician_id ? styles.inputError : ''}`}
+                    value={formData.technician_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select a technician</option>
+                    {TECHNICIANS.map((tech) => (
+                      <option key={tech.id} value={tech.id}>
+                        {tech.name} ({tech.id})
+                      </option>
+                    ))}
+                  </select>
+                  {errors.technician_id && <div className={styles.errorMessage}>{errors.technician_id}</div>}
+                </div>
+              </div>
+
+              <div className={styles.fieldRow}>
+                <div className={styles.field}>
+                  <label htmlFor="service_van_id" className={styles.label}>
+                    Service Van <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    id="service_van_id"
+                    name="service_van_id"
+                    className={`${styles.select} ${errors.service_van_id ? styles.inputError : ''}`}
+                    value={formData.service_van_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select a service van</option>
+                    {SERVICE_VANS.map((van) => (
+                      <option key={van.id} value={van.id}>
+                        {van.name} ({van.id})
+                      </option>
+                    ))}
+                  </select>
+                  {errors.service_van_id && <div className={styles.errorMessage}>{errors.service_van_id}</div>}
+                </div>
+
+                <div className={styles.field}>
+                  <label htmlFor="status" className={styles.label}>
+                    Status <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    id="status"
+                    name="status"
+                    className={`${styles.select} ${errors.status ? styles.inputError : ''}`}
+                    value={formData.status}
+                    onChange={handleChange}
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.status && <div className={styles.errorMessage}>{errors.status}</div>}
+                </div>
+              </div>
+            </>
+          ) : null}
 
           <div className={styles.field}>
             <label htmlFor="additional_notes" className={styles.label}>

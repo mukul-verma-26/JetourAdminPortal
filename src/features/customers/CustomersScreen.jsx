@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload } from 'react-icons/fi';
 import { useCustomers } from './useCustomers';
-import { CUSTOMER_STATUS_OPTIONS } from './constants';
 import CreateEditCustomerModal from './CreateEditCustomerModal';
 import ViewCustomerModal from './ViewCustomerModal';
 import ConfirmDeleteCustomerModal from './ConfirmDeleteCustomerModal';
@@ -17,9 +16,11 @@ function getInitials(name) {
 }
 
 function getStatusLabel(value) {
-  return (
-    CUSTOMER_STATUS_OPTIONS.find((o) => o.value === value)?.label || value
-  );
+  if (!value) return '—';
+  const normalized = String(value).toLowerCase();
+  if (normalized === 'active') return 'Active';
+  if (normalized === 'inactive') return 'Inactive';
+  return value;
 }
 
 function formatJoined(dateStr) {
@@ -43,7 +44,10 @@ function CustomersScreen() {
     addCustomer,
     updateCustomer,
     deleteCustomer,
-    filteredCustomers,
+    fetchCustomerDetails,
+    searchCustomers,
+    pagination,
+    goToPage,
     isLoading,
     isCreating,
     isUpdating,
@@ -53,23 +57,55 @@ function CustomersScreen() {
   const [filterEmail, setFilterEmail] = useState('');
   const [filterPhone, setFilterPhone] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({ name: '', email: '', phone: '' });
-  const [statusFilter, setStatusFilter] = useState('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
   const [viewCustomer, setViewCustomer] = useState(null);
   const [deleteConfirmCustomer, setDeleteConfirmCustomer] = useState(null);
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
 
-  const displayedCustomers = useMemo(() => {
-    const byFilters = filteredCustomers.byFilters(customers, appliedFilters);
-    return filteredCustomers.byStatus(byFilters, statusFilter);
-  }, [customers, appliedFilters, statusFilter, filteredCustomers]);
+  const displayedCustomers = useMemo(() => customers, [customers]);
+  const hasActiveFilters = Boolean(
+    filterName.trim() ||
+    filterEmail.trim() ||
+    filterPhone.trim() ||
+    appliedFilters.name ||
+    appliedFilters.email ||
+    appliedFilters.phone
+  );
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setAppliedFilters({
       name: filterName,
       email: filterEmail,
       phone: filterPhone,
     });
+
+    try {
+      await searchCustomers({
+        name: filterName,
+        contact_number: filterPhone,
+        email: filterEmail,
+      });
+    } catch {
+      // Error handled in useCustomers
+    }
+  };
+
+  const handleClearFilters = async () => {
+    setFilterName('');
+    setFilterEmail('');
+    setFilterPhone('');
+    setAppliedFilters({ name: '', email: '', phone: '' });
+
+    try {
+      await searchCustomers({
+        name: '',
+        contact_number: '',
+        email: '',
+      });
+    } catch {
+      // Error handled in useCustomers
+    }
   };
 
   const handleCreateSubmit = async (payload) => {
@@ -99,6 +135,44 @@ function CustomersScreen() {
     }
   };
 
+  const handleViewCustomer = async (customerId) => {
+    setIsDetailsLoading(true);
+    try {
+      const detailedCustomer = await fetchCustomerDetails(customerId);
+      if (detailedCustomer) {
+        setViewCustomer(detailedCustomer);
+      }
+    } catch {
+      // Error handled in useCustomers
+    } finally {
+      setIsDetailsLoading(false);
+    }
+  };
+
+  const handleEditCustomer = async (customerId) => {
+    setIsDetailsLoading(true);
+    try {
+      const detailedCustomer = await fetchCustomerDetails(customerId);
+      if (detailedCustomer) {
+        setEditCustomer(detailedCustomer);
+      }
+    } catch {
+      // Error handled in useCustomers
+    } finally {
+      setIsDetailsLoading(false);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.page <= 1 || isLoading) return;
+    goToPage(pagination.page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (pagination.page >= pagination.totalPages || isLoading) return;
+    goToPage(pagination.page + 1);
+  };
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -112,9 +186,6 @@ function CustomersScreen() {
           <button type="button" className={styles.exportBtn}>
             <FiDownload size={18} aria-hidden />
             Export report
-          </button>
-          <button type="button" className={styles.importBtn}>
-            Import from Dealer System
           </button>
           <button
             type="button"
@@ -160,19 +231,16 @@ function CustomersScreen() {
           >
             Search
           </button>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className={styles.clearBtn}
+              onClick={handleClearFilters}
+            >
+              Clear filters
+            </button>
+          )}
         </div>
-        <select
-          className={styles.statusSelect}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          aria-label="Filter by status"
-        >
-          {CUSTOMER_STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className={styles.card}>
@@ -201,7 +269,7 @@ function CustomersScreen() {
                   >
                     <p className={styles.empty}>
                       No customers found.
-                      {(appliedFilters.name || appliedFilters.email || appliedFilters.phone || statusFilter !== 'all')
+                      {(appliedFilters.name || appliedFilters.email || appliedFilters.phone)
                         ? ' Try adjusting your search or filters.'
                         : ' Add a customer to get started.'}
                     </p>
@@ -248,16 +316,18 @@ function CustomersScreen() {
                         <button
                           type="button"
                           className={styles.actionBtn}
-                          onClick={() => setViewCustomer(customer)}
+                          onClick={() => handleViewCustomer(customer.id)}
                           aria-label={`View ${customer.name}`}
+                          disabled={isDetailsLoading}
                         >
                           <FiEye size={18} />
                         </button>
                         <button
                           type="button"
                           className={styles.actionBtn}
-                          onClick={() => setEditCustomer(customer)}
+                          onClick={() => handleEditCustomer(customer.id)}
                           aria-label={`Edit ${customer.name}`}
+                          disabled={isDetailsLoading}
                         >
                           <FiEdit2 size={18} />
                         </button>
@@ -280,6 +350,29 @@ function CustomersScreen() {
           </table>
         </div>
         )}
+        <div className={styles.paginationRow}>
+          <p className={styles.paginationInfo}>
+            Page {pagination.page} of {pagination.totalPages} ({pagination.total} total records)
+          </p>
+          <div className={styles.paginationActions}>
+            <button
+              type="button"
+              className={styles.pageBtn}
+              onClick={handlePrevPage}
+              disabled={isLoading || pagination.page <= 1}
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              className={styles.pageBtn}
+              onClick={handleNextPage}
+              disabled={isLoading || pagination.page >= pagination.totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       <CreateEditCustomerModal

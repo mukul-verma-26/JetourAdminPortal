@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { createCustomerBooking } from '../../api/bookings';
 import { useBookings } from './useBookings';
 import { useBookingFormDependencies } from './hooks/useBookingFormDependencies';
+import { transformBooking } from './helpers/transformBooking';
 import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
 import ViewBookingModal from './ViewBookingModal';
@@ -18,6 +20,13 @@ function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function mapGender(value) {
+  if (!value) return 'Male';
+  if (value === 'M') return 'Male';
+  if (value === 'F') return 'Female';
+  return value;
+}
+
 const STATUS_CLASS_MAP = {
   pending: styles.statusPending,
   confirmed: styles.statusConfirmed,
@@ -27,7 +36,16 @@ const STATUS_CLASS_MAP = {
 };
 
 function BookingsScreen() {
-  const { bookings, isLoading, error, pagination, searchBookings, addBooking, updateBooking, deleteBooking } = useBookings();
+  const {
+    bookings,
+    isLoading,
+    error,
+    pagination,
+    searchBookings,
+    addBooking,
+    updateBooking,
+    deleteBooking,
+  } = useBookings();
   const {
     vehicleOptions,
     packages,
@@ -50,11 +68,69 @@ function BookingsScreen() {
   const [viewBooking, setViewBooking] = useState(null);
   const [deleteConfirmBooking, setDeleteConfirmBooking] = useState(null);
 
-  const handleCreateSubmit = (payload) => {
-    addBooking({ ...payload, status: 'confirmed' });
+  const handleCreateSubmit = async (payload) => {
+    const requestBody = {
+      customer: {
+        name: payload.name,
+        phone: payload.phone,
+        country_code: payload.country_code,
+        email: payload.email,
+        gender: mapGender(payload.gender),
+        address: {
+          governorate: payload.governorate,
+          area: payload.area,
+          block: payload.block,
+          street: payload.street,
+          building_no: payload.building_no,
+          floor_no: payload.floor_no,
+          flat_no: payload.flat_no,
+          paci_details: payload.paci_details,
+          lat: payload.locationData?.lat ?? null,
+          lng: payload.locationData?.lng ?? null,
+        },
+      },
+      vehicle: {
+        vehicle_model: payload.vehicle_model,
+        registration_number: payload.vehicle_registration,
+        mileage: Number(String(payload.mileage).replace(/,/g, '')) || 0,
+      },
+      package: {
+        package_id: payload.service_package?.id,
+      },
+      schedule: {
+        date: payload.booking_date,
+        start_time: payload.booking_time,
+      },
+      payment_method: payload.payment_method,
+      additional_notes: payload.additional_notes,
+    };
+
+    const response = await createCustomerBooking(requestBody);
+    const isCreateSuccess = Boolean(response?.success || response?.status);
+    if (!isCreateSuccess) {
+      throw new Error(response?.message || 'Failed to create booking');
+    }
+
+    const createdBookingRaw = response?.booking
+      ? {
+          ...response.booking,
+          customer: {
+            ...response.booking.customer,
+            name: requestBody.customer.name,
+            email: requestBody.customer.email,
+            gender: requestBody.customer.gender,
+            address: requestBody.customer.address,
+          },
+        }
+      : null;
+    const createdBooking = createdBookingRaw ? transformBooking(createdBookingRaw) : null;
+    if (createdBooking) {
+      addBooking(createdBooking);
+    }
+
     setCreateModalOpen(false);
     if (window.showToast) {
-      window.showToast('Booking created successfully', 'success');
+      window.showToast(response?.message || 'Booking created successfully', 'success');
     }
   };
 
