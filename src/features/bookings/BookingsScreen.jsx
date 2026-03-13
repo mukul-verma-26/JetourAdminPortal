@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useBookings } from './useBookings';
-import { useVehicles } from '../vehicles/useVehicles';
-import { usePackagesContext } from '../settings/PackagesContext';
+import { useBookingFormDependencies } from './hooks/useBookingFormDependencies';
 import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
 import ViewBookingModal from './ViewBookingModal';
@@ -29,8 +28,12 @@ const STATUS_CLASS_MAP = {
 
 function BookingsScreen() {
   const { bookings, isLoading, error, pagination, searchBookings, addBooking, updateBooking, deleteBooking } = useBookings();
-  const { vehicleOptions } = useVehicles();
-  const { packages } = usePackagesContext();
+  const {
+    vehicleOptions,
+    packages,
+    isLoadingFormDependencies,
+    loadFormDependencies,
+  } = useBookingFormDependencies();
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [from_date, setFromDate] = useState('');
@@ -63,6 +66,13 @@ function BookingsScreen() {
   const handleDeleteConfirm = (id) => {
     deleteBooking(id);
     setDeleteConfirmBooking(null);
+  };
+
+  const handleOpenCreate = async () => {
+    const loaded = await loadFormDependencies();
+    if (loaded) {
+      setCreateModalOpen(true);
+    }
   };
 
   const openEdit = (booking) => setEditBooking(booking);
@@ -119,10 +129,11 @@ function BookingsScreen() {
           <button
             type="button"
             className={styles.createBtn}
-            onClick={() => setCreateModalOpen(true)}
+            onClick={handleOpenCreate}
+            disabled={isLoadingFormDependencies}
           >
             <FiPlus size={18} aria-hidden />
-            Create Booking
+            {isLoadingFormDependencies ? 'Loading...' : 'Create Booking'}
           </button>
         </div>
       </div>

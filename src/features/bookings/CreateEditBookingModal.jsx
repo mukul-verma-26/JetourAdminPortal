@@ -21,10 +21,11 @@ function getPackagePrice(pkg, vehicleModel) {
   const prices = pkg.pricingMatrix[0].prices;
   return prices[baseName] ?? Object.values(prices)[0] ?? '';
 }
-import TimePicker from './components/TimePicker';
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
+import AvailableSlotsPicker from './components/AvailableSlotsPicker';
 import { useCalculateAmount } from './hooks/useCalculateAmount';
+import { useAvailableSlots } from './hooks/useAvailableSlots';
 import styles from './CreateEditBookingModal.module.scss';
 
 function CreateEditBookingModal({
@@ -72,6 +73,14 @@ function CreateEditBookingModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = Boolean(initialData?.id);
+  const selectedPackageForSlots = activePackages.find(
+    (pkg) => pkg.id === formData.service_package_id
+  );
+  const { slots, isLoadingSlots, slotsError } = useAvailableSlots({
+    bookingDate: formData.booking_date,
+    packageId: selectedPackageForSlots?.package_id || '',
+    isModalOpen: open,
+  });
 
   useEffect(() => {
     if (initialData) {
@@ -281,7 +290,15 @@ function CreateEditBookingModal({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      if (
+        (name === 'service_package_id' || name === 'booking_date') &&
+        prev.booking_time
+      ) {
+        return { ...prev, [name]: value, booking_time: '' };
+      }
+      return { ...prev, [name]: value };
+    });
     
     if (errors[name]) {
       setErrors((prev) => {
@@ -336,6 +353,14 @@ function CreateEditBookingModal({
       });
     }
   };
+
+  useEffect(() => {
+    if (!formData.booking_time) return;
+    const slotExists = slots.some((slot) => slot.time === formData.booking_time);
+    if (!slotExists) {
+      setFormData((prev) => ({ ...prev, booking_time: '' }));
+    }
+  }, [slots, formData.booking_time]);
 
   const handleDateChange = (e) => {
     setFormData((prev) => ({ ...prev, booking_date: e.target.value }));
@@ -851,17 +876,22 @@ function CreateEditBookingModal({
               />
               {errors.booking_date && <div className={styles.errorMessage}>{errors.booking_date}</div>}
             </div>
+          </div>
 
-            <div className={styles.field}>
+          <div className={styles.fieldRow}>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
               <label htmlFor="booking_time" className={styles.label}>
                 Booking Time <span className={styles.required}>*</span>
               </label>
-              <TimePicker
-                id="booking_time"
-                name="booking_time"
-                value={formData.booking_time}
-                onChange={handleTimeChange}
-                error={errors.booking_time}
+              <AvailableSlotsPicker
+                slots={slots}
+                selectedTime={formData.booking_time}
+                isLoading={isLoadingSlots}
+                error={slotsError}
+                onSelect={(time) =>
+                  handleTimeChange({ target: { name: 'booking_time', value: time } })
+                }
+                isEnabled={Boolean(formData.service_package_id && formData.booking_date)}
               />
               {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
             </div>

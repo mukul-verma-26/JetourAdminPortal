@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { getPackages } from '../../api/packages';
 
 function mapPackageFromApi(item) {
@@ -44,10 +44,6 @@ export function PackagesProvider({ children }) {
       setIsLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    fetchPackages();
-  }, [fetchPackages]);
 
   const value = {
     packages,

@@ -1,0 +1,74 @@
+@use '../../../styles/theme' as theme;
+
+.container {
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  background: theme.$SURFACE;
+  padding: 0.875rem;
+}
+
+.header {
+  margin-bottom: 0.625rem;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.helper {
+  margin: 0;
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #ef4444;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.slotBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 10px;
+  background: theme.$BACKGROUND;
+  color: theme.$TEXT_PRIMARY;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  small {
+    color: theme.$TEXT_TERTIARY;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  &:hover {
+    border-color: theme.$PRIMARY;
+    background: theme.$PRIMARY_LIGHT;
+  }
+}
+
+.slotBtnActive {
+  border-color: theme.$PRIMARY;
+  background: theme.$PRIMARY;
+  color: theme.$SURFACE;
+
+  small {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}

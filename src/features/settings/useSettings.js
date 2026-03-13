@@ -63,10 +63,11 @@ export function useSettings() {
       }
     }
     fetchSettings();
+    fetchPackages();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchPackages]);
 
   const handleOpenAddPackage = useCallback(() => {
     setPackageToEdit(null);
