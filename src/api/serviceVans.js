@@ -19,6 +19,12 @@ async function compressImageIfNeeded(file) {
 
 const MULTIPART_CONFIG = { headers: { 'Content-Type': 'multipart/form-data' } };
 
+function appendNullableId(formData, key, value) {
+  const normalizedValue =
+    value === null || value === undefined ? 'null' : String(value).trim() || 'null';
+  formData.append(key, normalizedValue);
+}
+
 export async function getServiceVans() {
   try {
     const { data } = await apiClient.get('/service-vans');
@@ -53,8 +59,8 @@ export async function createServiceVan(payload) {
     formData.append('mileage', String(Number(payload.mileage) || 0));
     formData.append('last_service_date', String(payload.last_service_date || '').trim());
     formData.append('status', String(payload.status || 'active'));
-    formData.append('technician_id', String(payload.technician_id || '').trim());
-    formData.append('driver_id', String(payload.driver_id || '').trim());
+    appendNullableId(formData, 'technician_id', payload.technician_id);
+    appendNullableId(formData, 'driver_id', payload.driver_id);
     if (payload.image instanceof File) {
       const compressed = await compressImageIfNeeded(payload.image);
       formData.append('image', compressed);
@@ -79,8 +85,8 @@ export async function updateServiceVan(id, payload) {
     formData.append('mileage', String(Number(payload.mileage) || 0));
     formData.append('last_service_date', String(payload.last_service_date || '').trim());
     formData.append('status', String(payload.status || 'active'));
-    formData.append('technician_id', String(payload.technician_id || '').trim());
-    formData.append('driver_id', String(payload.driver_id || '').trim());
+    appendNullableId(formData, 'technician_id', payload.technician_id);
+    appendNullableId(formData, 'driver_id', payload.driver_id);
     if (payload.image instanceof File) {
       const compressed = await compressImageIfNeeded(payload.image);
       formData.append('image', compressed);

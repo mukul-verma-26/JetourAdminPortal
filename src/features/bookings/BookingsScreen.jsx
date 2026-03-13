@@ -8,6 +8,7 @@ import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
 import ViewBookingModal from './ViewBookingModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import ExportBookingsModal from './ExportBookingsModal';
 import DatePicker from './components/DatePicker';
 import styles from './BookingsScreen.module.scss';
 
@@ -41,7 +42,9 @@ function BookingsScreen() {
     isLoading,
     error,
     pagination,
+    isExporting,
     searchBookings,
+    exportBookings,
     addBooking,
     updateBooking,
     deleteBooking,
@@ -67,6 +70,7 @@ function BookingsScreen() {
   const [editBooking, setEditBooking] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
   const [deleteConfirmBooking, setDeleteConfirmBooking] = useState(null);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const handleCreateSubmit = async (payload) => {
     const requestBody = {
@@ -144,6 +148,14 @@ function BookingsScreen() {
     setDeleteConfirmBooking(null);
   };
 
+  const handleExportSubmit = async ({ from_date: exportFromDate, to_date: exportToDate }) => {
+    await exportBookings({
+      from_date: exportFromDate,
+      to_date: exportToDate,
+    });
+    setExportModalOpen(false);
+  };
+
   const handleOpenCreate = async () => {
     const loaded = await loadFormDependencies();
     if (loaded) {
@@ -198,9 +210,14 @@ function BookingsScreen() {
       <div className={styles.header}>
         <h2 className={styles.title}>Bookings</h2>
         <div className={styles.headerActions}>
-          <button type="button" className={styles.exportBtn}>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() => setExportModalOpen(true)}
+            disabled={isExporting}
+          >
             <FiDownload size={18} aria-hidden />
-            Export report
+            {isExporting ? 'Downloading...' : 'Export report'}
           </button>
           <button
             type="button"
@@ -473,6 +490,22 @@ function BookingsScreen() {
         onConfirm={handleDeleteConfirm}
         booking={deleteConfirmBooking}
       />
+
+      {exportModalOpen && (
+        <ExportBookingsModal
+          open={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          onSubmit={handleExportSubmit}
+          isExporting={isExporting}
+        />
+      )}
+
+      {isExporting && (
+        <div className={styles.downloadOverlay}>
+          <div className={styles.downloadLoader} />
+          <p className={styles.downloadText}>File is downloading</p>
+        </div>
+      )}
     </div>
   );
 }

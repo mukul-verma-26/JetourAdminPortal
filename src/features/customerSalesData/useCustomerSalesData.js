@@ -1,6 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { getCustomerSalesData, createCustomerSalesData } from '../../api/customerSalesData';
+import {
+  getCustomerSalesData,
+  createCustomerSalesData,
+  getCustomerSalesDataForExport,
+} from '../../api/customerSalesData';
 import { getVehicles } from '../../api/vehicles';
+import { downloadCustomerSalesDataToExcel } from './exportCustomerSalesDataToExcel';
 
 function getNextSalesDataId(list) {
   const max = list.reduce((acc, item) => {
@@ -77,21 +82,19 @@ function mapSalesDataItem(item, vehicleOptions) {
   };
 }
 
-function splitCountryCodeAndNumber(phoneNumber) {
-  const phone = String(phoneNumber || '').trim();
-  const countryCodeMatch = phone.match(/^\+\d{1,4}/);
-  const countryCode = countryCodeMatch?.[0] || '+';
-  const contactNumber = countryCodeMatch
-    ? phone.replace(countryCode, '').replace(/\D/g, '')
-    : phone.replace(/\D/g, '');
-  return { countryCode, contactNumber };
-}
-
 export function useCustomerSalesData() {
   const [salesDataList, setSalesDataList] = useState([]);
   const [vehicleOptions, setVehicleOptions] = useState([]);
+  const [searchFilters, setSearchFilters] = useState({
+    fromDate: '',
+    toDate: '',
+    contact_number: '',
+    name: '',
+    vin: '',
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -120,12 +123,12 @@ export function useCustomerSalesData() {
     }
   }, []);
 
-  const fetchSalesData = useCallback(async (page = 1, limit = 10) => {
+  const fetchSalesData = useCallback(async (page = 1, limit = 10, filters = searchFilters) => {
     setIsLoading(true);
     setError(null);
     try {
       const [salesResponse, mappedVehicleOptions] = await Promise.all([
-        getCustomerSalesData(page, limit),
+        getCustomerSalesData(page, limit, filters),
         fetchVehicleOptions(),
       ]);
 
@@ -151,16 +154,17 @@ export function useCustomerSalesData() {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchVehicleOptions]);
+  }, [fetchVehicleOptions, searchFilters]);
 
   useEffect(() => {
-    fetchSalesData(pagination.page, pagination.limit);
-  }, [fetchSalesData, pagination.page, pagination.limit]);
+    fetchSalesData(pagination.page, pagination.limit, searchFilters);
+  }, [fetchSalesData, pagination.page, pagination.limit, searchFilters]);
 
   const addSalesData = useCallback(async (data) => {
     try {
       const selectedVehicle = vehicleOptions.find((v) => v.id === data.vehicleId);
-      const { countryCode, contactNumber } = splitCountryCodeAndNumber(data.customerContactNumber);
+      const countryCode = data.countryCode || '+';
+      const contactNumber = data.contactNumber || '';
       const payload = {
         customer: {
           name: data.customerName || '',
@@ -168,6 +172,7 @@ export function useCustomerSalesData() {
           contact_number: contactNumber,
         },
         vehicle: {
+          name: selectedVehicle?.name || '',
           model_id: selectedVehicle?.modelId || data.vehicleId || '',
           registration_number: data.registrationNumber || '',
           vin: data.vin || '',
@@ -273,6 +278,32 @@ export function useCustomerSalesData() {
     []
   );
 
+  const exportCustomerSalesData = useCallback(async (filters = {}) => {
+    setIsExporting(true);
+    try {
+      const vehicles = vehicleOptions.length ? vehicleOptions : await fetchVehicleOptions();
+      const response = await getCustomerSalesDataForExport(filters);
+      const list = Array.isArray(response?.data) ? response.data : [];
+      const mapped = list.map((item) => mapSalesDataItem(item, vehicles));
+      downloadCustomerSalesDataToExcel(mapped);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Customer sales report downloaded', 'success');
+      }
+    } catch (exportError) {
+      console.log(
+        'useCustomerSalesData',
+        'Failed to export customer sales data from /customer-sales-data',
+        exportError
+      );
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to export customer sales report', 'error');
+      }
+      throw exportError;
+    } finally {
+      setIsExporting(false);
+    }
+  }, [fetchVehicleOptions, vehicleOptions]);
+
   return {
     salesDataList,
     vehicleOptions,
@@ -280,13 +311,25 @@ export function useCustomerSalesData() {
     updateSalesData,
     deleteSalesData,
     filteredSalesData,
+    isExporting,
+    exportCustomerSalesData,
     isLoading,
     error,
     pagination,
     goToPage: (page) => {
       setPagination((prev) => ({ ...prev, page }));
     },
-    refetchSalesData: () => fetchSalesData(pagination.page, pagination.limit),
+    applySearchFilters: (filters) => {
+      setPagination((prev) => ({ ...prev, page: 1 }));
+      setSearchFilters({
+        fromDate: filters?.fromDate || '',
+        toDate: filters?.toDate || '',
+        contact_number: filters?.contact_number || '',
+        name: filters?.name || '',
+        vin: filters?.vin || '',
+      });
+    },
+    refetchSalesData: () => fetchSalesData(pagination.page, pagination.limit, searchFilters),
     refetchVehicleOptions: fetchVehicleOptions,
   };
 }

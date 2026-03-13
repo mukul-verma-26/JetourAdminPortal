@@ -5,6 +5,7 @@ import { COLOR_SWATCH_MAP } from './constants';
 import CreateEditSalesDataModal from './CreateEditSalesDataModal';
 import ViewSalesDataModal from './ViewSalesDataModal';
 import ConfirmDeleteSalesDataModal from './ConfirmDeleteSalesDataModal';
+import ExportCustomerSalesDataModal from './ExportCustomerSalesDataModal';
 import DatePicker from './components/DatePicker';
 import styles from './CustomerSalesDataScreen.module.scss';
 
@@ -16,10 +17,13 @@ function CustomerSalesDataScreen() {
     updateSalesData,
     deleteSalesData,
     filteredSalesData,
+    isExporting,
+    exportCustomerSalesData,
     isLoading,
     error,
     pagination,
     goToPage,
+    applySearchFilters,
     refetchVehicleOptions,
   } = useCustomerSalesData();
 
@@ -40,18 +44,27 @@ function CustomerSalesDataScreen() {
   const [editItem, setEditItem] = useState(null);
   const [viewItem, setViewItem] = useState(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const displayedItems = useMemo(() => {
     return filteredSalesData.byFilters(salesDataList, appliedFilters);
   }, [salesDataList, appliedFilters, filteredSalesData]);
 
   const handleSearch = () => {
-    setAppliedFilters({
+    const nextFilters = {
       customerName: filterCustomerName,
       contact: filterContact,
       vin: filterVin,
       dateFrom: filterDateFrom,
       dateTo: filterDateTo,
+    };
+    setAppliedFilters(nextFilters);
+    applySearchFilters({
+      name: nextFilters.customerName,
+      contact_number: nextFilters.contact,
+      vin: nextFilters.vin,
+      fromDate: nextFilters.dateFrom,
+      toDate: nextFilters.dateTo,
     });
   };
 
@@ -67,6 +80,13 @@ function CustomerSalesDataScreen() {
       vin: '',
       dateFrom: '',
       dateTo: '',
+    });
+    applySearchFilters({
+      name: '',
+      contact_number: '',
+      vin: '',
+      fromDate: '',
+      toDate: '',
     });
   };
 
@@ -111,6 +131,11 @@ function CustomerSalesDataScreen() {
     goToPage(pagination.page + 1);
   };
 
+  const handleExportSubmit = async ({ from_date, to_date }) => {
+    await exportCustomerSalesData({ from_date, to_date });
+    setExportModalOpen(false);
+  };
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -121,9 +146,14 @@ function CustomerSalesDataScreen() {
           </p>
         </div>
         <div className={styles.headerActions}>
-          <button type="button" className={styles.exportBtn}>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() => setExportModalOpen(true)}
+            disabled={isExporting}
+          >
             <FiDownload size={18} aria-hidden />
-            Export report
+            {isExporting ? 'Downloading...' : 'Export report'}
           </button>
           <button
             type="button"
@@ -424,6 +454,22 @@ function CustomerSalesDataScreen() {
         onConfirm={handleDeleteConfirm}
         salesData={deleteConfirmItem}
       />
+
+      {exportModalOpen && (
+        <ExportCustomerSalesDataModal
+          open={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          onSubmit={handleExportSubmit}
+          isExporting={isExporting}
+        />
+      )}
+
+      {isExporting && (
+        <div className={styles.downloadOverlay}>
+          <div className={styles.downloadLoader} />
+          <p className={styles.downloadText}>File is downloading</p>
+        </div>
+      )}
     </div>
   );
 }

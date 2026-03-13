@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   getCustomers,
+  getCustomersForExport,
   getCustomerById,
   createCustomer as createCustomerApi,
   updateCustomer as updateCustomerApi,
@@ -8,6 +9,7 @@ import {
 } from '../../api/customers';
 import { mapCustomerFromApi } from './helpers';
 import { reverseGeocodeLatLng } from './locationService';
+import { downloadCustomersToExcel } from './exportCustomersToExcel';
 
 function sortByJoiningDate(customers) {
   return [...customers].sort(
@@ -23,6 +25,7 @@ export function useCustomers() {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
     name: '',
     contact_number: '',
@@ -217,6 +220,27 @@ export function useCustomers() {
     }
   }, []);
 
+  const exportCustomers = useCallback(async (filters = {}) => {
+    setIsExporting(true);
+    try {
+      const response = await getCustomersForExport(filters);
+      const list = response?.data || response || [];
+      const mapped = Array.isArray(list) ? list.map(mapCustomerFromApi).filter(Boolean) : [];
+      downloadCustomersToExcel(mapped);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Customers report downloaded', 'success');
+      }
+    } catch (error) {
+      console.log('exportCustomers', 'Failed to export customers', error);
+      if (typeof window?.showToast === 'function') {
+        window.showToast('Failed to export customers report', 'error');
+      }
+      throw error;
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
+
   return {
     customers,
     addCustomer,
@@ -240,5 +264,7 @@ export function useCustomers() {
     isCreating,
     isUpdating,
     isDeleting,
+    isExporting,
+    exportCustomers,
   };
 }

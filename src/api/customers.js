@@ -1,8 +1,15 @@
 import { apiClient } from './client.js';
 
-export async function getCustomers(filters = {}) {
-  const params = {};
+function toApiDate(dateValue) {
+  if (!dateValue) return '';
+  const parts = String(dateValue).split('-');
+  if (parts.length !== 3) return dateValue;
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+}
 
+function buildCustomerParams(filters = {}) {
+  const params = {};
   if (filters?.name && String(filters.name).trim()) {
     params.name = String(filters.name).trim();
   }
@@ -12,6 +19,17 @@ export async function getCustomers(filters = {}) {
   if (filters?.email && String(filters.email).trim()) {
     params.email = String(filters.email).trim();
   }
+  if (filters?.from_date && String(filters.from_date).trim()) {
+    params.from_date = toApiDate(String(filters.from_date).trim());
+  }
+  if (filters?.to_date && String(filters.to_date).trim()) {
+    params.to_date = toApiDate(String(filters.to_date).trim());
+  }
+  return params;
+}
+
+export async function getCustomers(filters = {}) {
+  const params = buildCustomerParams(filters);
   if (Number.isFinite(Number(filters?.page)) && Number(filters.page) > 0) {
     params.page = Number(filters.page);
   }
@@ -27,6 +45,19 @@ export async function getCustomers(filters = {}) {
     console.log('getCustomers', `GET /customers${query ? `?${query}` : ''}`, 'Error:', error);
     console.log('getCustomers', 'Error response:', error?.response?.data);
     console.log('getCustomers', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
+export async function getCustomersForExport(filters = {}) {
+  const params = buildCustomerParams(filters);
+  try {
+    const { data } = await apiClient.get('/customers', { params });
+    return data;
+  } catch (error) {
+    const query = new URLSearchParams(params).toString();
+    console.log('getCustomersForExport', `GET /customers${query ? `?${query}` : ''}`, 'Error:', error);
+    console.log('getCustomersForExport', 'Error response:', error?.response?.data);
     throw error;
   }
 }

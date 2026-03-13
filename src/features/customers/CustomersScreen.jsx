@@ -4,6 +4,7 @@ import { useCustomers } from './useCustomers';
 import CreateEditCustomerModal from './CreateEditCustomerModal';
 import ViewCustomerModal from './ViewCustomerModal';
 import ConfirmDeleteCustomerModal from './ConfirmDeleteCustomerModal';
+import ExportCustomersModal from './ExportCustomersModal';
 import styles from './CustomersScreen.module.scss';
 
 function getInitials(name) {
@@ -52,6 +53,8 @@ function CustomersScreen() {
     isCreating,
     isUpdating,
     isDeleting,
+    isExporting,
+    exportCustomers,
   } = useCustomers();
   const [filterName, setFilterName] = useState('');
   const [filterEmail, setFilterEmail] = useState('');
@@ -62,6 +65,7 @@ function CustomersScreen() {
   const [viewCustomer, setViewCustomer] = useState(null);
   const [deleteConfirmCustomer, setDeleteConfirmCustomer] = useState(null);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const displayedCustomers = useMemo(() => customers, [customers]);
   const hasActiveFilters = Boolean(
@@ -173,6 +177,11 @@ function CustomersScreen() {
     goToPage(pagination.page + 1);
   };
 
+  const handleExportSubmit = async ({ from_date, to_date }) => {
+    await exportCustomers({ from_date, to_date });
+    setExportModalOpen(false);
+  };
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -183,9 +192,14 @@ function CustomersScreen() {
           </p>
         </div>
         <div className={styles.headerActions}>
-          <button type="button" className={styles.exportBtn}>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() => setExportModalOpen(true)}
+            disabled={isExporting}
+          >
             <FiDownload size={18} aria-hidden />
-            Export report
+            {isExporting ? 'Downloading...' : 'Export report'}
           </button>
           <button
             type="button"
@@ -403,6 +417,22 @@ function CustomersScreen() {
         customer={deleteConfirmCustomer}
         isDeleting={isDeleting}
       />
+
+      {exportModalOpen && (
+        <ExportCustomersModal
+          open={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          onSubmit={handleExportSubmit}
+          isExporting={isExporting}
+        />
+      )}
+
+      {isExporting && (
+        <div className={styles.downloadOverlay}>
+          <div className={styles.downloadLoader} />
+          <p className={styles.downloadText}>File is downloading</p>
+        </div>
+      )}
     </div>
   );
 }

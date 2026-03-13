@@ -40,10 +40,10 @@ export async function createPackage(payload) {
 
 export async function updatePackage(id, payload) {
   try {
-    const { data } = await apiClient.put(`/packages/${id}`, payload);
+    const { data } = await apiClient.patch(`/packages/${id}`, payload);
     return data;
   } catch (error) {
-    console.log('updatePackage', `PUT /packages/${id}`, 'Error:', error);
+    console.log('updatePackage', `PATCH /packages/${id}`, 'Error:', error);
     console.log('updatePackage', 'Error response:', error?.response?.data);
     console.log('updatePackage', 'Error message:', error?.message);
     throw error;

@@ -174,7 +174,7 @@ function CreateEditServiceVanModal({
                 className={styles.select}
                 {...register('technician_id')}
               >
-                <option value="">Select technician</option>
+                <option value="">None</option>
                 {technicians.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -191,7 +191,7 @@ function CreateEditServiceVanModal({
                 className={styles.select}
                 {...register('driver_id')}
               >
-                <option value="">Select driver</option>
+                <option value="">None</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.name}

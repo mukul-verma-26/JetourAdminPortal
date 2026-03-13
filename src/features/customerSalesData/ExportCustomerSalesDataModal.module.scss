@@ -1,0 +1,86 @@
+@use '../../styles/theme' as theme;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: theme.$SURFACE;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 1.25rem;
+}
+
+.title {
+  margin: 0;
+  color: theme.$TEXT_PRIMARY;
+  font-size: 1.125rem;
+}
+
+.subtitle {
+  margin: 0.5rem 0 1rem;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.875rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: theme.$TEXT_SECONDARY;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.cancelBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.exportBtn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancelBtn:disabled,
+.exportBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

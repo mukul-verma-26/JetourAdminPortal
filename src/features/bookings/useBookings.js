@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
-import { getAllBookings } from '../../api/bookings';
+import { getAllBookings, getBookingsForExport } from '../../api/bookings';
 import { transformBookings } from './helpers/transformBooking';
+import { downloadBookingsToExcel } from './helpers/exportBookingsToExcel';
 
 export function useBookings() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -60,12 +62,34 @@ export function useBookings() {
     setBookings((prev) => prev.filter((b) => b.id !== id));
   }, []);
 
+  const exportBookings = useCallback(async (filters = {}) => {
+    setIsExporting(true);
+    try {
+      const response = await getBookingsForExport(filters);
+      const transformed = transformBookings(response?.bookings || []);
+      downloadBookingsToExcel(transformed);
+      if (window.showToast) {
+        window.showToast('Bookings report downloaded', 'success');
+      }
+    } catch (err) {
+      console.log('useBookings', 'exportBookings failed', err);
+      if (window.showToast) {
+        window.showToast('Failed to export bookings report', 'error');
+      }
+      throw err;
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
+
   return {
     bookings,
     isLoading,
     error,
     pagination,
+    isExporting,
     searchBookings: fetchBookings,
+    exportBookings,
     addBooking,
     updateBooking,
     deleteBooking,

@@ -214,6 +214,8 @@ function CreateEditSalesDataModal({
 
     const payload = {
       customerName: formData.customerName.trim(),
+      countryCode: `+${formData.countryCode.trim()}`,
+      contactNumber: formData.customerContactNumber.trim(),
       customerContactNumber: formData.customerContactNumber.trim()
         ? `+${formData.countryCode}${formData.customerContactNumber.trim()}`
         : '',
