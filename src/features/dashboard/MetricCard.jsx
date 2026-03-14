@@ -16,7 +16,7 @@ const ICON_CLASS_MAP = {
   money: styles.iconWrapDollar,
 };
 
-function MetricCard({ value, label, iconName }) {
+function MetricCard({ value, label, iconName, tag }) {
   const Icon = iconName ? ICON_MAP[iconName] || FiCalendar : null;
   const iconWrapClass = iconName
     ? ICON_CLASS_MAP[iconName] || styles.iconWrapCalendar
@@ -32,7 +32,10 @@ function MetricCard({ value, label, iconName }) {
         </div>
       ) : null}
       <p className={styles.value}>{value}</p>
-      <p className={styles.label}>{label}</p>
+      <p className={styles.label}>
+        <span>{label}</span>
+        {tag ? <span className={`${styles.badge} _badge_lfh32_28`}>{tag}</span> : null}
+      </p>
     </article>
   );
 }

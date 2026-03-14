@@ -41,25 +41,29 @@ export function useDashboard() {
       {
         id: 'bookings',
         value: String(tb.total_count ?? 0),
-        label: "Today's Bookings",
+        label: 'Bookings',
+        tag: 'Today',
         iconName: 'calendar',
       },
       {
         id: 'completed',
         value: String(tb.completed ?? 0),
         label: 'Completed',
+        tag: 'Today',
         iconName: 'check',
       },
       {
         id: 'in-progress',
         value: String(tb.in_progress ?? 0),
         label: 'In Progress',
+        tag: 'Today',
         iconName: 'clock',
       },
       {
         id: 'revenue',
         value: String(data.revenue ?? 0),
         label: 'Revenue (KWD)',
+        tag: 'Lifetime',
         iconName: 'money',
       },
     ];
