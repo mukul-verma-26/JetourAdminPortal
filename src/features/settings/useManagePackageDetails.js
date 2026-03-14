@@ -3,6 +3,14 @@ import { getPackageById } from '../../api/packages';
 import { getVehicles } from '../../api/vehicles';
 import { transformToTableFormat } from './helpers/managePackageHelpers';
 
+function matchesPackageIdentifier(pkg, selectedId) {
+  if (!pkg || !selectedId) return false;
+  const selected = String(selectedId);
+  return [pkg._id, pkg.id, pkg.package_id]
+    .filter(Boolean)
+    .some((value) => String(value) === selected);
+}
+
 export function useManagePackageDetails(packageId, open) {
   const [packageDetails, setPackageDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +31,7 @@ export function useManagePackageDetails(packageId, open) {
 
       let pkgData = packageRes?.data || packageRes;
       if (Array.isArray(pkgData)) {
-        pkgData = pkgData.find((p) => (p._id || p.id || p.package_id) === packageId) || pkgData[0];
+        pkgData = pkgData.find((p) => matchesPackageIdentifier(p, packageId)) || pkgData[0];
       }
 
       if (pkgData) {

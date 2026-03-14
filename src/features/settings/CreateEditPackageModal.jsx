@@ -13,6 +13,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
     details: [],
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = Boolean(initialData?.id);
 
@@ -30,6 +31,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
       setFormData({ name: '', status: 'active', worktime: '', details: [] });
     }
     setErrors({});
+    setIsSubmitting(false);
   }, [initialData, open]);
 
   const handleChange = (e) => {
@@ -63,6 +65,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!validateForm()) return;
     const details = formData.details
       .filter((d) => d.checked && (d.label || '').trim())
@@ -75,6 +78,7 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
       details,
     };
     try {
+      setIsSubmitting(true);
       if (isEdit) {
         await onSubmit(initialData.id, payload);
       } else {
@@ -82,6 +86,8 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
       }
     } catch {
       // Error handled in parent; keep modal open
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,7 +106,13 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 id="package-modal-title" className={styles.title}>{title}</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+            disabled={isSubmitting}
+          >
             <FiX size={20} />
           </button>
         </div>
@@ -165,11 +177,11 @@ function CreateEditPackageModal({ open, onClose, initialData, onSubmit }) {
             {errors.details && <div className={styles.errorMessage}>{errors.details}</div>}
           </div>
           <div className={styles.actions}>
-            <button type="button" className={styles.cancelBtn} onClick={onClose}>
+            <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>
               Cancel
             </button>
-            <button type="submit" className={styles.submitBtn}>
-              {isEdit ? 'Update' : 'Add'}
+            <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
             </button>
           </div>
         </form>

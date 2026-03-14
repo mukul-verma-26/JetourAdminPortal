@@ -54,6 +54,11 @@
     background: theme.$PRIMARY_LIGHT;
     color: theme.$PRIMARY;
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .form {
@@ -166,6 +171,11 @@
   &:hover {
     background: theme.$BORDER;
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .submitBtn {
@@ -182,5 +192,11 @@
 
   &:hover {
     background: theme.$PRIMARY_DARK;
+  }
+
+  &:disabled {
+    background: theme.$BORDER;
+    color: theme.$TEXT_SECONDARY;
+    cursor: not-allowed;
   }
 }

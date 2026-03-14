@@ -15,11 +15,13 @@ function mapPackageFromApi(item) {
   return {
     id,
     _id: item._id,
+    package_id: item.package_id,
     name: item.name || '',
     description: item.description || 'Customize features and pricing',
     status: item.status || 'active',
     details,
-    pricingMatrix: item.pricingMatrix || [],
+    pricing: item.pricing || item.pricingMatrix || [],
+    pricingMatrix: item.pricingMatrix || item.pricing || [],
     worktime: item.worktime ?? item.work_time_minutes ?? item.workTimeMinutes ?? '',
   };
 }
@@ -165,11 +167,19 @@ export function useSettings() {
       const apiId = pkg?._id || pkg?.id || id;
       const apiPayload = payload?.pricing != null ? { pricing: payload.pricing } : payload;
       try {
-        await updatePackageApi(apiId, apiPayload);
+        const updated = await updatePackageApi(apiId, apiPayload);
+        const updatedPkg = updated?.data || updated?.package || updated;
+        const mapped = updatedPkg ? mapPackageFromApi(updatedPkg) : null;
         setPackages((prev) =>
           prev.map((p) =>
             p.id === id || p.package_id === id || p._id === id
-              ? { ...p, pricing: payload?.pricing ?? p.pricing }
+              ? (
+                mapped || {
+                  ...p,
+                  pricing: payload?.pricing ?? p.pricing,
+                  pricingMatrix: payload?.pricing ?? p.pricingMatrix,
+                }
+              )
               : p
           )
         );

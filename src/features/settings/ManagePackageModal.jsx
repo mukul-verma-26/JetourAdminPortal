@@ -19,6 +19,7 @@ function createEmptyRowForVehicles(vehicleColumns) {
 function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
   const [rows, setRows] = useState([]);
   const [vehicleColumns, setVehicleColumns] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const packageId = pkg?.package_id || pkg?._id || pkg?.id;
   const { packageDetails, isLoading } = useManagePackageDetails(packageId, open && !!pkg);
 
@@ -52,6 +53,11 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
     }
   }, [open, packageDetails, isLoading, pkg]);
 
+  useEffect(() => {
+    if (open) return;
+    setIsSubmitting(false);
+  }, [open]);
+
   const handleAddRow = (newRow) => {
     const effectiveCols =
       vehicleColumns.length > 0
@@ -62,15 +68,19 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     const effectiveColumns =
       vehicleColumns.length > 0
         ? vehicleColumns
         : VEHICLE_MODELS.map((v) => ({ id: v.id, name: v.name }));
     const payload = buildPricingPayload(rows, effectiveColumns);
     try {
+      setIsSubmitting(true);
       await onSubmit(packageId || pkg?.id, payload);
     } catch {
       // Error handled in parent; keep modal open
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -89,7 +99,13 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
           <h2 id="manage-package-title" className={styles.title}>
             Manage Package — {pkg.name}
           </h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+            disabled={isSubmitting}
+          >
             <FiX size={20} />
           </button>
         </div>
@@ -106,11 +122,11 @@ function ManagePackageModal({ open, onClose, package: pkg, onSubmit }) {
           )}
           <div className={styles.actions}>
             <div className={styles.rightActions}>
-              <button type="button" className={styles.cancelBtn} onClick={onClose}>
+              <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>
                 Cancel
               </button>
-              <button type="submit" className={styles.submitBtn}>
-                Update
+              <button type="submit" className={styles.submitBtn} disabled={isLoading || isSubmitting}>
+                {isSubmitting ? 'Updating...' : 'Update'}
               </button>
             </div>
           </div>
