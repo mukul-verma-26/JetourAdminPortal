@@ -37,16 +37,31 @@ export function useServiceVanForm(initialData, open) {
     []
   );
 
+  const mergeUniqueById = useCallback((primaryList, secondaryList) => {
+    const seen = new Set();
+    const merged = [...primaryList, ...secondaryList].filter((item) => {
+      const id = String(item?.id || '').trim();
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+    return merged;
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-    if (isEdit) {
-      const techDetails = initialData?.technicianDetails || initialData?.technician_details;
-      const driverDetails = initialData?.driverDetails || initialData?.driver_details;
-      setTechnicians(techDetails ? [mapTechnician(techDetails)] : []);
-      setDrivers(driverDetails ? [mapDriver(driverDetails)] : []);
-      return;
-    }
     let cancelled = false;
+    const techDetails = initialData?.technicianDetails || initialData?.technician_details;
+    const driverDetails = initialData?.driverDetails || initialData?.driver_details;
+    const selectedTechnician = techDetails ? mapTechnician(techDetails) : null;
+    const selectedDriver = driverDetails ? mapDriver(driverDetails) : null;
+
+    // Ensure currently assigned users remain visible while options load.
+    if (selectedTechnician) setTechnicians([selectedTechnician]);
+    else setTechnicians([]);
+    if (selectedDriver) setDrivers([selectedDriver]);
+    else setDrivers([]);
+
     async function fetchOptions() {
       try {
         const [techRes, driverRes] = await Promise.all([
@@ -56,17 +71,21 @@ export function useServiceVanForm(initialData, open) {
         if (cancelled) return;
         const techList = techRes?.data || techRes || [];
         const driverList = driverRes?.data || driverRes || [];
-        setTechnicians(Array.isArray(techList) ? techList.map(mapTechnician) : []);
-        setDrivers(Array.isArray(driverList) ? driverList.map(mapDriver) : []);
+        const mappedTechs = Array.isArray(techList) ? techList.map(mapTechnician) : [];
+        const mappedDrivers = Array.isArray(driverList) ? driverList.map(mapDriver) : [];
+        setTechnicians(
+          mergeUniqueById(selectedTechnician ? [selectedTechnician] : [], mappedTechs)
+        );
+        setDrivers(mergeUniqueById(selectedDriver ? [selectedDriver] : [], mappedDrivers));
       } catch (error) {
         if (!cancelled) {
-          console.log('useServiceVanForm', 'Failed to fetch technicians/drivers', error);
+          console.log('useServiceVanForm', 'GET /technicians + GET /drivers', error);
         }
       }
     }
     fetchOptions();
     return () => { cancelled = true; };
-  }, [open, isEdit, initialData, mapTechnician, mapDriver]);
+  }, [open, initialData, mapTechnician, mapDriver, mergeUniqueById]);
 
   const selectedTechnicianId = useMemo(
     () =>
