@@ -52,6 +52,9 @@ function BookingsScreen() {
   const {
     vehicleOptions,
     packages,
+    drivers,
+    technicians,
+    serviceVans,
     isLoadingFormDependencies,
     loadFormDependencies,
   } = useBookingFormDependencies();
@@ -163,7 +166,10 @@ function BookingsScreen() {
     }
   };
 
-  const openEdit = (booking) => setEditBooking(booking);
+  const openEdit = async (booking) => {
+    const loaded = await loadFormDependencies();
+    if (loaded) setEditBooking(booking);
+  };
   const openView = (booking) => setViewBooking(booking);
   const openDeleteConfirm = (booking) => setDeleteConfirmBooking(booking);
 
@@ -467,6 +473,9 @@ function BookingsScreen() {
         onSubmit={handleCreateSubmit}
         servicePackages={packages}
         vehicleOptions={vehicleOptions}
+        drivers={drivers}
+        technicians={technicians}
+        serviceVans={serviceVans}
       />
 
       <CreateEditBookingModal
@@ -476,6 +485,9 @@ function BookingsScreen() {
         onSubmit={handleEditSubmit}
         servicePackages={packages}
         vehicleOptions={vehicleOptions}
+        drivers={drivers}
+        technicians={technicians}
+        serviceVans={serviceVans}
       />
 
       <ViewBookingModal

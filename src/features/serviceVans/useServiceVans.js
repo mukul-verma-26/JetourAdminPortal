@@ -169,7 +169,7 @@ export function useServiceVans() {
   const stats = useMemo(() => {
     const total = serviceVans.length;
     const active = serviceVans.filter((v) => v.status === 'active').length;
-    const inMaintenance = serviceVans.filter((v) => v.status === 'maintenance').length;
+    const inMaintenance = serviceVans.filter((v) => v.status === 'under_maintenance').length;
     return { total, active, inMaintenance };
   }, [serviceVans]);
 

@@ -35,23 +35,5 @@ export const VEHICLE_TIER = {
   'JETOUR G700': 'T2',
 };
 
-export const TECHNICIANS = [
-  { id: 't12', name: 'Javed Khan' },
-  { id: 't23', name: 'Umar Khalid' },
-  { id: 't32', name: 'Zakir Khan' },
-  { id: 't35', name: 'Abdul Zakir' },
-];
-
-export const DRIVERS = [
-  { id: 'DRI-123', name: 'Hamza Ali' },
-  { id: 'DRI-1', name: 'Ali Hassan' },
-  { id: 'DRI-2', name: 'Fahad Khan' },
-];
-
-export const SERVICE_VANS = [
-  { id: 'SV-1', name: 'Van 1' },
-  { id: 'SV-2', name: 'Van 2' },
-  { id: 'SV-3', name: 'Van 3' },
-];
 
 export const BOOKING_AMOUNT = 125;

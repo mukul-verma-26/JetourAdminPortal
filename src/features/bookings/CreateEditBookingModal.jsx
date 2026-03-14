@@ -5,9 +5,6 @@ import {
   GENDER_OPTIONS,
   PAYMENT_METHOD_OPTIONS,
   PAYMENT_STATUS_OPTIONS,
-  TECHNICIANS,
-  DRIVERS,
-  SERVICE_VANS,
 } from './constants';
 
 function getVehicleBaseName(vehicleModel) {
@@ -64,6 +61,9 @@ function CreateEditBookingModal({
   onSubmit,
   servicePackages = [],
   vehicleOptions = [],
+  drivers = [],
+  technicians = [],
+  serviceVans = [],
 }) {
   const activePackages = servicePackages.filter((p) => p.status === 'active');
   const { calculateAmount, isCalculatingAmount, serviceFee } = useCalculateAmount(open);
@@ -82,6 +82,7 @@ function CreateEditBookingModal({
     flat_no: '',
     paci_details: '',
     google_location: '',
+    vehicle_id: '',
     vehicle_model: '',
     vehicle_registration: '',
     vehicle_year: '',
@@ -118,6 +119,9 @@ function CreateEditBookingModal({
         initialData.phone,
         initialData.country_code
       );
+      const matchedVehicle = initialData.vehicle_id
+        ? vehicleOptions.find((v) => v.id === initialData.vehicle_id)
+        : null;
       setFormData({
         name: initialData.name || '',
         email: initialData.email || '',
@@ -133,7 +137,8 @@ function CreateEditBookingModal({
         flat_no: initialData.flat_no || '',
         paci_details: initialData.paci_details || '',
         google_location: initialData.google_location || '',
-        vehicle_model: initialData.vehicle_model || '',
+        vehicle_id: matchedVehicle?.id || initialData.vehicle_id || '',
+        vehicle_model: matchedVehicle?.name || initialData.vehicle_model || '',
         vehicle_registration: initialData.vehicle_registration || '',
         vehicle_year: initialData.vehicle_year || '',
         mileage: initialData.mileage || '',
@@ -165,6 +170,7 @@ function CreateEditBookingModal({
         flat_no: '',
         paci_details: '',
         google_location: '',
+        vehicle_id: '',
         vehicle_model: '',
         vehicle_registration: '',
         vehicle_year: '',
@@ -183,7 +189,48 @@ function CreateEditBookingModal({
       });
     }
     setErrors({});
-  }, [initialData, open]);
+  }, [initialData, open, vehicleOptions]);
+
+  useEffect(() => {
+    if (!isEdit || !initialData?.lat || !initialData?.lng) return;
+
+    let cancelled = false;
+    let retryTimer;
+
+    const attemptReverseGeocode = () => {
+      if (cancelled) return;
+      if (!window.google?.maps?.Geocoder) {
+        retryTimer = setTimeout(attemptReverseGeocode, 500);
+        return;
+      }
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode(
+        { location: { lat: Number(initialData.lat), lng: Number(initialData.lng) } },
+        (results, status) => {
+          if (cancelled) return;
+          if (status === 'OK' && results?.[0]) {
+            setFormData((prev) => ({
+              ...prev,
+              google_location: results[0].formatted_address,
+              locationData: {
+                formatted_address: results[0].formatted_address,
+                lat: Number(initialData.lat),
+                lng: Number(initialData.lng),
+                address_components: results[0].address_components || [],
+              },
+            }));
+          }
+        }
+      );
+    };
+
+    attemptReverseGeocode();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
+    };
+  }, [isEdit, initialData]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -329,7 +376,7 @@ function CreateEditBookingModal({
   };
 
   const handleCalculateAmount = async () => {
-    const selectedVehicle = vehicleOptions.find((vehicle) => vehicle.name === formData.vehicle_model);
+    const selectedVehicle = vehicleOptions.find((vehicle) => vehicle.id === formData.vehicle_id);
     const mileageValue = Number(formData.mileage.replace(/,/g, ''));
 
     if (!formData.service_package_id || !selectedVehicle?.id || Number.isNaN(mileageValue)) {
@@ -370,6 +417,23 @@ function CreateEditBookingModal({
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleVehicleChange = (e) => {
+    const selectedId = e.target.value;
+    const vehicle = vehicleOptions.find((v) => v.id === selectedId);
+    setFormData((prev) => ({
+      ...prev,
+      vehicle_id: selectedId,
+      vehicle_model: vehicle?.name || '',
+    }));
+    if (errors.vehicle_model) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.vehicle_model;
         return newErrors;
       });
     }
@@ -492,13 +556,13 @@ function CreateEditBookingModal({
     const selectedServicePackage = activePackages.find(
       (sp) => sp.id === formData.service_package_id
     );
-    const selectedTechnician = TECHNICIANS.find(
+    const selectedTechnician = technicians.find(
       (t) => t.id === formData.technician_id
     );
-    const selectedDriver = DRIVERS.find(
+    const selectedDriver = drivers.find(
       (d) => d.id === formData.driver_id
     );
-    const selectedServiceVan = SERVICE_VANS.find(
+    const selectedServiceVan = serviceVans.find(
       (sv) => sv.id === formData.service_van_id
     );
 
@@ -551,7 +615,7 @@ function CreateEditBookingModal({
         ? { id: selectedDriver.id, name: selectedDriver.name }
         : null,
       service_van: selectedServiceVan
-        ? { id: selectedServiceVan.id, name: selectedServiceVan.name }
+        ? { id: selectedServiceVan.id, registration_number: selectedServiceVan.registration_number }
         : null,
       additional_notes: formData.additional_notes.trim(),
     };
@@ -861,14 +925,14 @@ function CreateEditBookingModal({
               </label>
               <select
                 id="vehicle_model"
-                name="vehicle_model"
+                name="vehicle_id"
                 className={`${styles.select} ${errors.vehicle_model ? styles.inputError : ''}`}
-                value={formData.vehicle_model}
-                onChange={handleChange}
+                value={formData.vehicle_id}
+                onChange={handleVehicleChange}
               >
                 <option value="">Select a vehicle</option>
                 {vehicleOptions.map((v) => (
-                  <option key={v.id} value={v.name}>
+                  <option key={v.id} value={v.id}>
                     {v.name}
                   </option>
                 ))}
@@ -973,7 +1037,7 @@ function CreateEditBookingModal({
                   type="button"
                   className={styles.calculateBtn}
                   onClick={handleCalculateAmount}
-                  disabled={!formData.service_package_id || !formData.vehicle_model || !formData.mileage || isCalculatingAmount}
+                  disabled={!formData.service_package_id || !formData.vehicle_id || !formData.mileage || isCalculatingAmount}
                 >
                   {isCalculatingAmount ? 'Calculating...' : 'Calculate Amount'}
                 </button>
@@ -1076,9 +1140,9 @@ function CreateEditBookingModal({
                     onChange={handleChange}
                   >
                     <option value="">Select a driver</option>
-                    {DRIVERS.map((driver) => (
+                    {drivers.map((driver) => (
                       <option key={driver.id} value={driver.id}>
-                        {driver.name} ({driver.id})
+                        {driver.name}
                       </option>
                     ))}
                   </select>
@@ -1097,9 +1161,9 @@ function CreateEditBookingModal({
                     onChange={handleChange}
                   >
                     <option value="">Select a technician</option>
-                    {TECHNICIANS.map((tech) => (
+                    {technicians.map((tech) => (
                       <option key={tech.id} value={tech.id}>
-                        {tech.name} ({tech.id})
+                        {tech.name}
                       </option>
                     ))}
                   </select>
@@ -1120,9 +1184,9 @@ function CreateEditBookingModal({
                     onChange={handleChange}
                   >
                     <option value="">Select a service van</option>
-                    {SERVICE_VANS.map((van) => (
+                    {serviceVans.map((van) => (
                       <option key={van.id} value={van.id}>
-                        {van.name} ({van.id})
+                        {van.registration_number}
                       </option>
                     ))}
                   </select>

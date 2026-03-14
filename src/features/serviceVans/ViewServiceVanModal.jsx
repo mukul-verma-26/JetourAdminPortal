@@ -22,7 +22,7 @@ function formatMileage(mileage) {
 
 const STATUS_CLASS_MAP = {
   active: 'statusActive',
-  maintenance: 'statusMaintenance',
+  under_maintenance: 'statusMaintenance',
   inactive: 'statusInactive',
 };
 
