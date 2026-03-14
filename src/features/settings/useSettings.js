@@ -232,15 +232,25 @@ export function useSettings() {
   }, []);
 
   const handleServiceFeeChange = useCallback((value) => {
-    setServiceFee(value);
+    const next = String(value ?? '').trim();
+    if (next === '') {
+      setServiceFee('');
+      return;
+    }
+    if (/^\d*\.?\d{0,3}$/.test(next)) {
+      setServiceFee(next);
+    }
   }, []);
 
   const handleExtraDetailsUpdate = useCallback(async () => {
     const bufferNum = parseInt(String(bufferTimeMinutes || '0'), 10);
     const feeNum = parseFloat(String(serviceFee || '0'));
+    const normalizedFee = Number.isNaN(feeNum)
+      ? 0
+      : Math.max(0, Math.round(feeNum * 1000) / 1000);
     const payload = {
       buffer_between_bookings_minutes: Number.isNaN(bufferNum) ? 0 : Math.max(0, bufferNum),
-      service_fee: Number.isNaN(feeNum) ? 0 : Math.max(0, feeNum),
+      service_fee: normalizedFee,
     };
     setIsExtraDetailsUpdating(true);
     try {
