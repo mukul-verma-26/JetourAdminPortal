@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://jetour-1.onrender.com/api/v1';
+const BASE_URL = 'http://jetour-env.eba-mcaq3jtb.me-south-1.elasticbeanstalk.com/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
