@@ -12,6 +12,7 @@ import {
   FiUser,
   FiNavigation,
   FiDollarSign,
+  FiClipboard,
 } from 'react-icons/fi';
 import styles from './Sidebar.module.scss';
 
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { to: '/service-vans', label: 'Service Vans', icon: FiTruck },
   { to: '/vehicles', label: 'Vehicles', icon: FiNavigation },
   { to: '/inventory', label: 'Inventory', icon: FiPackage },
+  { to: '/approve-inventory-parts', label: 'Approve Inventory Parts', icon: FiClipboard },
   { to: '/schedule', label: 'Schedule', icon: FiClock },
   { to: '/settings', label: 'Settings', icon: FiSettings },
 ];

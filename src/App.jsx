@@ -11,6 +11,7 @@ import { VehiclesScreen } from './features/vehicles';
 import { SettingsScreen } from './features/settings';
 import { PackagesProvider } from './features/settings/PackagesContext';
 import { InventoryScreen } from './features/inventory';
+import { ApproveInventoryPartsScreen } from './features/approveInventoryParts';
 import { ScheduleScreen } from './features/schedule';
 import PlaceholderPage from './pages/PlaceholderPage';
 import { ToastContainer } from './components/shared/Toast';
@@ -31,6 +32,7 @@ function App() {
           <Route path="service-vans" element={<ServiceVansScreen />} />
           <Route path="vehicles" element={<VehiclesScreen />} />
           <Route path="inventory" element={<InventoryScreen />} />
+          <Route path="approve-inventory-parts" element={<ApproveInventoryPartsScreen />} />
           <Route path="schedule" element={<ScheduleScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />

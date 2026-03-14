@@ -1,0 +1,282 @@
+@use '../../styles/theme' as theme;
+
+.screen {
+  padding: 0;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+  margin: 0 0 0.35rem 0;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.statCard {
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: theme.$TEXT_SECONDARY;
+}
+
+.pendingText {
+  color: theme.$WARNING;
+}
+
+.approvedText {
+  color: theme.$SUCCESS;
+}
+
+.rejectedText {
+  color: theme.$ERROR;
+}
+
+.card {
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid theme.$BORDER;
+}
+
+.searchWrap {
+  flex: 1;
+  min-width: 220px;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: theme.$TEXT_TERTIARY;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.625rem 0.75rem 0.625rem 2.45rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.statusSelect {
+  min-width: 150px;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  color: theme.$TEXT_PRIMARY;
+
+  &:focus {
+    outline: none;
+    border-color: theme.$PRIMARY;
+  }
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.th {
+  text-align: left;
+  padding: 0.75rem 0.9rem;
+  background: theme.$BACKGROUND;
+  color: theme.$TEXT_PRIMARY;
+  border-bottom: 1px solid theme.$BORDER;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.td {
+  padding: 0.8rem 0.9rem;
+  border-bottom: 1px solid theme.$BORDER;
+  color: theme.$TEXT_PRIMARY;
+  vertical-align: top;
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.tr:hover .td {
+  background: rgba(27, 169, 165, 0.04);
+}
+
+.techName {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+}
+
+.techId {
+  margin: 0;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.82rem;
+}
+
+.partName {
+  color: theme.$TEXT_PRIMARY;
+  font-weight: 500;
+}
+
+.statusBadge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusPending {
+  background: rgba(255, 152, 0, 0.14);
+  color: theme.$WARNING;
+}
+
+.statusApproved {
+  background: rgba(76, 175, 80, 0.14);
+  color: theme.$SUCCESS;
+}
+
+.statusRejected {
+  background: rgba(244, 67, 54, 0.14);
+  color: theme.$ERROR;
+}
+
+.actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.approveBtn,
+.rejectBtn {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+}
+
+.approveBtn {
+  color: theme.$SUCCESS;
+  background: rgba(76, 175, 80, 0.13);
+}
+
+.rejectBtn {
+  color: theme.$ERROR;
+  background: rgba(244, 67, 54, 0.13);
+}
+
+.approveBtn:disabled,
+.rejectBtn:disabled {
+  color: theme.$TEXT_TERTIARY;
+  background: theme.$BACKGROUND;
+  cursor: not-allowed;
+}
+
+.emptyState {
+  text-align: center;
+  color: theme.$TEXT_SECONDARY;
+  padding: 2.5rem 1rem;
+}
+
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .thead {
+    display: none;
+  }
+
+  .table,
+  .tableWrap {
+    display: block;
+  }
+
+  .tr {
+    display: block;
+    border-bottom: 1px solid theme.$BORDER;
+    padding: 0.9rem;
+  }
+
+  .td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: none;
+    padding: 0.45rem 0;
+    gap: 0.75rem;
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: theme.$TEXT_SECONDARY;
+      flex-shrink: 0;
+    }
+  }
+
+  .tr:hover .td {
+    background: transparent;
+  }
+
+}

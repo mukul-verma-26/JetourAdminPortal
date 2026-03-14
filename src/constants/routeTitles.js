@@ -12,6 +12,10 @@ export const ROUTE_TITLES = {
   '/technicians': { title: 'Technicians', subtitle: null },
   '/service-vans': { title: 'Service Vans', subtitle: null },
   '/inventory': { title: 'Inventory', subtitle: null },
+  '/approve-inventory-parts': {
+    title: 'Approve Inventory Parts',
+    subtitle: 'Review and action technician part requests',
+  },
   '/schedule': {
     title: 'Schedule Management',
     subtitle: 'Configure operating hours and time slots',
