@@ -151,6 +151,10 @@ function CreateEditCustomerModal({
       newErrors.email = 'Please enter a valid email address';
     }
 
+    if (!formData.civilId.trim()) {
+      newErrors.civilId = 'Civil ID is required';
+    }
+
     if (!formData.gender) {
       newErrors.gender = 'Gender is required';
     }
@@ -247,7 +251,6 @@ function CreateEditCustomerModal({
       } else {
         await onSubmit(payload);
       }
-      onClose();
     } catch {
       // Error handled in useCustomers
     }
@@ -369,7 +372,7 @@ function CreateEditCustomerModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="customer-civilId" className={styles.label}>
-                Civil ID
+                Civil ID <span className={styles.required}>*</span>
               </label>
               <input
                 id="customer-civilId"
@@ -485,7 +488,7 @@ function CreateEditCustomerModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="customer-governorate" className={styles.label}>
-                Customer Address - Governorate
+                Governorate
               </label>
               <input
                 id="customer-governorate"
@@ -500,7 +503,7 @@ function CreateEditCustomerModal({
 
             <div className={styles.field}>
               <label htmlFor="customer-area" className={styles.label}>
-                Customer Address - Area
+                Area
               </label>
               <input
                 id="customer-area"
@@ -517,7 +520,7 @@ function CreateEditCustomerModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="customer-block" className={styles.label}>
-                Customer Address - Block
+                Block
               </label>
               <input
                 id="customer-block"
@@ -532,7 +535,7 @@ function CreateEditCustomerModal({
 
             <div className={styles.field}>
               <label htmlFor="customer-street" className={styles.label}>
-                Customer Address - Street
+                Street
               </label>
               <input
                 id="customer-street"
@@ -549,7 +552,7 @@ function CreateEditCustomerModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="customer-building_no" className={styles.label}>
-                Customer Address - Building No.
+                Building No.
               </label>
               <input
                 id="customer-building_no"
@@ -564,7 +567,7 @@ function CreateEditCustomerModal({
 
             <div className={styles.field}>
               <label htmlFor="customer-floor_no" className={styles.label}>
-                Customer Address - Floor No.
+                Floor No.
               </label>
               <input
                 id="customer-floor_no"
@@ -581,7 +584,7 @@ function CreateEditCustomerModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="customer-flat_no" className={styles.label}>
-                Customer Address - Flat No.
+                Flat No.
               </label>
               <input
                 id="customer-flat_no"
@@ -596,7 +599,7 @@ function CreateEditCustomerModal({
 
             <div className={styles.field}>
               <label htmlFor="customer-paci_details" className={styles.label}>
-                Customer PACI Details
+                PACI Details
               </label>
               <input
                 id="customer-paci_details"

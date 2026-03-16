@@ -1,41 +1,4 @@
-let googleMapsApiPromise;
-
-function loadGoogleMapsApi() {
-  if (window.google?.maps?.Geocoder) {
-    return Promise.resolve();
-  }
-
-  if (!googleMapsApiPromise) {
-    googleMapsApiPromise = new Promise((resolve, reject) => {
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
-      if (existingScript) {
-        existingScript.addEventListener('load', () => resolve(), { once: true });
-        existingScript.addEventListener(
-          'error',
-          () => reject(new Error('Failed to load Google Maps API script')),
-          { once: true }
-        );
-        return;
-      }
-
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-      if (!apiKey) {
-        reject(new Error('Google Maps API key not found'));
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Google Maps API script'));
-      document.head.appendChild(script);
-    });
-  }
-
-  return googleMapsApiPromise;
-}
+import { loadGoogleMapsPlaces } from '../googleMaps/helpers/loadGoogleMapsPlaces.js';
 
 export async function reverseGeocodeLatLng(lat, lng) {
   const latNum = Number(lat);
@@ -44,7 +7,7 @@ export async function reverseGeocodeLatLng(lat, lng) {
     return '';
   }
 
-  await loadGoogleMapsApi();
+  await loadGoogleMapsPlaces();
   if (!window.google?.maps?.Geocoder) {
     return '';
   }

@@ -14,12 +14,10 @@ export async function getPackages() {
 
 export async function getPackageById(packageId) {
   try {
-    const { data } = await apiClient.get('/packages', {
-      params: { package_id: packageId },
-    });
+    const { data } = await apiClient.get(`/packages/${encodeURIComponent(String(packageId))}`);
     return data;
   } catch (error) {
-    console.log('getPackageById', `GET /packages?package_id=${packageId}`, 'Error:', error);
+    console.log('getPackageById', `GET /packages/${packageId}`, 'Error:', error);
     console.log('getPackageById', 'Error response:', error?.response?.data);
     console.log('getPackageById', 'Error message:', error?.message);
     throw error;

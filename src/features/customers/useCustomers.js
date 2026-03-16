@@ -94,6 +94,9 @@ export function useCustomers() {
     setIsCreating(true);
     try {
       const data = await createCustomerApi(payload);
+      if (data?.success === false) {
+        throw new Error(data?.message || 'Failed to add customer');
+      }
       const created = data?.data || data?.customer || data;
       if (created) {
         await fetchCustomers({
@@ -110,7 +113,7 @@ export function useCustomers() {
       console.log('addCustomer', 'Error response:', error?.response?.data);
       if (typeof window?.showToast === 'function') {
         window.showToast(
-          error?.response?.data?.message || 'Failed to add customer',
+          error?.response?.data?.message || error?.message || 'Failed to add customer',
           'error'
         );
       }
@@ -125,7 +128,10 @@ export function useCustomers() {
     try {
       const customer = customers.find((c) => c.id === id);
       const apiId = customer?._id || id;
-      await updateCustomerApi(apiId, payload);
+      const data = await updateCustomerApi(apiId, payload);
+      if (data?.success === false) {
+        throw new Error(data?.message || 'Failed to update customer');
+      }
       await fetchCustomers({
         filters: activeFilters,
         page: pagination.page,
@@ -139,7 +145,7 @@ export function useCustomers() {
       console.log('updateCustomer', 'Error response:', error?.response?.data);
       if (typeof window?.showToast === 'function') {
         window.showToast(
-          error?.response?.data?.message || 'Failed to update customer',
+          error?.response?.data?.message || error?.message || 'Failed to update customer',
           'error'
         );
       }
