@@ -1,29 +1,35 @@
-import { FiSearch } from 'react-icons/fi';
 import { REQUEST_STATUS_OPTIONS } from '../constants';
 import styles from '../ApproveInventoryPartsScreen.module.scss';
 
 function RequestFilters({
-  searchQuery,
-  onSearchChange,
-  statusFilter,
+  technicianId,
+  onTechnicianIdChange,
+  statusValue,
   onStatusChange,
+  onSearch,
+  onClear,
+  showClear,
 }) {
   return (
-    <div className={styles.filters}>
-      <div className={styles.searchWrap}>
-        <FiSearch className={styles.searchIcon} size={18} aria-hidden />
-        <input
-          type="search"
-          className={styles.searchInput}
-          placeholder="Search by part, request ID, or technician..."
-          value={searchQuery}
-          onChange={(event) => onSearchChange(event.target.value)}
-          aria-label="Search parts approvals"
-        />
-      </div>
+    <form
+      className={styles.filters}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSearch();
+      }}
+    >
+      <input
+        type="text"
+        className={styles.techIdInput}
+        placeholder="Technician ID"
+        value={technicianId}
+        onChange={(event) => onTechnicianIdChange(event.target.value)}
+        aria-label="Technician ID filter"
+        autoComplete="off"
+      />
       <select
         className={styles.statusSelect}
-        value={statusFilter}
+        value={statusValue}
         onChange={(event) => onStatusChange(event.target.value)}
         aria-label="Filter by request status"
       >
@@ -33,7 +39,19 @@ function RequestFilters({
           </option>
         ))}
       </select>
-    </div>
+      <button type="submit" className={styles.filterSearchBtn}>
+        Search
+      </button>
+      {showClear ? (
+        <button
+          type="button"
+          className={styles.filterClearBtn}
+          onClick={onClear}
+        >
+          Clear filters
+        </button>
+      ) : null}
+    </form>
   );
 }
 

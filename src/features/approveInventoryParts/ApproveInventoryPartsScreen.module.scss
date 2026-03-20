@@ -21,46 +21,6 @@
   color: theme.$TEXT_SECONDARY;
 }
 
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.statCard {
-  background: theme.$SURFACE;
-  border: 1px solid theme.$BORDER;
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.statValue {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: theme.$TEXT_PRIMARY;
-}
-
-.statLabel {
-  font-size: 0.875rem;
-  color: theme.$TEXT_SECONDARY;
-}
-
-.pendingText {
-  color: theme.$WARNING;
-}
-
-.approvedText {
-  color: theme.$SUCCESS;
-}
-
-.rejectedText {
-  color: theme.$ERROR;
-}
-
 .card {
   background: theme.$SURFACE;
   border: 1px solid theme.$BORDER;
@@ -68,33 +28,37 @@
   overflow: hidden;
 }
 
+.inlineMessage {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  font-size: 0.9rem;
+  color: theme.$TEXT_SECONDARY;
+  text-align: center;
+}
+
 .filters {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
   padding: 1rem;
   border-bottom: 1px solid theme.$BORDER;
 }
 
-.searchWrap {
-  flex: 1;
-  min-width: 220px;
-  position: relative;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: theme.$TEXT_TERTIARY;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.625rem 0.75rem 0.625rem 2.45rem;
+.techIdInput {
+  min-width: 160px;
+  flex: 1 1 140px;
+  max-width: 280px;
+  padding: 0.625rem 0.75rem;
   border: 1px solid theme.$BORDER;
   border-radius: 8px;
   font-size: 0.9375rem;
+  font-family: inherit;
+  color: theme.$TEXT_PRIMARY;
+
+  &::placeholder {
+    color: theme.$TEXT_TERTIARY;
+  }
 
   &:focus {
     outline: none;
@@ -108,11 +72,47 @@
   border: 1px solid theme.$BORDER;
   border-radius: 8px;
   font-size: 0.9375rem;
+  font-family: inherit;
   color: theme.$TEXT_PRIMARY;
 
   &:focus {
     outline: none;
     border-color: theme.$PRIMARY;
+  }
+}
+
+.filterSearchBtn {
+  padding: 0.625rem 1.125rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: theme.$SURFACE;
+  background: theme.$PRIMARY;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: theme.$PRIMARY_DARK;
+  }
+}
+
+.filterClearBtn {
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border: 1px solid theme.$BORDER;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: theme.$BORDER;
+    color: theme.$TEXT_PRIMARY;
   }
 }
 
@@ -197,7 +197,8 @@
 }
 
 .approveBtn,
-.rejectBtn {
+.rejectBtn,
+.deleteBtn {
   border-radius: 8px;
   border: 1px solid transparent;
   font-size: 0.82rem;
@@ -216,6 +217,18 @@
   background: rgba(244, 67, 54, 0.13);
 }
 
+.deleteBtn {
+  color: theme.$TEXT_SECONDARY;
+  background: theme.$BACKGROUND;
+  border-color: theme.$BORDER;
+
+  &:hover {
+    color: theme.$ERROR;
+    background: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.25);
+  }
+}
+
 .approveBtn:disabled,
 .rejectBtn:disabled {
   color: theme.$TEXT_TERTIARY;
@@ -229,19 +242,60 @@
   padding: 2.5rem 1rem;
 }
 
-@media (max-width: 900px) {
-  .statsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.paginationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid theme.$BORDER;
+}
+
+.paginationInfo {
+  margin: 0;
+  color: theme.$TEXT_SECONDARY;
+  font-size: 0.84rem;
+}
+
+.paginationActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pageBtn {
+  padding: 0.45rem 0.8rem;
+  border-radius: 7px;
+  border: 1px solid theme.$BORDER;
+  background: theme.$BACKGROUND;
+  color: theme.$TEXT_PRIMARY;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(27, 169, 165, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
 }
 
 @media (max-width: 767px) {
   .filters {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .statsGrid {
-    grid-template-columns: 1fr;
+  .techIdInput {
+    max-width: none;
+  }
+
+  .filterSearchBtn,
+  .filterClearBtn {
+    width: 100%;
   }
 
   .thead {
@@ -277,6 +331,11 @@
 
   .tr:hover .td {
     background: transparent;
+  }
+
+  .paginationRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
 }

@@ -2,6 +2,7 @@ import {
   formatDecisionDate,
   formatRequestDate,
 } from '../helpers';
+import RequestRowActions from './RequestRowActions';
 import styles from '../ApproveInventoryPartsScreen.module.scss';
 
 const STATUS_CLASS_MAP = {
@@ -10,11 +11,11 @@ const STATUS_CLASS_MAP = {
   rejected: styles.statusRejected,
 };
 
-function RequestsTable({ requests, onApprove, onReject }) {
+function RequestsTable({ requests, onApprove, onReject, onDelete }) {
   if (requests.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <p>No requests match your current search or status filter.</p>
+        <p>No requests match your filters.</p>
       </div>
     );
   }
@@ -39,9 +40,7 @@ function RequestsTable({ requests, onApprove, onReject }) {
             <tr key={request.id} className={styles.tr}>
               <td className={styles.td} data-label="Technician">
                 <p className={styles.techName}>{request.technician.name}</p>
-                <p className={styles.techId}>
-                  {request.technician.id} - {request.requestId}
-                </p>
+                <p className={styles.techId}>ID: {request.technician.id}</p>
               </td>
               <td className={styles.td} data-label="Part">
                 <span className={styles.partName}>{request.partName}</span>
@@ -64,26 +63,12 @@ function RequestsTable({ requests, onApprove, onReject }) {
                 </span>
               </td>
               <td className={styles.td} data-label="Actions">
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.approveBtn}
-                    onClick={() => onApprove(request.id)}
-                    disabled={request.status !== 'pending'}
-                    aria-label={`Approve ${request.partName}`}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.rejectBtn}
-                    onClick={() => onReject(request.id)}
-                    disabled={request.status !== 'pending'}
-                    aria-label={`Reject ${request.partName}`}
-                  >
-                    Reject
-                  </button>
-                </div>
+                <RequestRowActions
+                  request={request}
+                  onApprove={onApprove}
+                  onReject={onReject}
+                  onDelete={onDelete}
+                />
               </td>
             </tr>
           ))}

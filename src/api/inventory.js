@@ -1,5 +1,124 @@
 import { apiClient } from './client.js';
 
+function inventoryPartActionBody(technicianId) {
+  const id = String(technicianId ?? '').trim();
+  return {
+    technician_id: id,
+    technicianId: id,
+  };
+}
+
+function isMongoObjectId(value) {
+  return /^[a-f\d]{24}$/i.test(String(value ?? '').trim());
+}
+
+export async function approveInventoryPartRequest(requestId, itemId, technicianId) {
+  const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
+  const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
+  const approveUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/approve`;
+  const approveBody = isMongoObjectId(technicianId)
+    ? inventoryPartActionBody(technicianId)
+    : undefined;
+  try {
+    const { data } = await apiClient.patch(
+      approveUrl,
+      approveBody,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return data;
+  } catch (error) {
+    console.log(
+      'approveInventoryPartRequest',
+      `PATCH ${approveUrl}`,
+      error
+    );
+    console.log('approveInventoryPartRequest', 'Error response:', error?.response?.data);
+    console.log('approveInventoryPartRequest', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
+export async function rejectInventoryPartRequest(requestId, itemId, technicianId) {
+  const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
+  const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
+  const rejectUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/reject`;
+  try {
+    const { data } = await apiClient.patch(
+      rejectUrl,
+      inventoryPartActionBody(technicianId),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return data;
+  } catch (error) {
+    console.log(
+      'rejectInventoryPartRequest',
+      `PATCH ${rejectUrl}`,
+      error
+    );
+    console.log('rejectInventoryPartRequest', 'Error response:', error?.response?.data);
+    console.log('rejectInventoryPartRequest', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
+export async function deleteInventoryPartRequest(requestId, itemId, technicianId) {
+  const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
+  const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
+  const deleteUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/request/${requestIdEncoded}/item/${itemIdEncoded}`;
+  try {
+    const { data } = await apiClient.delete(deleteUrl, {
+      headers: { 'Content-Type': 'application/json' },
+      data: { technicianId: String(technicianId ?? '').trim() },
+    });
+    return data;
+  } catch (error) {
+    console.log(
+      'deleteInventoryPartRequest',
+      `DELETE ${deleteUrl}`,
+      error
+    );
+    console.log('deleteInventoryPartRequest', 'Error response:', error?.response?.data);
+    console.log('deleteInventoryPartRequest', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
+export async function getAllInventoryPartRequests(page = 1, limit = 10, filters = {}) {
+  const allRequestsUrl = 'https://jetour-1.onrender.com/api/v1/inventory_item/all-request';
+  const normalizedPage = Number.isFinite(Number(page)) && Number(page) > 0 ? Number(page) : 1;
+  const normalizedLimit =
+    Number.isFinite(Number(limit)) && Number(limit) > 0 ? Number(limit) : 10;
+  const technician = String(filters?.technicianId ?? '').trim();
+  const status = String(filters?.status ?? '').trim();
+  const params = {
+    page: normalizedPage,
+    limit: normalizedLimit,
+  };
+  if (technician) {
+    params.technician = technician;
+  }
+  if (status && status !== 'all') {
+    params.status = status;
+  }
+  try {
+    const { data } = await apiClient.get(allRequestsUrl, {
+      headers: { 'Content-Type': 'application/json' },
+      params,
+    });
+    return data;
+  } catch (error) {
+    const query = new URLSearchParams(params).toString();
+    console.log(
+      'getAllInventoryPartRequests',
+      `GET ${allRequestsUrl}${query ? `?${query}` : ''}`,
+      error
+    );
+    console.log('getAllInventoryPartRequests', 'Error response:', error?.response?.data);
+    console.log('getAllInventoryPartRequests', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
 export async function getInventoryItems() {
   try {
     const { data } = await apiClient.get('/inventory_item');
