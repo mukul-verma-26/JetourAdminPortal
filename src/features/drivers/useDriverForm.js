@@ -60,7 +60,7 @@ export function useDriverForm(initialData, open) {
         name: initialData.name || '',
         country_code,
         contact: phone,
-        password: '',
+        password: initialData.password || '',
         civil_id: initialData.civilId || initialData.civil_id || '',
         nationality: initialData.nationality || '',
         gender: initialData.gender || 'male',

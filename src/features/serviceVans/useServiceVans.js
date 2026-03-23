@@ -15,6 +15,21 @@ function resolveImageUrl(raw) {
   return `data:image/png;base64,${raw}`;
 }
 
+/** HTML date inputs require yyyy-MM-dd; API often sends ISO strings with time. */
+function toDateInputValue(raw) {
+  if (raw == null || raw === '') return '';
+  const str = String(raw).trim();
+  const dayPart = str.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (dayPart) return dayPart[1];
+  const t = Date.parse(str);
+  if (Number.isNaN(t)) return '';
+  const d = new Date(t);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function mapServiceVanFromApi(item) {
   const imageValue = item.image ?? item.vehicle_image;
   const photo = resolveImageUrl(imageValue ? String(imageValue).trim() : '');
@@ -27,7 +42,8 @@ function mapServiceVanFromApi(item) {
     registration_number: item.registration_number || '',
     vehicleModel: item.vehicle_model || '',
     mileage: item.mileage ?? 0,
-    lastService: item.last_service_date || '',
+    lastService: toDateInputValue(item.last_service_date),
+    last_service_date: toDateInputValue(item.last_service_date),
     status: item.status || 'active',
     photo,
     technicianId:

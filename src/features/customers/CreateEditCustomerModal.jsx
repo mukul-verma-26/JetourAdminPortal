@@ -51,22 +51,33 @@ function CreateEditCustomerModal({
 
   useEffect(() => {
     if (initialData) {
-      const fullPhone = (initialData.phone || initialData.contact_number || '').trim();
-      const digitsOnly = fullPhone.replace(/\D/g, '');
+      const apiCountryDigits = String(initialData.country_code || '')
+        .replace(/\D/g, '')
+        .slice(0, 4);
       let countryCode = DEFAULT_COUNTRY_CODE;
-      let phoneDigits = digitsOnly.slice(0, 15);
-      if (fullPhone.startsWith('+')) {
-        const match = fullPhone.match(/^\+(\d{1,4})(\d*)$/);
-        if (match) {
-          countryCode = match[1];
-          phoneDigits = match[2].replace(/\D/g, '').slice(0, 15);
+      let phoneDigits = '';
+
+      if (apiCountryDigits) {
+        countryCode = apiCountryDigits;
+        const localOnly = (initialData.contact_number || initialData.phone || '').trim();
+        phoneDigits = localOnly.replace(/\D/g, '').slice(0, 15);
+      } else {
+        const fullPhone = (initialData.phone || initialData.contact_number || '').trim();
+        const digitsOnly = fullPhone.replace(/\D/g, '');
+        phoneDigits = digitsOnly.slice(0, 15);
+        if (fullPhone.startsWith('+')) {
+          const match = fullPhone.match(/^\+(\d{1,4})(\d*)$/);
+          if (match) {
+            countryCode = match[1];
+            phoneDigits = match[2].replace(/\D/g, '').slice(0, 15);
+          }
+        } else if (digitsOnly.startsWith('965') && digitsOnly.length > 8) {
+          countryCode = '965';
+          phoneDigits = digitsOnly.slice(3).slice(0, 15);
+        } else if (digitsOnly.startsWith('91') && digitsOnly.length > 10) {
+          countryCode = '91';
+          phoneDigits = digitsOnly.slice(2).slice(0, 15);
         }
-      } else if (digitsOnly.startsWith('965') && digitsOnly.length > 8) {
-        countryCode = '965';
-        phoneDigits = digitsOnly.slice(3).slice(0, 15);
-      } else if (digitsOnly.startsWith('91') && digitsOnly.length > 10) {
-        countryCode = '91';
-        phoneDigits = digitsOnly.slice(2).slice(0, 15);
       }
       setFormData({
         name: initialData.name || '',

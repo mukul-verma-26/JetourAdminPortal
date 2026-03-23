@@ -71,6 +71,7 @@ export function mapCustomerFromApi(item) {
     _id: item._id || id,
     customerId: item.id || item.customer_id || item.customerId || id,
     name: item.name || '',
+    country_code: item.country_code || '',
     phone,
     contact_number: phone,
     email: item.email || '',

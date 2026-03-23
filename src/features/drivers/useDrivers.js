@@ -22,6 +22,7 @@ function mapDriverFromApi(item) {
     photo: image,
     rating: item.rating ?? 0,
     status: item.status || 'active',
+    password: item.password || '',
   };
 }
 
