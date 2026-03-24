@@ -3,15 +3,21 @@ import { FiMapPin } from 'react-icons/fi';
 import styles from './GoogleLocationInput.module.scss';
 import { useGoogleMapsPlaces } from '../../googleMaps/hooks/useGoogleMapsPlaces.js';
 
-function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) {
+function GoogleLocationInput({ value, onChange, name, id, error, placeholder, readOnly = false }) {
   const inputRef = useRef(null);
   const searchBoxRef = useRef(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
   const { isLoading: isMapsLoading, isReady: isMapsReady, error: mapsError } = useGoogleMapsPlaces(true);
 
-  const isLocationDisabled = useMemo(() => isMapsLoading || !!mapsError || !isMapsReady, [isMapsLoading, mapsError, isMapsReady]);
+  const isLocationDisabled = useMemo(
+    () => readOnly || isMapsLoading || !!mapsError || !isMapsReady,
+    [readOnly, isMapsLoading, mapsError, isMapsReady]
+  );
 
   useEffect(() => {
-    if (!isMapsReady) return;
+    if (readOnly || !isMapsReady) return;
     if (!inputRef.current || !window.google?.maps?.places) return;
 
     const searchBox = new window.google.maps.places.SearchBox(inputRef.current);
@@ -30,7 +36,7 @@ function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) 
         };
         const displayValue = place.formatted_address || place.name || '';
 
-        onChange({
+        onChangeRef.current({
           target: {
             name,
             value: displayValue,
@@ -53,10 +59,10 @@ function GoogleLocationInput({ value, onChange, name, id, error, placeholder }) 
       }
       searchBoxRef.current = null;
     };
-  }, [isMapsReady, name, onChange]);
+  }, [readOnly, isMapsReady, name]);
 
   const handleInputChange = (e) => {
-    onChange({
+    onChangeRef.current({
       target: {
         name,
         value: e.target.value,

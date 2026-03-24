@@ -40,48 +40,54 @@ function DriverFormFields({
         </div>
         <div className={styles.field}>
           <label htmlFor="contact" className={styles.label}>
-            Contact <span className={styles.required}>*</span>
+            Phone number <span className={styles.required}>*</span>
           </label>
-          <div className={styles.phoneInputRow}>
-            <div className={styles.countryCodeWrapper}>
-              <span className={styles.phonePrefixFixed} aria-hidden="true">+</span>
+          <div className={styles.phoneFieldGroup}>
+            <div className={styles.phoneInputRow}>
+              <div className={styles.countryCodeWrapper}>
+                <span className={styles.phonePrefixFixed} aria-hidden="true">+</span>
+                <input
+                  id="country_code"
+                  type="tel"
+                  inputMode="numeric"
+                  className={`${styles.input} ${styles.countryCodeInput} ${errors.country_code ? styles.inputError : ''}`}
+                  placeholder="965"
+                  maxLength={4}
+                  autoComplete="tel-country-code"
+                  aria-label="Country code"
+                  {...register('country_code', {
+                    ...validationRules.country_code,
+                    onChange: (e) => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      e.target.value = v;
+                    },
+                  })}
+                />
+              </div>
               <input
-                id="country_code"
+                id="contact"
                 type="tel"
                 inputMode="numeric"
-                className={`${styles.input} ${styles.countryCodeInput}`}
-                placeholder="965"
-                maxLength={4}
-                aria-label="Country code"
-                {...register('country_code', {
-                  ...validationRules.country_code,
+                className={`${styles.input} ${styles.phoneInput} ${errors.contact ? styles.inputError : ''}`}
+                placeholder="12345678"
+                maxLength={15}
+                autoComplete="tel-national"
+                {...register('contact', {
+                  ...validationRules.contact,
                   onChange: (e) => {
-                    const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                    const v = e.target.value.replace(/\D/g, '').slice(0, 15);
                     e.target.value = v;
                   },
                 })}
               />
             </div>
-            <input
-              id="contact"
-              type="tel"
-              inputMode="numeric"
-              className={`${styles.input} ${styles.phoneInput} ${errors.contact ? styles.inputError : ''}`}
-              placeholder="12345678"
-              maxLength={15}
-              aria-label="Phone number"
-              {...register('contact', {
-                ...validationRules.contact,
-                onChange: (e) => {
-                  const v = e.target.value.replace(/\D/g, '').slice(0, 15);
-                  e.target.value = v;
-                },
-              })}
-            />
+            {errors.country_code && (
+              <div className={styles.errorMessage}>{errors.country_code.message}</div>
+            )}
+            {errors.contact && (
+              <div className={styles.errorMessage}>{errors.contact.message}</div>
+            )}
           </div>
-          {errors.contact && (
-            <div className={styles.errorMessage}>{errors.contact.message}</div>
-          )}
         </div>
       </div>
       <div className={styles.fieldRow}>

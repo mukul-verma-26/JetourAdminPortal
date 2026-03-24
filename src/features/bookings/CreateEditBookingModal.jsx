@@ -64,6 +64,7 @@ function CreateEditBookingModal({
   drivers = [],
   technicians = [],
   serviceVans = [],
+  readOnly = false,
 }) {
   const activePackages = servicePackages.filter((p) => p.status === 'active');
   const { calculateAmount, isCalculatingAmount, serviceFee } = useCalculateAmount(open);
@@ -110,7 +111,7 @@ function CreateEditBookingModal({
   const { slots, isLoadingSlots, slotsError } = useAvailableSlots({
     bookingDate: formData.booking_date,
     packageId: selectedPackageForSlots?.package_id || '',
-    isModalOpen: open,
+    isModalOpen: open && !readOnly,
   });
 
   useEffect(() => {
@@ -285,9 +286,10 @@ function CreateEditBookingModal({
       newErrors.vehicle_registration = 'Vehicle registration number is required';
     }
 
-    if (!formData.vehicle_year.trim()) {
-      newErrors.vehicle_year = 'Vehicle model year is required';
-    } else if (!/^\d{4}$/.test(formData.vehicle_year.trim())) {
+    if (
+      formData.vehicle_year.trim() &&
+      !/^\d{4}$/.test(formData.vehicle_year.trim())
+    ) {
       newErrors.vehicle_year = 'Enter a valid 4-digit year';
     }
 
@@ -352,8 +354,8 @@ function CreateEditBookingModal({
       formData.google_location.trim() &&
       formData.vehicle_model.trim() &&
       formData.vehicle_registration.trim() &&
-      formData.vehicle_year.trim() &&
-      /^\d{4}$/.test(formData.vehicle_year.trim()) &&
+      (!formData.vehicle_year.trim() ||
+        /^\d{4}$/.test(formData.vehicle_year.trim())) &&
       formData.mileage.trim() &&
       validateMileage(formData.mileage) &&
       formData.service_package_id &&
@@ -498,12 +500,13 @@ function CreateEditBookingModal({
   };
 
   useEffect(() => {
+    if (readOnly) return;
     if (!formData.booking_time) return;
     const slotExists = slots.some((slot) => slot.time === formData.booking_time);
     if (!slotExists) {
       setFormData((prev) => ({ ...prev, booking_time: '' }));
     }
-  }, [slots, formData.booking_time]);
+  }, [readOnly, slots, formData.booking_time]);
 
   useEffect(() => {
     if (!formData.booking_time || !errors.booking_time) return;
@@ -528,12 +531,16 @@ function CreateEditBookingModal({
 
   const handleLocationChange = (e) => {
     const value = e.target.value;
-    const locationData = e.target.locationData;
-    setFormData((prev) => ({ 
-      ...prev, 
-      google_location: value,
-      locationData: locationData,
-    }));
+    const hasLocationPayload = Object.prototype.hasOwnProperty.call(e.target, 'locationData');
+    setFormData((prev) => {
+      const next = { ...prev, google_location: value };
+      if (hasLocationPayload) {
+        next.locationData = e.target.locationData;
+      } else if (!value.trim()) {
+        next.locationData = undefined;
+      }
+      return next;
+    });
     
     if (errors.google_location) {
       setErrors((prev) => {
@@ -546,7 +553,8 @@ function CreateEditBookingModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    if (readOnly) return;
+
     if (!validateForm()) {
       return;
     }
@@ -642,7 +650,7 @@ function CreateEditBookingModal({
 
   if (!open) return null;
 
-  const title = isEdit ? 'Edit Booking' : 'Create Booking';
+  const title = readOnly ? 'View Booking' : isEdit ? 'Edit Booking' : 'Create Booking';
 
   return (
     <div
@@ -666,6 +674,7 @@ function CreateEditBookingModal({
           </button>
         </div>
         <form className={styles.form} onSubmit={handleSubmit}>
+          <fieldset className={styles.formFieldset} disabled={readOnly}>
           {/* Customer Details Section */}
           <h3 className={styles.sectionTitle}>Customer Details</h3>
           
@@ -912,6 +921,7 @@ function CreateEditBookingModal({
               onChange={handleLocationChange}
               error={errors.google_location}
               placeholder="Search for location on Google Maps..."
+              readOnly={readOnly}
             />
           </div>
 
@@ -960,7 +970,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="vehicle_year" className={styles.label}>
-                Vehicle model year <span className={styles.required}>*</span>
+                Vehicle model year
               </label>
               <select
                 id="vehicle_year"
@@ -1057,6 +1067,7 @@ function CreateEditBookingModal({
                 onChange={handleDateChange}
                 error={errors.booking_date}
                 placeholder="Select booking date"
+                disabled={readOnly}
               />
               {errors.booking_date && <div className={styles.errorMessage}>{errors.booking_date}</div>}
             </div>
@@ -1076,6 +1087,7 @@ function CreateEditBookingModal({
                   handleTimeChange({ target: { name: 'booking_time', value: time } })
                 }
                 isEnabled={Boolean(formData.service_package_id && formData.booking_date)}
+                readOnly={readOnly}
               />
               {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
             </div>
@@ -1230,18 +1242,21 @@ function CreateEditBookingModal({
               rows={3}
             />
           </div>
+          </fieldset>
 
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>
-              Cancel
+              {readOnly ? 'Close' : 'Cancel'}
             </button>
-            <button
-              type="submit"
-              className={`${styles.submitBtn} ${isSubmitting ? styles.disabled : ''}`}
-              disabled={isSubmitting}
-            >
-              {isEdit ? 'Update' : 'Create'}
-            </button>
+            {!readOnly && (
+              <button
+                type="submit"
+                className={`${styles.submitBtn} ${isSubmitting ? styles.disabled : ''}`}
+                disabled={isSubmitting}
+              >
+                {isEdit ? 'Update' : 'Create'}
+              </button>
+            )}
           </div>
         </form>
       </div>

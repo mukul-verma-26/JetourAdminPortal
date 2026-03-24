@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo } from 'react';
 import { DEFAULT_COUNTRY_CODE } from './constants';
-import { parseContactToCountryCodeAndPhone, getRatingVal } from './helpers';
+import { buildDriverContactFieldsFromApi, getRatingVal } from './helpers';
 
 const DEFAULT_VALUES = {
   name: '',
@@ -52,14 +52,17 @@ export function useDriverForm(initialData, open) {
   useEffect(() => {
     if (!open) return;
     if (initialData) {
-      const { country_code, phone } = parseContactToCountryCodeAndPhone(
-        initialData.contact,
-        DEFAULT_COUNTRY_CODE
-      );
+      const { countryCode, localPhone } = buildDriverContactFieldsFromApi({
+        country_code: initialData.countryCode ?? initialData.country_code,
+        contact:
+          initialData.localPhone !== undefined
+            ? initialData.localPhone
+            : initialData.contact,
+      });
       reset({
         name: initialData.name || '',
-        country_code,
-        contact: phone,
+        country_code: countryCode,
+        contact: localPhone,
         password: initialData.password || '',
         civil_id: initialData.civilId || initialData.civil_id || '',
         nationality: initialData.nationality || '',
@@ -83,13 +86,13 @@ export function useDriverForm(initialData, open) {
 
   const buildPayload = useCallback((data) => {
     const ratingVal = getRatingVal(data.rating);
-    const countryCode = (data.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
+    const countryCodeDigits =
+      (data.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
     const phoneDigits = (data.contact || '').trim().replace(/\D/g, '');
-    const fullContact = phoneDigits ? `+${countryCode}${phoneDigits}` : '';
     const payload = {
       name: (data.name || '').trim(),
-      country_code: fullContact ? `+${countryCode}` : '',
-      contact: fullContact,
+      country_code: countryCodeDigits,
+      contact: phoneDigits,
       password: (data.password || '').trim(),
       civil_id: (data.civil_id || '').trim(),
       gender: data.gender || 'male',
@@ -108,11 +111,19 @@ export function useDriverForm(initialData, open) {
     name: {
       required: 'Name is required',
     },
-    country_code: {},
+    country_code: {
+      required: 'Country code is required',
+      validate: (v) => {
+        const d = String(v || '').replace(/\D/g, '');
+        if (!d) return 'Country code is required';
+        if (d.length < 1 || d.length > 4) return 'Use 1–4 digits';
+        return true;
+      },
+    },
     contact: {
-      required: 'Contact is required',
-      minLength: { value: 8, message: 'Contact must be 8-15 digits' },
-      maxLength: { value: 15, message: 'Contact must be 8-15 digits' },
+      required: 'Phone number is required',
+      minLength: { value: 8, message: 'Phone number must be 8–15 digits' },
+      maxLength: { value: 15, message: 'Phone number must be 8–15 digits' },
     },
     password: {
       required: 'Password is required',

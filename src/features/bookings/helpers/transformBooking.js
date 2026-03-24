@@ -55,13 +55,19 @@ export function transformBooking(raw) {
     status: raw.status || 'pending',
     amount: String(packageAmount),
     technician_detail: assignment.technician
-      ? { id: assignment.technician._id, name: assignment.technician.name }
+      ? typeof assignment.technician === 'object'
+        ? { id: assignment.technician._id || assignment.technician.id, name: assignment.technician.name || '' }
+        : { id: assignment.technician, name: '' }
       : null,
     driver_detail: assignment.driver
-      ? { id: assignment.driver._id, name: assignment.driver.name }
+      ? typeof assignment.driver === 'object'
+        ? { id: assignment.driver._id || assignment.driver.id, name: assignment.driver.name || '' }
+        : { id: assignment.driver, name: '' }
       : null,
     service_van: assignment.service_van
-      ? { id: assignment.service_van._id, name: `Van ${assignment.service_van._id}` }
+      ? typeof assignment.service_van === 'object'
+        ? { id: assignment.service_van._id || assignment.service_van.id, registration_number: assignment.service_van.registration_number || '' }
+        : { id: assignment.service_van, registration_number: '' }
       : null,
     additional_notes: raw.additional_notes || '',
     payment: raw.payment || {},

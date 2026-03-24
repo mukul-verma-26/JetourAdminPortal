@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { createDriver, getDrivers, updateDriver as updateDriverApi, deleteDriver as deleteDriverApi } from '../../api/drivers';
+import { buildDriverContactFieldsFromApi, buildDriverContactDisplayFromPayload } from './helpers';
 
 function resolveImageUrl(raw) {
   if (!raw) return '';
@@ -11,11 +12,14 @@ function resolveImageUrl(raw) {
 
 function mapDriverFromApi(item) {
   const image = resolveImageUrl(item.image);
+  const { countryCode, localPhone, contactDisplay } = buildDriverContactFieldsFromApi(item);
   return {
     id: item.driver_id || item._id,
     _id: item._id,
     name: item.name || '',
-    contact: item.contact || '',
+    contact: contactDisplay,
+    countryCode,
+    localPhone,
     civilId: item.civil_id || '',
     nationality: item.nationality || '',
     gender: item.gender || 'male',
@@ -65,21 +69,27 @@ export function useDrivers() {
     try {
       const data = await createDriver(driver);
       const created = data?.data || data?.driver || data;
-      const newDriver = created
-        ? mapDriverFromApi({
-            ...created,
-            driver_id: created.driver_id || created._id || created.id,
-          })
-        : {
-            id: `D-${String(Date.now()).slice(-3).padStart(3, '0')}`,
-            name: driver.name,
-            contact: driver.contact,
-            civilId: driver.civil_id,
-            gender: driver.gender,
-            status: driver.status,
-            rating: driver.rating || 0,
-            photo: '',
-          };
+      let newDriver;
+      if (created) {
+        newDriver = mapDriverFromApi({
+          ...created,
+          driver_id: created.driver_id || created._id || created.id,
+        });
+      } else {
+        const phoneFields = buildDriverContactDisplayFromPayload(driver);
+        newDriver = {
+          id: `D-${String(Date.now()).slice(-3).padStart(3, '0')}`,
+          name: driver.name,
+          contact: phoneFields.contactDisplay,
+          countryCode: phoneFields.countryCode,
+          localPhone: phoneFields.localPhone,
+          civilId: driver.civil_id,
+          gender: driver.gender,
+          status: driver.status,
+          rating: driver.rating || 0,
+          photo: '',
+        };
+      }
       setDrivers((prev) => [...prev, newDriver]);
       if (typeof window?.showToast === 'function') {
         window.showToast('Driver added successfully', 'success');

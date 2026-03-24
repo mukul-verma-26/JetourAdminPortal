@@ -35,6 +35,7 @@ export async function createDriver(payload) {
   try {
     const formData = new FormData();
     formData.append('name', String(payload.name || ''));
+    formData.append('country_code', String(payload.country_code ?? ''));
     formData.append('contact', String(payload.contact || ''));
     formData.append('civil_id', String(payload.civil_id || ''));
     formData.append('gender', String(payload.gender || 'male'));
@@ -63,6 +64,7 @@ export async function updateDriver(id, payload) {
   try {
     const formData = new FormData();
     formData.append('name', String(payload.name || ''));
+    formData.append('country_code', String(payload.country_code ?? ''));
     formData.append('contact', String(payload.contact || ''));
     formData.append('civil_id', String(payload.civil_id || ''));
     formData.append('gender', String(payload.gender || 'male'));

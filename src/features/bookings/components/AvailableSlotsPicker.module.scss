@@ -30,6 +30,14 @@
   color: #ef4444;
 }
 
+.readOnlyValue {
+  margin: 0;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: theme.$TEXT_PRIMARY;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

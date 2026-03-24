@@ -1,7 +1,62 @@
+import { DEFAULT_COUNTRY_CODE } from './constants';
+
 export function parseContactToDigits(contact) {
   if (!contact) return '';
   const digits = contact.replace(/\D/g, '');
   return digits.slice(0, 15);
+}
+
+/**
+ * Normalizes API/driver list items into display + form fields.
+ * When API sends country_code + local contact, use both; otherwise parse legacy full contact.
+ */
+export function buildDriverContactFieldsFromApi(item) {
+  if (!item) {
+    return {
+      countryCode: DEFAULT_COUNTRY_CODE,
+      localPhone: '',
+      contactDisplay: '',
+    };
+  }
+  const ccDigits =
+    item.country_code != null && String(item.country_code).replace(/\D/g, '') !== ''
+      ? String(item.country_code).replace(/\D/g, '')
+      : '';
+  const contactRaw = item.contact != null ? String(item.contact) : '';
+
+  if (ccDigits) {
+    const allDigits = contactRaw.replace(/\D/g, '');
+    let localPhone = '';
+    if (allDigits.length > ccDigits.length && allDigits.startsWith(ccDigits)) {
+      localPhone = allDigits.slice(ccDigits.length).slice(0, 15);
+    } else {
+      localPhone = allDigits.slice(0, 15);
+    }
+    const contactDisplay = localPhone ? `+${ccDigits} ${localPhone}` : `+${ccDigits}`;
+    return { countryCode: ccDigits, localPhone, contactDisplay };
+  }
+
+  const parsed = parseContactToCountryCodeAndPhone(contactRaw, DEFAULT_COUNTRY_CODE);
+  const contactDisplay =
+    contactRaw.trim() ||
+    (parsed.phone ? `+${parsed.country_code} ${parsed.phone}` : '');
+  return {
+    countryCode: parsed.country_code,
+    localPhone: parsed.phone,
+    contactDisplay,
+  };
+}
+
+/** After create payload: country_code + contact are both digit strings (local phone). */
+export function buildDriverContactDisplayFromPayload(payload) {
+  const cc =
+    String(payload?.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;
+  const loc = String(payload?.contact || '').replace(/\D/g, '');
+  return {
+    countryCode: cc,
+    localPhone: loc,
+    contactDisplay: loc ? `+${cc} ${loc}` : `+${cc}`,
+  };
 }
 
 export function parseContactToCountryCodeAndPhone(contact, defaultCountryCode = '965') {
@@ -10,6 +65,16 @@ export function parseContactToCountryCodeAndPhone(contact, defaultCountryCode = 
   const digitsOnly = fullPhone.replace(/\D/g, '');
   let countryCode = defaultCountryCode;
   let phone = digitsOnly.slice(0, 15);
+  const compactForPlus = fullPhone.replace(/\s/g, '');
+  if (compactForPlus.startsWith('+')) {
+    const afterPlus = compactForPlus.slice(1);
+    const match = afterPlus.match(/^(\d{1,4})(\d+)$/);
+    if (match) {
+      countryCode = match[1];
+      phone = match[2].replace(/\D/g, '').slice(0, 15);
+      return { country_code: countryCode, phone };
+    }
+  }
   if (fullPhone.startsWith('+')) {
     const match = fullPhone.match(/^\+(\d{1,4})(\d*)$/);
     if (match) {

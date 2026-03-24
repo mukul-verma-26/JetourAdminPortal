@@ -33,6 +33,16 @@
   }
 }
 
+.displayDisabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+  background: #f4f4f5;
+
+  &:hover {
+    border-color: theme.$BORDER;
+  }
+}
+
 .calendarIcon {
   color: theme.$TEXT_TERTIARY;
   flex-shrink: 0;

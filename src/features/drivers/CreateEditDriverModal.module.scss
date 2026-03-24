@@ -143,6 +143,12 @@
   appearance: auto;
 }
 
+.phoneFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
 .phoneInputRow {
   display: flex;
   align-items: stretch;

@@ -6,7 +6,6 @@ import { useBookingFormDependencies } from './hooks/useBookingFormDependencies';
 import { transformBooking } from './helpers/transformBooking';
 import { STATUS_OPTIONS } from './constants';
 import CreateEditBookingModal from './CreateEditBookingModal';
-import ViewBookingModal from './ViewBookingModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportBookingsModal from './ExportBookingsModal';
 import DatePicker from './components/DatePicker';
@@ -126,7 +125,22 @@ function BookingsScreen() {
             name: requestBody.customer.name,
             email: requestBody.customer.email,
             gender: requestBody.customer.gender,
-            address: requestBody.customer.address,
+            address: {
+              ...requestBody.customer.address,
+              google_location: payload.google_location || '',
+            },
+          },
+          assignment: {
+            ...(response.booking.assignment || {}),
+            driver: payload.driver_detail
+              ? { _id: payload.driver_detail.id, name: payload.driver_detail.name }
+              : response.booking.assignment?.driver || null,
+            technician: payload.technician_detail
+              ? { _id: payload.technician_detail.id, name: payload.technician_detail.name }
+              : response.booking.assignment?.technician || null,
+            service_van: payload.service_van
+              ? { _id: payload.service_van.id, registration_number: payload.service_van.registration_number }
+              : response.booking.assignment?.service_van || null,
           },
         }
       : null;
@@ -170,7 +184,10 @@ function BookingsScreen() {
     const loaded = await loadFormDependencies();
     if (loaded) setEditBooking(booking);
   };
-  const openView = (booking) => setViewBooking(booking);
+  const openView = async (booking) => {
+    const loaded = await loadFormDependencies();
+    if (loaded) setViewBooking(booking);
+  };
   const openDeleteConfirm = (booking) => setDeleteConfirmBooking(booking);
 
   const displayedBookings = bookings;
@@ -490,10 +507,17 @@ function BookingsScreen() {
         serviceVans={serviceVans}
       />
 
-      <ViewBookingModal
+      <CreateEditBookingModal
         open={Boolean(viewBooking)}
         onClose={() => setViewBooking(null)}
-        booking={viewBooking}
+        initialData={viewBooking || undefined}
+        onSubmit={() => {}}
+        servicePackages={packages}
+        vehicleOptions={vehicleOptions}
+        drivers={drivers}
+        technicians={technicians}
+        serviceVans={serviceVans}
+        readOnly
       />
 
       <ConfirmDeleteModal

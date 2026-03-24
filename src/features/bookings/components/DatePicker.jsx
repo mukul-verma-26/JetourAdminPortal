@@ -9,7 +9,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-function DatePicker({ value, onChange, name, id, error, placeholder }) {
+function DatePicker({ value, onChange, name, id, error, placeholder, disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -209,14 +209,16 @@ function DatePicker({ value, onChange, name, id, error, placeholder }) {
     <div className={styles.wrapper} ref={wrapperRef}>
       <div
         ref={displayRef}
-        className={`${styles.display} ${error ? styles.displayError : ''} ${isOpen ? styles.displayActive : ''}`}
+        className={`${styles.display} ${error ? styles.displayError : ''} ${isOpen ? styles.displayActive : ''} ${disabled ? styles.displayDisabled : ''}`}
         onClick={() => {
+          if (disabled) return;
           if (!isOpen) updateDropdownPosition();
           setIsOpen(!isOpen);
         }}
         role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled}
+        onKeyDown={(e) => !disabled && e.key === 'Enter' && setIsOpen(!isOpen)}
       >
         <FiCalendar size={16} className={styles.calendarIcon} />
         <span className={displayText ? styles.displayText : styles.displayPlaceholder}>

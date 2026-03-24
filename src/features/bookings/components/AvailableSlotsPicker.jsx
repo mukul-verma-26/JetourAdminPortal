@@ -7,7 +7,19 @@ function AvailableSlotsPicker({
   error,
   onSelect,
   isEnabled,
+  readOnly = false,
 }) {
+  if (readOnly) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <label className={styles.label}>Booking time</label>
+        </div>
+        <p className={styles.readOnlyValue}>{selectedTime || '—'}</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
