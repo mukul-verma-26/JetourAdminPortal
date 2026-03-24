@@ -15,7 +15,7 @@ function isMongoObjectId(value) {
 export async function approveInventoryPartRequest(requestId, itemId, technicianId) {
   const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
   const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
-  const approveUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/approve`;
+  const approveUrl = `/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/approve`;
   const approveBody = isMongoObjectId(technicianId)
     ? inventoryPartActionBody(technicianId)
     : undefined;
@@ -41,7 +41,7 @@ export async function approveInventoryPartRequest(requestId, itemId, technicianI
 export async function rejectInventoryPartRequest(requestId, itemId, technicianId) {
   const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
   const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
-  const rejectUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/reject`;
+  const rejectUrl = `/inventory_item/admin/request/${requestIdEncoded}/item/${itemIdEncoded}/reject`;
   try {
     const { data } = await apiClient.patch(
       rejectUrl,
@@ -64,7 +64,7 @@ export async function rejectInventoryPartRequest(requestId, itemId, technicianId
 export async function deleteInventoryPartRequest(requestId, itemId, technicianId) {
   const requestIdEncoded = encodeURIComponent(String(requestId ?? '').trim());
   const itemIdEncoded = encodeURIComponent(String(itemId ?? '').trim());
-  const deleteUrl = `https://jetour-1.onrender.com/api/v1/inventory_item/request/${requestIdEncoded}/item/${itemIdEncoded}`;
+  const deleteUrl = `/inventory_item/request/${requestIdEncoded}/item/${itemIdEncoded}`;
   try {
     const { data } = await apiClient.delete(deleteUrl, {
       headers: { 'Content-Type': 'application/json' },
@@ -84,7 +84,7 @@ export async function deleteInventoryPartRequest(requestId, itemId, technicianId
 }
 
 export async function getAllInventoryPartRequests(page = 1, limit = 10, filters = {}) {
-  const allRequestsUrl = 'https://jetour-1.onrender.com/api/v1/inventory_item/all-request';
+  const allRequestsUrl = '/inventory_item/all-request';
   const normalizedPage = Number.isFinite(Number(page)) && Number(page) > 0 ? Number(page) : 1;
   const normalizedLimit =
     Number.isFinite(Number(limit)) && Number(limit) > 0 ? Number(limit) : 10;
