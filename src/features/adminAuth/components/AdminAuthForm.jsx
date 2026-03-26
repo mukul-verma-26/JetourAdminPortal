@@ -8,6 +8,7 @@ function AdminAuthForm({
   onRegisterFieldChange,
   onLogin,
   onRegister,
+  isLoggingIn,
   isRegistering,
   onForgotPassword,
   onSwitchToLogin,
@@ -22,7 +23,14 @@ function AdminAuthForm({
           <>
             <input className={styles.input} type="text" placeholder="Username" value={loginForm.username} onChange={(e) => onLoginFieldChange('username', e.target.value)} />
             <input className={styles.input} type="password" placeholder="Password" value={loginForm.password} onChange={(e) => onLoginFieldChange('password', e.target.value)} />
-            <button type="button" className={styles.primaryButton} onClick={onLogin}>Login</button>
+            <button type="button" className={styles.primaryButton} onClick={onLogin} disabled={isLoggingIn}>
+              {isLoggingIn ? (
+                <span className={styles.buttonContent}>
+                  <span className={styles.buttonLoader} aria-hidden />
+                  Logging in...
+                </span>
+              ) : 'Login'}
+            </button>
             <div className={styles.secondaryActions}>
               <button type="button" className={styles.secondaryButton} onClick={onSwitchToRegister}>Register</button>
               <button type="button" className={styles.secondaryButton} onClick={onForgotPassword}>Forgot Password</button>
@@ -37,7 +45,12 @@ function AdminAuthForm({
             </div>
             <input className={styles.input} type="password" placeholder="Password" value={registerForm.password} onChange={(e) => onRegisterFieldChange('password', e.target.value)} />
             <button type="button" className={styles.primaryButton} onClick={onRegister} disabled={isRegistering}>
-              {isRegistering ? 'Registering...' : 'Register'}
+              {isRegistering ? (
+                <span className={styles.buttonContent}>
+                  <span className={styles.buttonLoader} aria-hidden />
+                  Registering...
+                </span>
+              ) : 'Register'}
             </button>
             <button type="button" className={styles.secondaryButtonSingle} onClick={onSwitchToLogin}>Login</button>
           </>

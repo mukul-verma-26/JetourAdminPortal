@@ -13,6 +13,7 @@ function AdminAuthScreen() {
     updateRegisterField,
     updateForgotField,
     updateResetPasswordField,
+    isLoggingIn,
     isRegistering,
     isForgotPasswordModalOpen,
     isVerifyOtpModalOpen,
@@ -57,6 +58,7 @@ function AdminAuthScreen() {
         onRegisterFieldChange={updateRegisterField}
         onLogin={login}
         onRegister={register}
+        isLoggingIn={isLoggingIn}
         isRegistering={isRegistering}
         onForgotPassword={forgotPassword}
         onSwitchToLogin={switchToLogin}

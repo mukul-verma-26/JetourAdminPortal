@@ -43,6 +43,7 @@ export function useAdminAuth() {
   const [mode, setMode] = useState(AUTH_FORM_MODE.LOGIN);
   const [loginForm, setLoginForm] = useState(INITIAL_LOGIN_FORM);
   const [registerForm, setRegisterForm] = useState(INITIAL_REGISTER_FORM);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const [isVerifyOtpModalOpen, setIsVerifyOtpModalOpen] = useState(false);
@@ -98,6 +99,7 @@ export function useAdminAuth() {
   const actionHandlers = useMemo(() => ({
     login: async () => {
       try {
+        setIsLoggingIn(true);
         const response = await loginAdmin({
           username: loginForm.username.trim(),
           password: loginForm.password,
@@ -115,6 +117,8 @@ export function useAdminAuth() {
         if (typeof window?.showToast === 'function') {
           window.showToast(error?.response?.data?.message || 'Login failed', 'error');
         }
+      } finally {
+        setIsLoggingIn(false);
       }
     },
     register: async () => {
@@ -251,6 +255,7 @@ export function useAdminAuth() {
     updateRegisterField,
     updateForgotField,
     updateResetPasswordField,
+    isLoggingIn,
     isRegistering,
     isForgotPasswordModalOpen,
     isVerifyOtpModalOpen,

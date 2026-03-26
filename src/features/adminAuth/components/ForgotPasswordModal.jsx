@@ -20,7 +20,12 @@ function ForgotPasswordModal({
         <div className={styles.modalActions}>
           <button type="button" className={styles.secondaryButtonSingle} onClick={onClose}>Cancel</button>
           <button type="button" className={styles.primaryButton} onClick={onSendOtp} disabled={!canSendOtp || isSendingOtp}>
-            {isSendingOtp ? 'Sending...' : 'Send OTP'}
+            {isSendingOtp ? (
+              <span className={styles.buttonContent}>
+                <span className={styles.buttonLoader} aria-hidden />
+                Sending...
+              </span>
+            ) : 'Send OTP'}
           </button>
         </div>
       </div>

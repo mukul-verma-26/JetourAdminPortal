@@ -50,7 +50,12 @@ function VerifyOtpModal({
         <div className={styles.modalActions}>
           <button type="button" className={styles.secondaryButtonSingle} onClick={onClose}>Cancel</button>
           <button type="button" className={styles.primaryButton} onClick={onVerifyOtp} disabled={!canVerifyOtp || isVerifyingOtp}>
-            {isVerifyingOtp ? 'Verifying...' : 'Verify OTP'}
+            {isVerifyingOtp ? (
+              <span className={styles.buttonContent}>
+                <span className={styles.buttonLoader} aria-hidden />
+                Verifying...
+              </span>
+            ) : 'Verify OTP'}
           </button>
         </div>
       </div>

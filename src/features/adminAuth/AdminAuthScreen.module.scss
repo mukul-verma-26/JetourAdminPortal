@@ -80,6 +80,9 @@
 .primaryButton {
   background: theme.$PRIMARY;
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primaryButton:hover {
@@ -108,6 +111,21 @@
 .primaryButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.buttonContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.buttonLoader {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
 }
 
 .modalOverlay {
@@ -171,6 +189,12 @@
   outline: none;
   border-color: theme.$PRIMARY;
   box-shadow: 0 0 0 3px rgba(27, 169, 165, 0.15);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 480px) {

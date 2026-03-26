@@ -17,7 +17,12 @@ function ResetPasswordModal({
         <div className={styles.modalActions}>
           <button type="button" className={styles.secondaryButtonSingle} onClick={onClose}>Cancel</button>
           <button type="button" className={styles.primaryButton} onClick={onUpdatePassword} disabled={!canUpdatePassword || isResettingPassword}>
-            {isResettingPassword ? 'Updating...' : 'Update Password'}
+            {isResettingPassword ? (
+              <span className={styles.buttonContent}>
+                <span className={styles.buttonLoader} aria-hidden />
+                Updating...
+              </span>
+            ) : 'Update Password'}
           </button>
         </div>
       </div>
