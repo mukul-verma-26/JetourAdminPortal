@@ -1,0 +1,189 @@
+@use '../../styles/theme' as theme;
+
+.screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top right, theme.$PRIMARY_LIGHT 0%, transparent 40%),
+    radial-gradient(circle at bottom left, theme.$PRIMARY_LIGHT 0%, transparent 45%),
+    theme.$BACKGROUND;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow:
+    0 6px 24px rgba(44, 44, 44, 0.08),
+    0 1px 3px rgba(44, 44, 44, 0.06);
+}
+
+.heading {
+  margin: 0 0 0.5rem;
+  color: theme.$TEXT_PRIMARY;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid theme.$BORDER;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.countryCode:focus {
+  outline: none;
+  border-color: theme.$PRIMARY;
+  box-shadow: 0 0 0 3px rgba(27, 169, 165, 0.15);
+}
+
+.contactRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.countryCode {
+  width: 74px;
+  border: 1px solid theme.$BORDER;
+  border-radius: 10px;
+  padding: 0.75rem;
+  color: theme.$TEXT_PRIMARY;
+  background: theme.$SURFACE;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primaryButton,
+.secondaryButton,
+.secondaryButtonSingle {
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.primaryButton {
+  background: theme.$PRIMARY;
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background: theme.$PRIMARY_DARK;
+}
+
+.secondaryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.secondaryButton,
+.secondaryButtonSingle {
+  border-color: theme.$BORDER;
+  background: theme.$SURFACE;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.secondaryButton:hover,
+.secondaryButtonSingle:hover {
+  border-color: theme.$PRIMARY;
+  color: theme.$PRIMARY;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 440px;
+  background: theme.$SURFACE;
+  border: 1px solid theme.$BORDER;
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.modalHeading {
+  margin: 0;
+  color: theme.$TEXT_PRIMARY;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.modalLabel {
+  color: theme.$TEXT_PRIMARY;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.modalActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.otpRow {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.otpInput {
+  width: 2.5rem;
+  height: 2.8rem;
+  text-align: center;
+  border: 1px solid theme.$BORDER;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: theme.$TEXT_PRIMARY;
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: theme.$PRIMARY;
+  box-shadow: 0 0 0 3px rgba(27, 169, 165, 0.15);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.15rem;
+    border-radius: 14px;
+  }
+
+  .secondaryActions {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions {
+    grid-template-columns: 1fr;
+  }
+}

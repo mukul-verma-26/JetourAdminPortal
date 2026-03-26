@@ -1,26 +1,26 @@
 export const ROUTE_TITLES = {
-  '/': { title: 'Dashboard', subtitle: 'Today - Tuesday, January 27, 2026' },
-  '/bookings': { title: 'Bookings', subtitle: null },
-  '/customers': {
+  '/admin': { title: 'Dashboard', subtitle: 'Today - Tuesday, January 27, 2026' },
+  '/admin/bookings': { title: 'Bookings', subtitle: null },
+  '/admin/customers': {
     title: 'Customer Management',
     subtitle: 'View and manage customer information',
   },
-  '/customer-sales-data': {
+  '/admin/customer-sales-data': {
     title: 'Customer Sales Data',
     subtitle: 'View and manage customer sales data',
   },
-  '/technicians': { title: 'Technicians', subtitle: null },
-  '/service-vans': { title: 'Service Vans', subtitle: null },
-  '/inventory': { title: 'Inventory', subtitle: null },
-  '/approve-inventory-parts': {
+  '/admin/technicians': { title: 'Technicians', subtitle: null },
+  '/admin/service-vans': { title: 'Service Vans', subtitle: null },
+  '/admin/inventory': { title: 'Inventory', subtitle: null },
+  '/admin/approve-inventory-parts': {
     title: 'Approve Inventory Parts',
     subtitle: 'Review and action technician part requests',
   },
-  '/schedule': {
+  '/admin/schedule': {
     title: 'Schedule Management',
     subtitle: 'Configure operating hours and time slots',
   },
-  '/settings': {
+  '/admin/settings': {
     title: 'System Settings',
     subtitle: 'Configure system preferences and integrations',
   },

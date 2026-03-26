@@ -13,25 +13,26 @@ import {
   FiNavigation,
   FiDollarSign,
   FiClipboard,
+  FiLogOut,
 } from 'react-icons/fi';
 import styles from './Sidebar.module.scss';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: FiBarChart2 },
-  { to: '/bookings', label: 'Bookings', icon: FiCalendar },
-  { to: '/customers', label: 'Customers', icon: FiUsers },
-  { to: '/customer-sales-data', label: 'Customer Sales Data', icon: FiDollarSign },
-  { to: '/technicians', label: 'Technicians', icon: FiTool },
-  { to: '/drivers', label: 'Drivers', icon: FiUser },
-  { to: '/service-vans', label: 'Service Vans', icon: FiTruck },
-  { to: '/vehicles', label: 'Vehicles', icon: FiNavigation },
-  { to: '/inventory', label: 'Inventory', icon: FiPackage },
-  { to: '/approve-inventory-parts', label: 'Approve Inventory Parts', icon: FiClipboard },
-  { to: '/schedule', label: 'Schedule', icon: FiClock },
-  { to: '/settings', label: 'Settings', icon: FiSettings },
+  { to: '/admin', label: 'Dashboard', icon: FiBarChart2 },
+  { to: '/admin/bookings', label: 'Bookings', icon: FiCalendar },
+  { to: '/admin/customers', label: 'Customers', icon: FiUsers },
+  { to: '/admin/customer-sales-data', label: 'Customer Sales Data', icon: FiDollarSign },
+  { to: '/admin/technicians', label: 'Technicians', icon: FiTool },
+  { to: '/admin/drivers', label: 'Drivers', icon: FiUser },
+  { to: '/admin/service-vans', label: 'Service Vans', icon: FiTruck },
+  { to: '/admin/vehicles', label: 'Vehicles', icon: FiNavigation },
+  { to: '/admin/inventory', label: 'Inventory', icon: FiPackage },
+  { to: '/admin/approve-inventory-parts', label: 'Approve Inventory Parts', icon: FiClipboard },
+  { to: '/admin/schedule', label: 'Schedule', icon: FiClock },
+  { to: '/admin/settings', label: 'Settings', icon: FiSettings },
 ];
 
-function Sidebar({ isOpen, onClose }) {
+function Sidebar({ isOpen, onClose, onLogout }) {
   return (
     <>
       {isOpen && (
@@ -61,7 +62,7 @@ function Sidebar({ isOpen, onClose }) {
               <li key={to} className={styles.navItem}>
                 <NavLink
                   to={to}
-                  end={to === '/'}
+                  end={to === '/admin'}
                   className={({ isActive }) =>
                     `${styles.link} ${isActive ? styles.linkActive : ''}`
                   }
@@ -77,6 +78,12 @@ function Sidebar({ isOpen, onClose }) {
                 </NavLink>
               </li>
             ))}
+            <li className={styles.navItem}>
+              <button type="button" className={styles.logoutButton} onClick={onLogout}>
+                <FiLogOut className={styles.icon} aria-hidden />
+                <span>Logout</span>
+              </button>
+            </li>
           </ul>
         </nav>
       </aside>

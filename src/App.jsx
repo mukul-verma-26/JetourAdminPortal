@@ -15,6 +15,16 @@ import { ApproveInventoryPartsScreen } from './features/approveInventoryParts';
 import { ScheduleScreen } from './features/schedule';
 import PlaceholderPage from './pages/PlaceholderPage';
 import { ToastContainer } from './components/shared/Toast';
+import { AdminAuthScreen } from './features/adminAuth';
+import { getAdminAuthToken } from './features/adminAuth/helpers/authStorage';
+
+function ProtectedAdminRoute({ children }) {
+  const token = getAdminAuthToken();
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
 
 function App() {
   return (
@@ -22,7 +32,8 @@ function App() {
       <PackagesProvider>
       <ToastContainer />
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<AdminAuthScreen />} />
+        <Route path="/admin" element={<ProtectedAdminRoute><Layout /></ProtectedAdminRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="bookings" element={<BookingsScreen />} />
           <Route path="customers" element={<CustomersScreen />} />
@@ -35,8 +46,9 @@ function App() {
           <Route path="approve-inventory-parts" element={<ApproveInventoryPartsScreen />} />
           <Route path="schedule" element={<ScheduleScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </PackagesProvider>
     </BrowserRouter>
