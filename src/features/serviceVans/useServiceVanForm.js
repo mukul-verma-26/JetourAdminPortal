@@ -119,6 +119,7 @@ export function useServiceVanForm(initialData, open) {
     watch,
     setValue,
     setError,
+    clearErrors,
     reset,
   } = useForm({
     defaultValues: DEFAULT_VALUES,
@@ -172,9 +173,10 @@ export function useServiceVanForm(initialData, open) {
   const setImageFromFile = useCallback(
     (file) => {
       if (!file) return;
+      clearErrors('image');
       setValue('image', file, { shouldValidate: true });
     },
-    [setValue]
+    [setValue, clearErrors]
   );
 
   const buildPayload = useCallback((data) => {
