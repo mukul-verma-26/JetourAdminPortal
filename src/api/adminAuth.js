@@ -1,21 +1,12 @@
-import axios from 'axios';
-
-const REGISTER_ADMIN_URL = 'https://jetour-1.onrender.com/api/v1/admin/register';
-const LOGIN_ADMIN_URL = 'https://jetour-1.onrender.com/api/v1/admin/login';
-const FORGOT_PASSWORD_URL = 'https://jetour-1.onrender.com/api/v1/admin/forgot-password';
-const VERIFY_OTP_URL = 'https://jetour-1.onrender.com/api/v1/admin/verify-otp';
-const RESET_PASSWORD_URL = 'https://jetour-1.onrender.com/api/v1/admin/reset-password';
+import { apiClient } from './client.js';
 
 export async function registerAdmin(payload) {
+  const path = '/admin/register';
   try {
-    const { data } = await axios.post(REGISTER_ADMIN_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { data } = await apiClient.post(path, payload);
     return data;
   } catch (error) {
-    console.log('registerAdmin', `POST ${REGISTER_ADMIN_URL}`, 'Error:', error);
+    console.log('registerAdmin', `POST ${path}`, 'Error:', error);
     console.log('registerAdmin', 'Error response:', error?.response?.data);
     console.log('registerAdmin', 'Error message:', error?.message);
     throw error;
@@ -23,15 +14,12 @@ export async function registerAdmin(payload) {
 }
 
 export async function loginAdmin(payload) {
+  const path = '/admin/login';
   try {
-    const { data } = await axios.post(LOGIN_ADMIN_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { data } = await apiClient.post(path, payload);
     return data;
   } catch (error) {
-    console.log('loginAdmin', `POST ${LOGIN_ADMIN_URL}`, 'Error:', error);
+    console.log('loginAdmin', `POST ${path}`, 'Error:', error);
     console.log('loginAdmin', 'Error response:', error?.response?.data);
     console.log('loginAdmin', 'Error message:', error?.message);
     throw error;
@@ -39,15 +27,12 @@ export async function loginAdmin(payload) {
 }
 
 export async function forgotPasswordAdmin(payload) {
+  const path = '/admin/forgot-password';
   try {
-    const { data } = await axios.post(FORGOT_PASSWORD_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { data } = await apiClient.post(path, payload);
     return data;
   } catch (error) {
-    console.log('forgotPasswordAdmin', `POST ${FORGOT_PASSWORD_URL}`, 'Error:', error);
+    console.log('forgotPasswordAdmin', `POST ${path}`, 'Error:', error);
     console.log('forgotPasswordAdmin', 'Error response:', error?.response?.data);
     console.log('forgotPasswordAdmin', 'Error message:', error?.message);
     throw error;
@@ -55,15 +40,12 @@ export async function forgotPasswordAdmin(payload) {
 }
 
 export async function verifyAdminOtp(payload) {
+  const path = '/admin/verify-otp';
   try {
-    const { data } = await axios.post(VERIFY_OTP_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { data } = await apiClient.post(path, payload);
     return data;
   } catch (error) {
-    console.log('verifyAdminOtp', `POST ${VERIFY_OTP_URL}`, 'Error:', error);
+    console.log('verifyAdminOtp', `POST ${path}`, 'Error:', error);
     console.log('verifyAdminOtp', 'Error response:', error?.response?.data);
     console.log('verifyAdminOtp', 'Error message:', error?.message);
     throw error;
@@ -71,15 +53,12 @@ export async function verifyAdminOtp(payload) {
 }
 
 export async function resetAdminPassword(payload) {
+  const path = '/admin/reset-password';
   try {
-    const { data } = await axios.post(RESET_PASSWORD_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { data } = await apiClient.post(path, payload);
     return data;
   } catch (error) {
-    console.log('resetAdminPassword', `POST ${RESET_PASSWORD_URL}`, 'Error:', error);
+    console.log('resetAdminPassword', `POST ${path}`, 'Error:', error);
     console.log('resetAdminPassword', 'Error response:', error?.response?.data);
     console.log('resetAdminPassword', 'Error message:', error?.message);
     throw error;

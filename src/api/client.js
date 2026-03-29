@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://api.jetourcarekw.com/api/v1';
+export const BASE_URL = 'https://api.jetourcarekw.com/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
