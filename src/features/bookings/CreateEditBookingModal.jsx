@@ -52,6 +52,7 @@ import GoogleLocationInput from './components/GoogleLocationInput';
 import AvailableSlotsPicker from './components/AvailableSlotsPicker';
 import { useCalculateAmount } from './hooks/useCalculateAmount';
 import { useAvailableSlots } from './hooks/useAvailableSlots';
+import { bookingTimesEqual, normalizeBookingTime } from './helpers/bookingTime';
 import styles from './CreateEditBookingModal.module.scss';
 
 function CreateEditBookingModal({
@@ -105,6 +106,7 @@ function CreateEditBookingModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = Boolean(initialData?.id);
+  const isUpdateBooking = isEdit && !readOnly;
   const selectedPackageForSlots = activePackages.find(
     (pkg) => pkg.id === formData.service_package_id
   );
@@ -252,7 +254,7 @@ function CreateEditBookingModal({
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
+    if (!isUpdateBooking && !formData.name.trim()) {
       newErrors.name = 'Customer name is required';
     }
 
@@ -307,7 +309,7 @@ function CreateEditBookingModal({
       newErrors.amount = 'Amount is required';
     }
 
-    if (!formData.booking_time) {
+    if (!isUpdateBooking && !formData.booking_time) {
       newErrors.booking_time = 'Booking time is required';
     }
 
@@ -344,8 +346,10 @@ function CreateEditBookingModal({
   };
 
   const isFormValid = () => {
+    const nameOk = isUpdateBooking || formData.name.trim();
+    const bookingTimeOk = isUpdateBooking || Boolean(formData.booking_time);
     const baseValid =
-      formData.name.trim() &&
+      nameOk &&
       (!formData.email.trim() || validateEmail(formData.email)) &&
       formData.gender &&
       formData.country_code.trim() &&
@@ -360,7 +364,7 @@ function CreateEditBookingModal({
       validateMileage(formData.mileage) &&
       formData.service_package_id &&
       formData.amount.trim() &&
-      formData.booking_time &&
+      bookingTimeOk &&
       formData.booking_date &&
       formData.payment_method;
 
@@ -502,11 +506,20 @@ function CreateEditBookingModal({
   useEffect(() => {
     if (readOnly) return;
     if (!formData.booking_time) return;
-    const slotExists = slots.some((slot) => slot.time === formData.booking_time);
-    if (!slotExists) {
-      setFormData((prev) => ({ ...prev, booking_time: '' }));
+    if (isLoadingSlots) return;
+    if (slots.length === 0) return;
+
+    const matchingSlot = slots.find((slot) =>
+      bookingTimesEqual(slot.time, formData.booking_time)
+    );
+    if (matchingSlot) {
+      if (matchingSlot.time !== formData.booking_time) {
+        setFormData((prev) => ({ ...prev, booking_time: matchingSlot.time }));
+      }
+      return;
     }
-  }, [readOnly, slots, formData.booking_time]);
+    setFormData((prev) => ({ ...prev, booking_time: '' }));
+  }, [readOnly, slots, formData.booking_time, isLoadingSlots]);
 
   useEffect(() => {
     if (!formData.booking_time || !errors.booking_time) return;
@@ -681,7 +694,7 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label htmlFor="name" className={styles.label}>
-                Customer Name <span className={styles.required}>*</span>
+                Customer Name {!isUpdateBooking ? <span className={styles.required}>*</span> : null}
               </label>
               <input
                 id="name"
@@ -1076,11 +1089,16 @@ function CreateEditBookingModal({
           <div className={styles.fieldRow}>
             <div className={`${styles.field} ${styles.fieldFull}`}>
               <label htmlFor="booking_time" className={styles.label}>
-                Booking Time <span className={styles.required}>*</span>
+                Booking Time {!isUpdateBooking ? <span className={styles.required}>*</span> : null}
               </label>
               <AvailableSlotsPicker
                 slots={slots}
                 selectedTime={formData.booking_time}
+                scheduledStartTime={
+                  isEdit && initialData?.booking_time
+                    ? normalizeBookingTime(initialData.booking_time)
+                    : ''
+                }
                 isLoading={isLoadingSlots}
                 error={slotsError}
                 onSelect={(time) =>

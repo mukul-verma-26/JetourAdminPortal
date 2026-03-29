@@ -71,6 +71,11 @@
   }
 }
 
+.slotBtnReadOnly {
+  cursor: default;
+  pointer-events: none;
+}
+
 .slotBtnActive {
   border-color: theme.$PRIMARY;
   background: theme.$PRIMARY;

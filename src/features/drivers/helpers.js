@@ -47,7 +47,7 @@ export function buildDriverContactFieldsFromApi(item) {
   };
 }
 
-/** After create payload: country_code + contact are both digit strings (local phone). */
+/** After create/update payload: country_code is +digits (API); contact is local digits. */
 export function buildDriverContactDisplayFromPayload(payload) {
   const cc =
     String(payload?.country_code || '').replace(/\D/g, '') || DEFAULT_COUNTRY_CODE;

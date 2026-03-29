@@ -91,10 +91,11 @@ export function useDriverForm(initialData, open) {
     const phoneDigits = (data.contact || '').trim().replace(/\D/g, '');
     const payload = {
       name: (data.name || '').trim(),
-      country_code: countryCodeDigits,
+      country_code: `+${countryCodeDigits}`,
       contact: phoneDigits,
       password: (data.password || '').trim(),
       civil_id: (data.civil_id || '').trim(),
+      nationality: (data.nationality || '').trim(),
       gender: data.gender || 'male',
       status: data.status || 'active',
       rating: ratingVal,
@@ -116,7 +117,7 @@ export function useDriverForm(initialData, open) {
       validate: (v) => {
         const d = String(v || '').replace(/\D/g, '');
         if (!d) return 'Country code is required';
-        if (d.length < 1 || d.length > 4) return 'Use 1–4 digits';
+        if (d.length < 1 || d.length > 3) return 'Use 1–3 digits';
         return true;
       },
     },

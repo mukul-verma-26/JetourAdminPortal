@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import { createCustomerBooking } from '../../api/bookings';
+import { createCustomerBooking, patchAdminBooking } from '../../api/bookings';
+import {
+  buildAdminBookingPatchBody,
+  localBookingUpdatesFromPatchPayload,
+} from './helpers/buildAdminBookingPatchBody';
 import { useBookings } from './useBookings';
 import { useBookingFormDependencies } from './hooks/useBookingFormDependencies';
 import { transformBooking } from './helpers/transformBooking';
@@ -155,9 +159,20 @@ function BookingsScreen() {
     }
   };
 
-  const handleEditSubmit = (id, payload) => {
-    updateBooking(id, payload);
-    setEditBooking(null);
+  const handleEditSubmit = async (id, payload) => {
+    const body = buildAdminBookingPatchBody(payload);
+    const response = await patchAdminBooking(id, body);
+
+    const updatedRaw = response?.booking ?? response?.data;
+    if (updatedRaw && typeof updatedRaw === 'object' && !Array.isArray(updatedRaw)) {
+      updateBooking(id, transformBooking(updatedRaw));
+    } else {
+      updateBooking(id, localBookingUpdatesFromPatchPayload(payload));
+    }
+
+    if (window.showToast) {
+      window.showToast(response?.message || 'Booking updated successfully', 'success');
+    }
   };
 
   const handleDeleteConfirm = (id) => {

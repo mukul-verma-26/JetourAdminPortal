@@ -1,4 +1,8 @@
+import axios from 'axios';
 import { apiClient } from './client.js';
+import { getAdminAuthToken } from '../features/adminAuth/helpers/authStorage';
+
+const JETOUR_ADMIN_API_BASE = 'https://jetour-1.onrender.com/api/v1';
 
 function toApiDate(dateValue) {
   if (!dateValue) return '';
@@ -65,6 +69,28 @@ export async function createCustomerBooking(payload) {
     return data;
   } catch (error) {
     console.log('createCustomerBooking', 'POST /bookings/admin', error);
+    throw error;
+  }
+}
+
+/**
+ * Admin booking update (Render API).
+ * PATCH https://jetour-1.onrender.com/api/v1/bookings/admin/:bookingId
+ */
+export async function patchAdminBooking(bookingId, body) {
+  const url = `${JETOUR_ADMIN_API_BASE}/bookings/admin/${encodeURIComponent(String(bookingId))}`;
+  const token = getAdminAuthToken();
+
+  try {
+    const { data } = await axios.patch(url, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    return data;
+  } catch (error) {
+    console.log('patchAdminBooking', `PATCH ${url}`, error);
     throw error;
   }
 }
