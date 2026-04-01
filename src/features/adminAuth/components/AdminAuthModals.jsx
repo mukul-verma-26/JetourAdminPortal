@@ -11,15 +11,19 @@ function AdminAuthModals({
   resetPasswordForm,
   isSendingOtp,
   isVerifyingOtp,
+  isResendingOtp,
   isResettingPassword,
   canSendOtp,
   canVerifyOtp,
+  canResendOtp,
   canUpdatePassword,
+  resendOtpTimerSeconds,
   onForgotFieldChange,
   onSendOtp,
   onOtpDigitChange,
   onOtpKeyDown,
   onVerifyOtp,
+  onResendOtp,
   onResetPasswordFieldChange,
   onUpdatePassword,
   onClose,
@@ -40,10 +44,14 @@ function AdminAuthModals({
         <VerifyOtpModal
           otpDigits={otpDigits}
           isVerifyingOtp={isVerifyingOtp}
+          isResendingOtp={isResendingOtp}
           canVerifyOtp={canVerifyOtp}
+          canResendOtp={canResendOtp}
+          resendOtpTimerSeconds={resendOtpTimerSeconds}
           onOtpDigitChange={onOtpDigitChange}
           onOtpKeyDown={onOtpKeyDown}
           onVerifyOtp={onVerifyOtp}
+          onResendOtp={onResendOtp}
           onClose={onClose}
         />
       )}

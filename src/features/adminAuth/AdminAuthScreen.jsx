@@ -23,10 +23,13 @@ function AdminAuthScreen() {
     resetPasswordForm,
     isSendingOtp,
     isVerifyingOtp,
+    isResendingOtp,
     isResettingPassword,
     canSendOtp,
     canVerifyOtp,
+    canResendOtp,
     canUpdatePassword,
+    resendOtpTimerSeconds,
     login,
     register,
     forgotPassword,
@@ -34,6 +37,7 @@ function AdminAuthScreen() {
     updateOtpDigit,
     clearOtpDigit,
     verifyOtp,
+    resendOtp,
     updatePassword,
     closeForgotPasswordFlow,
   } = useAdminAuth();
@@ -74,15 +78,19 @@ function AdminAuthScreen() {
         resetPasswordForm={resetPasswordForm}
         isSendingOtp={isSendingOtp}
         isVerifyingOtp={isVerifyingOtp}
+        isResendingOtp={isResendingOtp}
         isResettingPassword={isResettingPassword}
         canSendOtp={canSendOtp}
         canVerifyOtp={canVerifyOtp}
+        canResendOtp={canResendOtp}
         canUpdatePassword={canUpdatePassword}
+        resendOtpTimerSeconds={resendOtpTimerSeconds}
         onForgotFieldChange={updateForgotField}
         onSendOtp={sendOtp}
         onOtpDigitChange={handleOtpDigitChange}
         onOtpKeyDown={handleOtpKeyDown}
         onVerifyOtp={verifyOtp}
+        onResendOtp={resendOtp}
         onResetPasswordFieldChange={updateResetPasswordField}
         onUpdatePassword={updatePassword}
         onClose={closeForgotPasswordFlow}

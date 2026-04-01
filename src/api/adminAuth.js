@@ -52,6 +52,19 @@ export async function verifyAdminOtp(payload) {
   }
 }
 
+export async function resendAdminOtp(payload) {
+  const path = '/admin/resend-otp';
+  try {
+    const { data } = await apiClient.post(path, payload);
+    return data;
+  } catch (error) {
+    console.log('resendAdminOtp', `POST ${path}`, 'Error:', error);
+    console.log('resendAdminOtp', 'Error response:', error?.response?.data);
+    console.log('resendAdminOtp', 'Error message:', error?.message);
+    throw error;
+  }
+}
+
 export async function resetAdminPassword(payload) {
   const path = '/admin/reset-password';
   try {

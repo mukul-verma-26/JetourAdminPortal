@@ -5,13 +5,18 @@ import styles from '../AdminAuthScreen.module.scss';
 function VerifyOtpModal({
   otpDigits,
   isVerifyingOtp,
+  isResendingOtp,
   canVerifyOtp,
+  canResendOtp,
+  resendOtpTimerSeconds,
   onOtpDigitChange,
   onOtpKeyDown,
   onVerifyOtp,
+  onResendOtp,
   onClose,
 }) {
   const inputRefs = useRef([]);
+  const formattedResendTimer = `00:${String(resendOtpTimerSeconds).padStart(2, '0')}`;
 
   const handleChange = (index, value) => {
     onOtpDigitChange(index, value);
@@ -46,6 +51,19 @@ function VerifyOtpModal({
               aria-label={`OTP digit ${index + 1}`}
             />
           ))}
+        </div>
+        <div className={styles.otpResendContainer}>
+          <span className={styles.otpResendHint}>
+            {canResendOtp ? 'Didn\'t receive the code?' : `Resend available in ${formattedResendTimer}`}
+          </span>
+          <button
+            type="button"
+            className={styles.otpResendButton}
+            onClick={onResendOtp}
+            disabled={!canResendOtp}
+          >
+            {isResendingOtp ? 'Resending...' : 'Resend OTP'}
+          </button>
         </div>
         <div className={styles.modalActions}>
           <button type="button" className={styles.secondaryButtonSingle} onClick={onClose}>Cancel</button>

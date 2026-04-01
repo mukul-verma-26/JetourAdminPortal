@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   forgotPasswordAdmin,
   loginAdmin,
   registerAdmin,
+  resendAdminOtp,
   resetAdminPassword,
   verifyAdminOtp,
 } from '../../../api/adminAuth';
@@ -30,6 +31,7 @@ const INITIAL_RESET_PASSWORD_FORM = {
   confirmPassword: '',
 };
 const INITIAL_OTP_DIGITS = Array(OTP_LENGTH).fill('');
+const RESEND_OTP_COOLDOWN_SECONDS = 60;
 
 function normalizeCountryCode(value) {
   const trimmedValue = value.replace(/\s+/g, '');
@@ -52,9 +54,27 @@ export function useAdminAuth() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpDigits, setOtpDigits] = useState(INITIAL_OTP_DIGITS);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [resendOtpTimerSeconds, setResendOtpTimerSeconds] = useState(0);
   const [verifiedContact, setVerifiedContact] = useState('');
   const [resetPasswordForm, setResetPasswordForm] = useState(INITIAL_RESET_PASSWORD_FORM);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  useEffect(() => {
+    if (!isVerifyOtpModalOpen || resendOtpTimerSeconds <= 0) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setResendOtpTimerSeconds((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(intervalId);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isVerifyOtpModalOpen, resendOtpTimerSeconds]);
 
   const isLoginMode = mode === AUTH_FORM_MODE.LOGIN;
 
@@ -94,6 +114,7 @@ export function useAdminAuth() {
     setOtpDigits(INITIAL_OTP_DIGITS);
     setResetPasswordForm(INITIAL_RESET_PASSWORD_FORM);
     setVerifiedContact('');
+    setResendOtpTimerSeconds(0);
   };
 
   const actionHandlers = useMemo(() => ({
@@ -161,6 +182,7 @@ export function useAdminAuth() {
           }
           setIsForgotPasswordModalOpen(false);
           setIsVerifyOtpModalOpen(true);
+          setResendOtpTimerSeconds(RESEND_OTP_COOLDOWN_SECONDS);
         }
       } catch (error) {
         console.log('useAdminAuth.sendOtp', 'forgotPasswordAdmin', error);
@@ -169,6 +191,29 @@ export function useAdminAuth() {
         }
       } finally {
         setIsSendingOtp(false);
+      }
+    },
+    resendOtp: async () => {
+      try {
+        setIsResendingOtp(true);
+        const response = await resendAdminOtp({
+          contact: forgotForm.contact.trim(),
+          country_code: forgotForm.countryCode.trim(),
+        });
+        if (response?.success) {
+          setOtpDigits(INITIAL_OTP_DIGITS);
+          setResendOtpTimerSeconds(RESEND_OTP_COOLDOWN_SECONDS);
+          if (typeof window?.showToast === 'function') {
+            window.showToast(response?.message || 'OTP resent successfully', 'success');
+          }
+        }
+      } catch (error) {
+        console.log('useAdminAuth.resendOtp', 'resendAdminOtp', error);
+        if (typeof window?.showToast === 'function') {
+          window.showToast(error?.response?.data?.message || 'Failed to resend OTP', 'error');
+        }
+      } finally {
+        setIsResendingOtp(false);
       }
     },
     updateOtpDigit: (index, rawValue) => {
@@ -239,6 +284,7 @@ export function useAdminAuth() {
 
   const canSendOtp = Boolean(forgotForm.countryCode.trim() && forgotForm.contact.trim());
   const canVerifyOtp = otpDigits.every((digit) => Boolean(digit));
+  const canResendOtp = isVerifyOtpModalOpen && resendOtpTimerSeconds === 0 && !isResendingOtp && !isVerifyingOtp;
   const canUpdatePassword = Boolean(
     resetPasswordForm.password &&
     resetPasswordForm.confirmPassword &&
@@ -265,10 +311,13 @@ export function useAdminAuth() {
     resetPasswordForm,
     isSendingOtp,
     isVerifyingOtp,
+    isResendingOtp,
     isResettingPassword,
     canSendOtp,
     canVerifyOtp,
+    canResendOtp,
     canUpdatePassword,
+    resendOtpTimerSeconds,
     ...actionHandlers,
   };
 }
