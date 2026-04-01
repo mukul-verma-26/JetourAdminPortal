@@ -3,7 +3,6 @@ import { MAX_TIME_RANGES_PER_DAY } from './constants';
 import OperatingDaysSection from './components/OperatingDaysSection';
 import PublicHolidaysSection from './components/PublicHolidaysSection';
 import TimeRangeSelector from './components/TimeRangeSelector';
-import SchedulePreview from './components/SchedulePreview';
 import styles from './ScheduleScreen.module.scss';
 
 function ScheduleScreen() {
@@ -19,12 +18,7 @@ function ScheduleScreen() {
     removeBookingTimeRange,
     updateBookingTimeRange,
     save,
-    todayScheduleRanges,
-    isHolidayToday,
-    todayOperatingDay,
   } = useSchedule();
-
-  const isClosedToday = isHolidayToday || !todayOperatingDay?.enabled;
 
   if (isLoading) {
     return (
@@ -74,15 +68,6 @@ function ScheduleScreen() {
         </div>
       </section>
 
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Today&apos;s Schedule Overview</h3>
-        <div className={styles.previewCard}>
-          <SchedulePreview
-            scheduleRanges={todayScheduleRanges}
-            isClosed={isClosedToday}
-          />
-        </div>
-      </section>
     </div>
   );
 }

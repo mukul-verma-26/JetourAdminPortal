@@ -107,6 +107,24 @@ function CreateEditBookingModal({
 
   const isEdit = Boolean(initialData?.id);
   const isUpdateBooking = isEdit && !readOnly;
+  const updateEnabledFields = new Set([
+    'phone',
+    'country_code',
+    'governorate',
+    'area',
+    'block',
+    'street',
+    'building_no',
+    'floor_no',
+    'flat_no',
+    'paci_details',
+    'google_location',
+    'status',
+    'booking_time',
+    'booking_date',
+  ]);
+  const isFieldDisabled = (fieldName) =>
+    readOnly || (isUpdateBooking && !updateEnabledFields.has(fieldName));
   const selectedPackageForSlots = activePackages.find(
     (pkg) => pkg.id === formData.service_package_id
   );
@@ -704,6 +722,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. John Doe"
                 value={formData.name}
                 onChange={handleChange}
+                disabled={isFieldDisabled('name')}
               />
               {errors.name && <div className={styles.errorMessage}>{errors.name}</div>}
             </div>
@@ -720,6 +739,7 @@ function CreateEditBookingModal({
                 placeholder="customer@example.com"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isFieldDisabled('email')}
               />
               {errors.email && <div className={styles.errorMessage}>{errors.email}</div>}
             </div>
@@ -736,6 +756,7 @@ function CreateEditBookingModal({
                 className={`${styles.select} ${errors.gender ? styles.inputError : ''}`}
                 value={formData.gender}
                 onChange={handleChange}
+                disabled={isFieldDisabled('gender')}
               >
                 {GENDER_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -766,6 +787,7 @@ function CreateEditBookingModal({
                     value={formData.country_code}
                     onChange={handleCountryCodeChange}
                     maxLength={4}
+                    disabled={isFieldDisabled('country_code')}
                   />
                 </div>
                 <input
@@ -777,6 +799,7 @@ function CreateEditBookingModal({
                   value={formData.phone}
                   onChange={handlePhoneChange}
                   maxLength={10}
+                  disabled={isFieldDisabled('phone')}
                 />
               </div>
               {errors.country_code && <div className={styles.errorMessage}>{errors.country_code}</div>}
@@ -800,6 +823,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. Kuwait City"
                 value={formData.governorate}
                 onChange={handleChange}
+                disabled={isFieldDisabled('governorate')}
               />
               {errors.governorate && <div className={styles.errorMessage}>{errors.governorate}</div>}
             </div>
@@ -816,6 +840,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. Salmiya"
                 value={formData.area}
                 onChange={handleChange}
+                disabled={isFieldDisabled('area')}
               />
               {errors.area && <div className={styles.errorMessage}>{errors.area}</div>}
             </div>
@@ -834,6 +859,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. Block 5"
                 value={formData.block}
                 onChange={handleChange}
+                disabled={isFieldDisabled('block')}
               />
               {errors.block && <div className={styles.errorMessage}>{errors.block}</div>}
             </div>
@@ -850,6 +876,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. Street 12"
                 value={formData.street}
                 onChange={handleChange}
+                disabled={isFieldDisabled('street')}
               />
               {errors.street && <div className={styles.errorMessage}>{errors.street}</div>}
             </div>
@@ -868,6 +895,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. 123"
                 value={formData.building_no}
                 onChange={handleChange}
+                disabled={isFieldDisabled('building_no')}
               />
               {errors.building_no && <div className={styles.errorMessage}>{errors.building_no}</div>}
             </div>
@@ -884,6 +912,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. 2"
                 value={formData.floor_no}
                 onChange={handleChange}
+                disabled={isFieldDisabled('floor_no')}
               />
               {errors.floor_no && <div className={styles.errorMessage}>{errors.floor_no}</div>}
             </div>
@@ -902,6 +931,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. 5"
                 value={formData.flat_no}
                 onChange={handleChange}
+                disabled={isFieldDisabled('flat_no')}
               />
               {errors.flat_no && <div className={styles.errorMessage}>{errors.flat_no}</div>}
             </div>
@@ -918,6 +948,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. PACI reference number"
                 value={formData.paci_details}
                 onChange={handleChange}
+                disabled={isFieldDisabled('paci_details')}
               />
               {errors.paci_details && <div className={styles.errorMessage}>{errors.paci_details}</div>}
             </div>
@@ -934,7 +965,7 @@ function CreateEditBookingModal({
               onChange={handleLocationChange}
               error={errors.google_location}
               placeholder="Search for location on Google Maps..."
-              readOnly={readOnly}
+              readOnly={isFieldDisabled('google_location')}
             />
           </div>
 
@@ -952,6 +983,7 @@ function CreateEditBookingModal({
                 className={`${styles.select} ${errors.vehicle_model ? styles.inputError : ''}`}
                 value={formData.vehicle_id}
                 onChange={handleVehicleChange}
+                disabled={isFieldDisabled('vehicle_id')}
               >
                 <option value="">Select a vehicle</option>
                 {vehicleOptions.map((v) => (
@@ -975,6 +1007,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. ABC-1234"
                 value={formData.vehicle_registration}
                 onChange={handleChange}
+                disabled={isFieldDisabled('vehicle_registration')}
               />
               {errors.vehicle_registration && <div className={styles.errorMessage}>{errors.vehicle_registration}</div>}
             </div>
@@ -991,6 +1024,7 @@ function CreateEditBookingModal({
                 className={`${styles.select} ${errors.vehicle_year ? styles.inputError : ''}`}
                 value={formData.vehicle_year}
                 onChange={handleChange}
+                disabled={isFieldDisabled('vehicle_year')}
               >
                 <option value="">Select year</option>
                 {MODEL_YEAR_OPTIONS.map((year) => (
@@ -1014,6 +1048,7 @@ function CreateEditBookingModal({
                 placeholder="e.g. 50,000"
                 value={formData.mileage}
                 onChange={handleMileageChange}
+                disabled={isFieldDisabled('mileage')}
               />
               {errors.mileage && <div className={styles.errorMessage}>{errors.mileage}</div>}
             </div>
@@ -1028,6 +1063,7 @@ function CreateEditBookingModal({
                 className={`${styles.select} ${errors.service_package_id ? styles.inputError : ''}`}
                 value={formData.service_package_id}
                 onChange={handleChange}
+                disabled={isFieldDisabled('service_package_id')}
               >
                 <option value="">Select a service package</option>
                 {activePackages.map((sp) => {
@@ -1055,12 +1091,19 @@ function CreateEditBookingModal({
                   placeholder="KD"
                   value={formData.amount}
                   onChange={handleChange}
+                  disabled={isFieldDisabled('amount')}
                 />
                 <button
                   type="button"
                   className={styles.calculateBtn}
                   onClick={handleCalculateAmount}
-                  disabled={!formData.service_package_id || !formData.vehicle_id || !formData.mileage || isCalculatingAmount}
+                  disabled={
+                    isFieldDisabled('amount') ||
+                    !formData.service_package_id ||
+                    !formData.vehicle_id ||
+                    !formData.mileage ||
+                    isCalculatingAmount
+                  }
                 >
                   {isCalculatingAmount ? 'Calculating...' : 'Calculate Amount'}
                 </button>
@@ -1080,7 +1123,7 @@ function CreateEditBookingModal({
                 onChange={handleDateChange}
                 error={errors.booking_date}
                 placeholder="Select booking date"
-                disabled={readOnly}
+                disabled={isFieldDisabled('booking_date')}
               />
               {errors.booking_date && <div className={styles.errorMessage}>{errors.booking_date}</div>}
             </div>
@@ -1105,7 +1148,7 @@ function CreateEditBookingModal({
                   handleTimeChange({ target: { name: 'booking_time', value: time } })
                 }
                 isEnabled={Boolean(formData.service_package_id && formData.booking_date)}
-                readOnly={readOnly}
+                readOnly={isFieldDisabled('booking_time')}
               />
               {errors.booking_time && <div className={styles.errorMessage}>{errors.booking_time}</div>}
             </div>
@@ -1122,6 +1165,7 @@ function CreateEditBookingModal({
                 className={styles.select}
                 value={formData.payment_method}
                 onChange={handleChange}
+                disabled={isFieldDisabled('payment_method')}
               >
                 {PAYMENT_METHOD_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -1143,6 +1187,7 @@ function CreateEditBookingModal({
                   className={styles.select}
                   value={formData.payment_status}
                   onChange={handleChange}
+                  disabled={isFieldDisabled('payment_status')}
                 >
                   {PAYMENT_STATUS_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -1168,6 +1213,7 @@ function CreateEditBookingModal({
                     className={`${styles.select} ${errors.driver_id ? styles.inputError : ''}`}
                     value={formData.driver_id}
                     onChange={handleChange}
+                    disabled={isFieldDisabled('driver_id')}
                   >
                     <option value="">Select a driver</option>
                     {drivers.map((driver) => (
@@ -1189,6 +1235,7 @@ function CreateEditBookingModal({
                     className={`${styles.select} ${errors.technician_id ? styles.inputError : ''}`}
                     value={formData.technician_id}
                     onChange={handleChange}
+                    disabled={isFieldDisabled('technician_id')}
                   >
                     <option value="">Select a technician</option>
                     {technicians.map((tech) => (
@@ -1212,6 +1259,7 @@ function CreateEditBookingModal({
                     className={`${styles.select} ${errors.service_van_id ? styles.inputError : ''}`}
                     value={formData.service_van_id}
                     onChange={handleChange}
+                    disabled={isFieldDisabled('service_van_id')}
                   >
                     <option value="">Select a service van</option>
                     {serviceVans.map((van) => (
@@ -1233,6 +1281,7 @@ function CreateEditBookingModal({
                     className={`${styles.select} ${errors.status ? styles.inputError : ''}`}
                     value={formData.status}
                     onChange={handleChange}
+                    disabled={isFieldDisabled('status')}
                   >
                     {STATUS_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -1258,6 +1307,7 @@ function CreateEditBookingModal({
               value={formData.additional_notes}
               onChange={handleChange}
               rows={3}
+              disabled={isFieldDisabled('additional_notes')}
             />
           </div>
           </fieldset>

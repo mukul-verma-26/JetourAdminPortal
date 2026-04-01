@@ -17,7 +17,6 @@ function TopBar({ title, subtitle, onMenuClick }) {
         >
           <FiMenu size={20} />
         </button>
-        <div className={styles.avatar} aria-hidden>AD</div>
       </div>
     </header>
   );
