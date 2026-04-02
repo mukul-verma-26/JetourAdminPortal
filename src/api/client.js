@@ -1,13 +1,21 @@
 import axios from 'axios';
+import { API_BASE_URL, API_KEY } from '../config/env.js';
 
-// export const BASE_URL = 'https://api.jetourcarekw.com/api/v1';
-export const BASE_URL = "https://jetour-1.onrender.com/api/v1";
+if (!API_BASE_URL) {
+  console.log(
+    'apiClient',
+    'VITE_API_BASE_URL is not set; define it in .env (see .env.example)',
+  );
+}
 
+/** @deprecated Prefer importing API_BASE_URL from '../config/env.js'. Kept for any legacy imports. */
+export const BASE_URL = API_BASE_URL;
 
 export const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL || undefined,
   headers: {
     'Content-Type': 'application/json',
+    ...(API_KEY ? { 'X-API-Key': API_KEY } : {}),
   },
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
