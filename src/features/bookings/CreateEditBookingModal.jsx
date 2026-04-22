@@ -50,6 +50,7 @@ function getInitialContactData(initialPhone, initialCountryCode) {
 import DatePicker from './components/DatePicker';
 import GoogleLocationInput from './components/GoogleLocationInput';
 import AvailableSlotsPicker from './components/AvailableSlotsPicker';
+import BookingServicePhotosReadOnly from './components/BookingServicePhotosReadOnly';
 import { useCalculateAmount } from './hooks/useCalculateAmount';
 import { useAvailableSlots } from './hooks/useAvailableSlots';
 import { bookingTimesEqual, normalizeBookingTime } from './helpers/bookingTime';
@@ -1311,6 +1312,10 @@ function CreateEditBookingModal({
             />
           </div>
           </fieldset>
+
+          {readOnly && initialData ? (
+            <BookingServicePhotosReadOnly serviceProgress={initialData.service_progress} />
+          ) : null}
 
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose}>
